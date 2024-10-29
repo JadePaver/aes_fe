@@ -82,7 +82,7 @@ const router = createBrowserRouter(
     <>
       <Route path="/aes" element={<RootLayout />}>
         <Route index element={<Dashboard />} />
-        <Route exact path="subject" element={<SubjectPage />} />
+        <Route exact path="subject/:id" element={<SubjectPage />} />
       </Route>
       <Route exact path="/aes/login" element={<Login />} />
       <Route exact path="/aes/register" element={<RegisterPage />} />
