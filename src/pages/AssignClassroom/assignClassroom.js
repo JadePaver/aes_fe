@@ -1,57 +1,108 @@
-import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
-import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Select from "@mui/material/Select";
-import Pagination from "@mui/material/Pagination";
-import IconButton from "@mui/material/IconButton";
-import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
-import JoinSubButton from "./joinSubButton";
 
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import SchoolIcon from "@mui/icons-material/School";
+import { Button, Stack, Tooltip, Modal, Box } from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import HowToRegRoundedIcon from "@mui/icons-material/HowToRegRounded";
+import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
+import LockResetRoundedIcon from "@mui/icons-material/LockResetRounded";
 import { useEffect, useState, useContext } from "react";
 
 import { useSubject } from "../../layouts/components/subjectProvider";
-import SubjectCard from "./components/subjectCard";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+
+const rows = [
+  { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
+  { id: 2, lastName: "Lannister", firstName: "Cersei", age: 31 },
+  { id: 3, lastName: "Lannister", firstName: "Jaime", age: 31 },
+  { id: 4, lastName: "Stark", firstName: "Arya", age: 11 },
+  { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
+  { id: 6, lastName: "Melisandre", firstName: "Katy", age: 150 },
+  { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
+  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
+  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
+];
 
 const AssignClassroom = () => {
-  const { subjectName, setSubjectName } = useSubject();
-  const courses = [
+  const [isRemoveDialog, setIsRemoveDialog] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const columns = [
+    { field: "id", headerName: "ID", width: 90 },
     {
-      id: 2,
-      label: "GEC-4",
-      year: 2024,
-      instructor: "Mr. Hideo Kinshomi",
-      subCode: "ABC-123",
+      field: "firstName",
+      headerName: "First name",
+      flex: 1,
     },
     {
-      id: 1,
-      label: "GEC-5",
-      year: 2024,
-      instructor: "Ms. Ayaka Yoshida",
-      status: "124",
-      subCode: "ASD-475",
+      field: "lastName",
+      headerName: "Last name",
+      flex: 1,
+    },
+    {
+      field: "age",
+      headerName: "Age",
+      type: "number",
+      flex: 1,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      sortable: false,
+      renderCell: (params) => (
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          justifyContent="center"
+          sx={{ height: "100%", width: "100%" }}
+        >
+          <Tooltip title="Approve">
+            <Button
+              size="small"
+              color="primary"
+              variant="contained"
+              onClick={handleOpen}
+            >
+              <HowToRegRoundedIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Remove from list">
+            <Button
+              size="small"
+              color="error"
+              variant="icon"
+              onClick={() => {
+                setIsRemoveDialog(true);
+                setIsOpen(true);
+              }}
+            >
+              <PersonRemoveRoundedIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Reset student password">
+            <Button
+              size="small"
+              color="gray"
+              variant="icon"
+              onClick={() => {
+                setIsRemoveDialog(false);
+                setIsOpen(true);
+              }}
+            >
+              <LockResetRoundedIcon />
+            </Button>
+          </Tooltip>
+        </Stack>
+      ),
     },
   ];
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 6 }, (_, index) => currentYear - index); // Create an array of years
-
-  const [selectedYear, setSelectedYear] = useState(currentYear); // Set default to current year
-
-  const handleChange = (event) => {
-    setSelectedYear(event.target.value);
-  };
-  useEffect(() => {
-    setSubjectName("");
-  }, []);
 
   return (
     <>
@@ -78,68 +129,54 @@ const AssignClassroom = () => {
             maxHeight: "calc(100vh - 2rem)",
           }}
         >
-          <Grid item size={12}>
-            <Stack
-              direction="row"
+          <Box sx={{ height: 400, width: "100%" }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 5,
+                  },
+                },
+              }}
+              pageSizeOptions={[5]}
+              checkboxSelection
+              disableRowSelectionOnClick
+            />
+          </Box>
+          {/* Modal component */}
+          <Modal open={open} onClose={handleClose}>
+            <Box
               sx={{
-                width: "100%",
-                justifyContent: "space-between",
-                alignItems: "center",
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "90%",
+                height: "90%",
+                bgcolor: "background.paper",
+                borderRadius: 1,
+                boxShadow: 24,
+                p: 4,
               }}
             >
-              <FormControl
-                size="small"
-                variant="outlined"
-                sx={{ minWidth: 120 }}
-              >
-                <InputLabel id="year-select-label">Year</InputLabel>
-                <Select
-                  labelId="year-select-label"
-                  id="year-select"
-                  value={selectedYear}
-                  onChange={handleChange}
-                  label="Year"
-                >
-                  {years.map((year) => (
-                    <MenuItem key={year} value={year}>
-                      {year}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Stack direction="row" spacing={1}>
-                <JoinSubButton />
-                <TextField
-                  size="small"
-                  id="outlined-basic"
-                  label="Search"
-                  variant="outlined"
-                  placeholder="Search something..."
-                  slotProps={{
-                    inputLabel: {
-                      shrink: true, // This replaces InputLabelProps
+              <DataGrid
+                rows={rows}
+                columns={columns}
+                initialState={{
+                  pagination: {
+                    paginationModel: {
+                      pageSize: 5,
                     },
-                  }}
-                />
-              </Stack>
-            </Stack>
-          </Grid>
-          {courses.map((course, index) => (
-            <Grid item size={{ md: 2, sm: 4, xs: 6 }} key={index}>
-              <SubjectCard course={course} />
-            </Grid>
-          ))}
-          <Grid
-            item
-            size={12}
-            sx={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center", // Aligns children to the end
-            }}
-          >
-            <Pagination count={10} color="primary" shape="rounded" />
-          </Grid>
+                  },
+                }}
+                pageSizeOptions={[5]}
+                checkboxSelection
+                disableRowSelectionOnClick
+              />
+            </Box>
+          </Modal>
         </Grid>
       </Stack>
     </>
