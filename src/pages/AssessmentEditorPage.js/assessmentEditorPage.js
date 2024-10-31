@@ -1,4 +1,5 @@
 import {
+  Box,
   Stack,
   Typography,
   TextField,
@@ -36,11 +37,10 @@ const AssessmentEditorPage = () => {
   const [questions, setQuestions] = useState([
     {
       id: 1,
-
       label: "",
       points: 0,
       type: 1,
-
+      file: "",
       choices: [
         { id: 1, label: "Apples", isCorrect: 0 },
         { id: 2, label: "Oranges", isCorrect: 0 },
@@ -48,6 +48,18 @@ const AssessmentEditorPage = () => {
       ],
     },
   ]);
+
+  const handleFileChange = (event, index) => {
+    const file = event.target.files[0];
+    if (file) {
+      const fileUrl = URL.createObjectURL(file);
+      setQuestions((prevQuestions) =>
+        prevQuestions.map((question, i) =>
+          i === index ? { ...question, file: fileUrl } : question
+        )
+      );
+    }
+  };
 
   useEffect(() => {
     console.log("q:", questions);
@@ -183,6 +195,20 @@ const AssessmentEditorPage = () => {
                   p: "1rem",
                 }}
               >
+                <Grid item size={12}>
+                  <Box>
+                    {question.file && (
+                      <img
+                        src={question.file}
+                        alt={`Upload preview for question ${index + 1}`}
+                        style={{
+                          maxWidth: "40%",
+                          height: "auto",
+                        }}
+                      />
+                    )}
+                  </Box>
+                </Grid>
                 <Grid item size={11}>
                   <Typography
                     variant="body1"
@@ -196,9 +222,18 @@ const AssessmentEditorPage = () => {
 
                 <Grid item size={1}>
                   <Stack direction="row" justifyContent="center">
-                    <IconButton color="primary">
+                    <IconButton
+                      color="primary"
+                      component="label" // Allows opening file dialog
+                    >
                       <AddPhotoAlternateOutlinedIcon
                         sx={{ fontSize: "2rem" }}
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={(e) => handleFileChange(e, index)}
                       />
                     </IconButton>
                     <IconButton color="error">
@@ -325,7 +360,7 @@ const AssessmentEditorPage = () => {
                                       <FormControlLabel
                                         key={choice.id}
                                         value={choice.label}
-                                        control={<Radio />}
+                                        control={<Radio sx={{ m: "auto 0" }} />}
                                         sx={{
                                           border: "1px solid var(--primary)",
                                           borderRadius: "0.2rem",
@@ -336,6 +371,8 @@ const AssessmentEditorPage = () => {
                                           ".MuiFormControlLabel-label": {
                                             width: "100%", // Ensures the label takes up full width
                                             display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
                                           }, // Align contents to the top for consistent layout
                                         }}
                                         label={
@@ -344,14 +381,27 @@ const AssessmentEditorPage = () => {
                                             sx={{
                                               minWidth: "100%",
                                               overflow: "hidden",
+                                              justifyContent: "center",
+                                              alignItems: "stretch",
+                                              m: "auto 0",
                                             }}
                                           >
                                             <TextField
                                               variant="filled"
                                               value={choice.label}
-                                              size="small"
                                               sx={{
                                                 width: "100%",
+                                                "& .MuiFilledInput-root": {
+                                                  height: "100%",
+                                                  padding: "auto", // Removes padding around the input area
+                                                },
+                                                "& .MuiFilledInput-input": {
+                                                  height: "100%",
+                                                  padding: "auto", // Removes padding inside the input area
+                                                },
+                                              }}
+                                              InputProps={{
+                                                disableUnderline: true, // Disables the underline in the filled variant
                                               }}
                                               onChange={(event) => {
                                                 const newLabel =
@@ -380,6 +430,7 @@ const AssessmentEditorPage = () => {
                                             <Button
                                               variant="outlined"
                                               color="error"
+                                              sx={{ zIndex: 2 }}
                                               onClick={() => {
                                                 setQuestions((prevQuestions) =>
                                                   prevQuestions.map((q) =>
@@ -391,7 +442,7 @@ const AssessmentEditorPage = () => {
                                                               (c) =>
                                                                 c.id !==
                                                                 choice.id
-                                                            ), // Remove the choice
+                                                            ),
                                                         }
                                                       : q
                                                   )
