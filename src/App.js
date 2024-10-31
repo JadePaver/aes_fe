@@ -124,8 +124,14 @@ const router = createBrowserRouter(
     <>
       <Route path="/aes" element={<RootLayout />}>
         <Route index element={<Dashboard />} />
+        <Route path="assign_classroom">
+          <Route index element={<>assign_classroom</>} />
+          <Route path="members" element={<>members</>} />
+        </Route>
+        <Route path="user_management" element={<>user_management</>} />
+        Explanation
+        <Route exact path="subject/" element={<></>} />
         <Route exact path="subject/:id" element={<SubjectPage />} />
-
         <Route
           exact
           path="assessment_editor/:assessmentId?"
