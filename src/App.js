@@ -14,8 +14,10 @@ import RegisterPage from "./pages/RegisterPage";
 import TestPage from "./pages/Test";
 import Page404 from "./pages/Page404";
 import SubjectPage from "./pages/SubjectPage";
+import ModulePage from "./pages/ModulePage";
 
 import { SubjectProvider } from "./layouts/components/subjectProvider";
+import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
 
 const theme = createTheme({
   typography: {
@@ -27,6 +29,10 @@ const theme = createTheme({
       fontFamily: "Poppins, sans-serif",
       color: "#FFFFFF", // Custom variant for white text
     },
+    black: {
+      fontFamily: "Poppins, sans-serif",
+      color: "#000000", // Custom variant for white text
+    },
   },
   palette: {
     primary: {
@@ -37,6 +43,10 @@ const theme = createTheme({
     },
     accent: {
       main: "#FFFFFF",
+    },
+    gray: {
+      main: "#757575", // Adjust this value to your preferred shade of gray
+      contrastText: "#fff",
     },
   },
   components: {
@@ -54,8 +64,40 @@ const theme = createTheme({
           textTransform: "none",
           fontFamily: "Poppins, sans-serif",
         },
+        icon: ({ ownerState, theme }) => ({
+          padding: "0.25rem",
+          minWidth: 0,
+          width: "auto",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: theme.shape.borderRadius,
+          border: `1px solid ${theme.palette[ownerState.color].main}`,
+          color: theme.palette[ownerState.color].main,
+
+          "&:hover": {
+            color:
+              theme.palette[ownerState.color].dark || theme.palette.grey[700],
+            borderColor:
+              theme.palette[ownerState.color].dark || theme.palette.grey[700],
+            backgroundColor: theme.palette.action.hover,
+          },
+        }),
       },
     },
+    variants: [
+      {
+        props: { variant: "icon" },
+        style: {
+          padding: "0.25rem",
+          minWidth: 0,
+          width: "auto",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+      },
+    ],
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -83,6 +125,13 @@ const router = createBrowserRouter(
       <Route path="/aes" element={<RootLayout />}>
         <Route index element={<Dashboard />} />
         <Route exact path="subject/:id" element={<SubjectPage />} />
+
+        <Route
+          exact
+          path="assessment_editor/:assessmentId?"
+          element={<AssessmentEditorPage />}
+        />
+        <Route exact path="module" element={<ModulePage />} />
       </Route>
       <Route exact path="/aes/login" element={<Login />} />
       <Route exact path="/aes/register" element={<RegisterPage />} />
