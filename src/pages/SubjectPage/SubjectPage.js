@@ -15,9 +15,11 @@ import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 
 import { useSubject } from "../../layouts/components/subjectProvider";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import GradesProgress from "./components/gradesProgress";
 import MemberListTable from "./components/memberListTable";
+import ModuleDialog from "./components/moduleDialog";
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -63,110 +65,6 @@ const data = [
     score: 20,
     totalScore: 30,
   },
-  {
-    assessment_id: 2,
-    label: "Quiz#1",
-    description:
-      "Quisquam maiores veniam sit ab magnam, culpa atque unde aliquam.",
-    isDone: 1,
-    StartDate: "01/10/2024 8:00AM",
-    EndDate: "01/10/2024 10:00AM",
-    duration: 45,
-    allowLate: 0,
-    score: 20,
-    totalScore: 30,
-  },
-  {
-    assessment_id: 2,
-    label: "Quiz#1",
-    description:
-      "Quisquam maiores veniam sit ab magnam, culpa atque unde aliquam.",
-    isDone: 1,
-    StartDate: "01/10/2024 8:00AM",
-    EndDate: "01/10/2024 10:00AM",
-    duration: 45,
-    allowLate: 0,
-    score: 20,
-    totalScore: 30,
-  },
-  {
-    assessment_id: 3,
-    label: "Midterm Exam",
-    description:
-      "Officiis nisi optio doloremque, non sunt accusamus qui eveniet.",
-    isDone: 0,
-    StartDate: "02/15/2024 9:00AM",
-    EndDate: "02/15/2024 1:00PM",
-    duration: 15,
-    allowLate: 1,
-    score: 50,
-    totalScore: 60,
-  },
-  {
-    assessment_id: 3,
-    label: "Midterm Exam",
-    description:
-      "Officiis nisi optio doloremque, non sunt accusamus qui eveniet.",
-    isDone: 0,
-    StartDate: "02/15/2024 9:00AM",
-    EndDate: "02/15/2024 1:00PM",
-    duration: 15,
-    allowLate: 1,
-    score: 50,
-    totalScore: 60,
-  },
-  {
-    assessment_id: 3,
-    label: "Midterm Exam",
-    description:
-      "Officiis nisi optio doloremque, non sunt accusamus qui eveniet.",
-    isDone: 0,
-    StartDate: "02/15/2024 9:00AM",
-    EndDate: "02/15/2024 1:00PM",
-    duration: 15,
-    allowLate: 1,
-    score: 50,
-    totalScore: 60,
-  },
-  {
-    assessment_id: 3,
-    label: "Midterm Exam",
-    description:
-      "Officiis nisi optio doloremque, non sunt accusamus qui eveniet.",
-    isDone: 0,
-    StartDate: "02/15/2024 9:00AM",
-    EndDate: "02/15/2024 1:00PM",
-    duration: 15,
-    allowLate: 1,
-    score: 50,
-    totalScore: 60,
-  },
-  {
-    assessment_id: 3,
-    label: "Midterm Exam",
-    description:
-      "Officiis nisi optio doloremque, non sunt accusamus qui eveniet.",
-    isDone: 0,
-    StartDate: "02/15/2024 9:00AM",
-    EndDate: "02/15/2024 1:00PM",
-    duration: 15,
-    allowLate: 1,
-    score: 50,
-    totalScore: 60,
-  },
-  {
-    assessment_id: 3,
-    label: "Midterm Exam",
-    description:
-      "Officiis nisi optio doloremque, non sunt accusamus qui eveniet.",
-    isDone: 0,
-    StartDate: "02/15/2024 9:00AM",
-    EndDate: "02/15/2024 1:00PM",
-    duration: 15,
-    allowLate: 1,
-    score: 50,
-    totalScore: 60,
-  },
 ];
 
 const modules = [
@@ -185,6 +83,7 @@ const modules = [
 ];
 
 const SubjectPage = () => {
+  const navigate = useNavigate();
   const { subjectName, setSubjectName } = useSubject();
   const [currentPreview, setCurrentPreview] = useState({});
   const [value, setValue] = useState(0);
@@ -259,22 +158,17 @@ const SubjectPage = () => {
                 <Button
                   variant="outlined"
                   startIcon={<AddCircleOutlineRoundedIcon />}
+                  onClick={() => navigate(`/aes/assessment_editor/${2}`)}
                 >
                   NEW ASSESSMENT
                 </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<AddCircleOutlineRoundedIcon />}
-                >
-                  NEW MODULE
-                </Button>
+                <ModuleDialog />
                 <Button variant="contained" disableElevation>
                   <GroupsRoundedIcon />
                 </Button>
               </Stack>
             </Tabs>
             <TabPanel value={value} index={0}>
-              {/* Content for Assessment view */}
               <Grid
                 container
                 sx={{
@@ -585,7 +479,7 @@ const SubjectPage = () => {
                     >
                       <Typography fontWeight={600}>Label: </Typography>
                       <Typography color="black">
-                        {currentPreview.label || "Select an assessment"}
+                        {currentPreview.label || "Select an module"}
                       </Typography>
                     </Stack>
                     <Stack

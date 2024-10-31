@@ -1,3 +1,81 @@
+// {question.choices?.map((choice) => (
+//   <Grid item size={6} key={choice.id}>
+//     <FormControlLabel
+//       key={choice.id}
+//       value={choice.label}
+//       control={<Radio />}
+//       sx={{
+//         border: "1px solid var(--primary)",
+//         borderRadius: "0.2rem",
+//         m: "0",
+//         width: "100%",
+//         overflow: "hidden",
+//       }}
+//       label={
+//         <Stack
+//           direction="row"
+//           sx={{ minWidth: "240%" }}
+//         >
+//           <TextField
+//             variant="filled"
+//             value={choice.label}
+//             size="small"
+//             sx={{ width: "81%" }}
+//             onChange={(event) => {
+//               const newLabel =
+//                 event.target.value; // Get the new label value
+//               setQuestions((prevQuestions) =>
+//                 prevQuestions.map((q) =>
+//                   q === question
+//                     ? {
+//                         ...q,
+//                         choices:
+//                           q.choices.map((c) =>
+//                             c.id === choice.id
+//                               ? {
+//                                   ...c,
+//                                   label:
+//                                     newLabel,
+//                                 } // Update the label
+//                               : c
+//                           ),
+//                       }
+//                     : q
+//                 )
+//               );
+//             }}
+//           />
+//           <Button
+//             variant="outlined"
+//             color="error"
+//             sx={{ width: "7%",m:"1px" }}
+//             onClick={() => {
+//               setQuestions((prevQuestions) =>
+//                 prevQuestions.map((q) =>
+//                   q === question
+//                     ? {
+//                         ...q,
+//                         choices:
+//                           q.choices.filter(
+//                             (c) =>
+//                               c.id !==
+//                               choice.id
+//                           ), // Remove the choice
+//                       }
+//                     : q
+//                 )
+//               );
+//             }}
+//           >
+//             <ClearRoundedIcon />
+//           </Button>
+//         </Stack>
+//       }
+//     />
+//   </Grid>
+// ))}
+
+
 import logo from "./logo.svg";
 import "./App.css";
 import React, { useState } from "react";
