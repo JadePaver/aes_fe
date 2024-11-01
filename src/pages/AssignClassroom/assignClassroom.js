@@ -1,6 +1,16 @@
+import * as React from "react";
+import { styled } from "@mui/material/styles";
 import Grid from "@mui/material/Grid2";
 
-import { Button, Stack, Tooltip, Modal, Box } from "@mui/material";
+import {
+  Button,
+  Stack,
+  Tooltip,
+  Modal,
+  Box,
+  Paper,
+  Typography,
+} from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -12,6 +22,7 @@ import { useEffect, useState, useContext } from "react";
 
 import { useSubject } from "../../layouts/components/subjectProvider";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { red } from "@mui/material/colors";
 
 const rows = [
   { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
@@ -24,6 +35,32 @@ const rows = [
   { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
   { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
 ];
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#fff",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  color: theme.palette.text.secondary,
+  ...theme.applyStyles("dark", {
+    backgroundColor: "#1A2027",
+  }),
+}));
+
+function FormRow() {
+  return (
+    <React.Fragment>
+      <Grid item xs={4}>
+        <Item>Item</Item>
+      </Grid>
+      <Grid item xs={4}>
+        <Item>Item</Item>
+      </Grid>
+      <Grid item xs={4}>
+        <Item>Item</Item>
+      </Grid>
+    </React.Fragment>
+  );
+}
 
 const AssignClassroom = () => {
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
@@ -104,6 +141,55 @@ const AssignClassroom = () => {
     },
   ];
 
+  const columnsModal = [
+    { field: "id", headerName: "ID", width: 90 },
+    {
+      field: "firstName",
+      headerName: "First name",
+      flex: 1,
+    },
+    {
+      field: "lastName",
+      headerName: "Last name",
+      flex: 1,
+    },
+    {
+      field: "age",
+      headerName: "Age",
+      type: "number",
+      flex: 1,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      sortable: false,
+      renderCell: (params) => (
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          justifyContent="center"
+          sx={{ height: "100%", width: "100%" }}
+        >
+          <Tooltip title="Remove from list">
+            <Button
+              size="small"
+              color="error"
+              variant="icon"
+              onClick={() => {
+                setIsRemoveDialog(true);
+                setIsOpen(true);
+              }}
+            >
+              <PersonRemoveRoundedIcon />
+            </Button>
+          </Tooltip>
+        </Stack>
+      ),
+    },
+  ];
+
   return (
     <>
       <Stack
@@ -117,8 +203,8 @@ const AssignClassroom = () => {
       >
         <Grid
           container
-          rowSpacing={3}
-          columnSpacing={5.5}
+          // rowSpacing={3}
+          // columnSpacing={5.5}
           sx={{
             width: "100%",
             height: "100%",
@@ -129,7 +215,12 @@ const AssignClassroom = () => {
             maxHeight: "calc(100vh - 2rem)",
           }}
         >
-          <Box sx={{ height: 400, width: "100%" }}>
+          <Grid size={12} item sx={{ backgroundColor: "red" }} zeroMinWidth>
+            {/* <Grid>test</Grid> */}
+            <Typography>test</Typography>
+          </Grid>
+
+          <Grid item size={12}>
             <DataGrid
               rows={rows}
               columns={columns}
@@ -144,7 +235,8 @@ const AssignClassroom = () => {
               checkboxSelection
               disableRowSelectionOnClick
             />
-          </Box>
+          </Grid>
+
           {/* Modal component */}
           <Modal open={open} onClose={handleClose}>
             <Box
@@ -163,7 +255,7 @@ const AssignClassroom = () => {
             >
               <DataGrid
                 rows={rows}
-                columns={columns}
+                columns={columnsModal}
                 initialState={{
                   pagination: {
                     paginationModel: {
