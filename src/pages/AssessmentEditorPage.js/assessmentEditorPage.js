@@ -236,7 +236,14 @@ const AssessmentEditorPage = () => {
                         onChange={(e) => handleFileChange(e, index)}
                       />
                     </IconButton>
-                    <IconButton color="error">
+                    <IconButton
+                      color="error"
+                      onClick={() =>
+                        setQuestions(
+                          questions.filter((q) => q.id !== question.id)
+                        )
+                      }
+                    >
                       <DisabledByDefaultRoundedIcon fontSize="large" />
                     </IconButton>
                   </Stack>
@@ -496,11 +503,78 @@ const AssessmentEditorPage = () => {
                           </>
                         );
                       case 2:
-                        return <>Fill-in the Blanks</>;
+                        return (
+                          <>
+                            <Grid item size={10}>
+                              <TextField
+                                variant="filled"
+                                name="fill_answer"
+                                label="Correct Answer"
+                                value={question?.fill_ans}
+                                fullWidth
+                                onChange={(e) =>
+                                  setQuestions((prev) =>
+                                    prev.map((q, idx) =>
+                                      idx === index
+                                        ? { ...q, fill_ans: e.target.value }
+                                        : q
+                                    )
+                                  )
+                                }
+                                slotProps={{
+                                  inputLabel: {
+                                    shrink: true,
+                                  },
+                                }}
+                              />
+                            </Grid>
+                            <Grid item size={2}>
+                              <Stack
+                                direction="row"
+                                justifyContent="space-between"
+                                sx={{ height: "100%", alignItems: "center" }}
+                              >
+                                <Typography>
+                                  Enable Case Sensitivity:
+                                </Typography>
+                                <Switch
+                                  value={question?.caseSensitive}
+                                  onChange={(e) =>
+                                    setQuestions((prev) =>
+                                      prev.map((q, idx) =>
+                                        idx === index
+                                          ? {
+                                              ...q,
+                                              caseSensitive: e.target.checked,
+                                            }
+                                          : q
+                                      )
+                                    )
+                                  }
+                                />
+                              </Stack>
+                            </Grid>
+                          </>
+                        );
                       case 3:
-                        return <>Essay</>;
+                        return (
+                          <>
+                            <Typography variant="caption">
+                              This is an essay, which means you will grade the
+                              response after it has been answered.
+                            </Typography>
+                          </>
+                        );
                       case 4:
-                        return <>DropBox</>;
+                        return (
+                          <>
+                            {" "}
+                            <Typography variant="caption">
+                              A 15MB file upload dropbox will be available for
+                              students to submit their files.
+                            </Typography>
+                          </>
+                        );
                       default:
                         return <>Unknown Type</>;
                     }
