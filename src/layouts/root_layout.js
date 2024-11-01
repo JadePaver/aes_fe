@@ -155,7 +155,7 @@ export default function RootLayout() {
               <Nav
                 icon={ShoppingCartRoundedIcon} // Pass the icon component here
                 label="Purchase Order"
-                navigateTo="/purchase_order"
+                navigateTo="/aes/assign_classroom"
                 sidebarOpen={sidebarOpen}
               />
               <Nav
@@ -200,7 +200,12 @@ export default function RootLayout() {
                 alignItems: "center",
               }}
             >
-              <Stack spacing={1} direction="row" justifyContent="center" alignItems="center">
+              <Stack
+                spacing={1}
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+              >
                 <Button
                   color="accent"
                   variant="outlined"
@@ -213,7 +218,9 @@ export default function RootLayout() {
                     <DehazeRoundedIcon />
                   )}
                 </Button>
-                <Typography variant="white" fontSize={"2rem"} fontWeight={600}>{subjectName}</Typography>
+                <Typography variant="white" fontSize={"2rem"} fontWeight={600}>
+                  {subjectName}
+                </Typography>
               </Stack>
 
               <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>

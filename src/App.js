@@ -15,7 +15,7 @@ import TestPage from "./pages/Test";
 import Page404 from "./pages/Page404";
 import SubjectPage from "./pages/SubjectPage";
 import ModulePage from "./pages/ModulePage";
-
+import AssignClassroom from "./pages/AssignClassroom";
 import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
 
@@ -125,7 +125,7 @@ const router = createBrowserRouter(
       <Route path="/aes" element={<RootLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="assign_classroom">
-          <Route index element={<>assign_classroom</>} />
+          <Route index element={<AssignClassroom />} />
           <Route path="members" element={<>members</>} />
         </Route>
         <Route path="user_management" element={<>user_management</>} />
