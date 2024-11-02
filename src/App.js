@@ -15,10 +15,10 @@ import TestPage from "./pages/Test";
 import Page404 from "./pages/Page404";
 import SubjectPage from "./pages/SubjectPage";
 import ModulePage from "./pages/ModulePage";
-
 import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
-
+import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
+import UserManagement from "./pages/UserManagement";
 const theme = createTheme({
   typography: {
     fontFamily: "Poppins, sans-serif",
@@ -47,6 +47,16 @@ const theme = createTheme({
     gray: {
       main: "#757575", // Adjust this value to your preferred shade of gray
       contrastText: "#fff",
+    },
+    // assign classroom Icon color
+    group: {
+      main: "#34D399",
+    },
+    edit: {
+      main: "#007BFF",
+    },
+    remove: {
+      main: "#FF0000",
     },
   },
   components: {
@@ -125,10 +135,10 @@ const router = createBrowserRouter(
       <Route path="/aes" element={<RootLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="assign_classroom">
-          <Route index element={<>assign_classroom</>} />
+          <Route index element={<AssignClassroom />} />
           <Route path="members" element={<>members</>} />
         </Route>
-        <Route path="user_management" element={<>user_management</>} />
+        <Route path="user_management" element={<UserManagement />} />
         Explanation
         <Route exact path="subject/" element={<></>} />
         <Route exact path="subject/:id" element={<SubjectPage />} />
