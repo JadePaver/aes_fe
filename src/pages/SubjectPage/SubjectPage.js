@@ -15,11 +15,12 @@ import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 
 import { useSubject } from "../../layouts/components/subjectProvider";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import GradesProgress from "./components/gradesProgress";
 import MemberListTable from "./components/memberListTable";
 import ModuleDialog from "./components/moduleDialog";
+import StudentAssessResultTable from "./components/studentsAssessResTable";
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -267,6 +268,7 @@ const SubjectPage = () => {
                     padding: "0rem 1rem",
                     display: "flex",
                     flexDirection: "column",
+                    scrollbarGutter: "stable",
                   }}
                 >
                   <Stack spacing={2}>
@@ -372,6 +374,10 @@ const SubjectPage = () => {
                       </Typography>
                     </Stack>
                   </Stack>
+                  <Box sx={{minHeight:"100%", m:"1rem 0"}}>
+                  <StudentAssessResultTable/>
+
+                  </Box>
                   {currentPreview.isDone === 1 ? (
                     <Button
                       variant="contained"

@@ -115,6 +115,15 @@ const theme = createTheme({
         },
       },
     },
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          "& .MuiDataGrid-cell": {
+            color: "#000000", // Set the default text color for cells to black
+          },
+        },
+      },
+    },
   },
 });
 document.title = "A.E.S.";
@@ -129,9 +138,19 @@ const router = createBrowserRouter(
           <Route path="members" element={<>members</>} />
         </Route>
         <Route path="user_management" element={<>user_management</>} />
-        Explanation
-        <Route exact path="subject/" element={<></>} />
-        <Route exact path="subject/:id" element={<SubjectPage />} />
+        <Route path="subject/:subjectId">
+          <Route index element={<SubjectPage />} />
+          <Route
+            path="students_result/:assessmentId/:studentId"
+            element={
+              <>
+                this page will show the result of specificic student in selected
+                assessment
+              </>
+            }
+          />
+        </Route>
+
         <Route
           exact
           path="assessment_editor/:assessmentId?"
