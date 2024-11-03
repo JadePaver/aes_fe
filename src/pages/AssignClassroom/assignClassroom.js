@@ -13,16 +13,17 @@ import {
   MenuItem,
   TextField,
   Typography,
+  InputLabel,
 } from "@mui/material";
-import HowToRegRoundedIcon from "@mui/icons-material/HowToRegRounded";
-import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
-import LockResetRoundedIcon from "@mui/icons-material/LockResetRounded";
+
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import GroupsRounded from "@mui/icons-material/GroupsRounded";
 import { ModeEdit, PlaylistRemove } from "@mui/icons-material";
 import { useState } from "react";
 
 import { DataGrid } from "@mui/x-data-grid";
+import ViewClassMemberTable from "./components/viewClassMemberTable";
+import NewClassroomDialog from "./components/newClassroomDialog";
 const modalStyle = {
   position: "absolute",
   top: "50%",
@@ -107,6 +108,7 @@ const rows = [
     year: "2024",
   },
 ];
+
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#fff",
   ...theme.typography.body2,
@@ -119,8 +121,12 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 const AssignClassroom = () => {
-  const [isRemoveDialog, setIsRemoveDialog] = useState(false);
   const [isModal, setIsModal] = useState("");
+  const [isAddNewClassOpen, setIsAddNewClassOpen] = useState(false);
+  const [isMemberTblOpen, setIsMemberTblOpen] = useState({
+    isOpen: false,
+    classData: {},
+  });
   const [open, setOpen] = useState(false);
   const handleOpen = (modal) => {
     setOpen(true);
@@ -186,33 +192,35 @@ const AssignClassroom = () => {
           <Tooltip title="Approve">
             <Button
               size="small"
-              color="group"
+              color="primary"
               variant="icon"
-              onClick={() => handleOpen("group")}
+              onClick={() =>
+                setIsMemberTblOpen({ isOpen: true, classData: params.row})
+              }
             >
               <GroupsRounded />
             </Button>
           </Tooltip>
-          <Tooltip title="Remove from list">
+          <Tooltip title="Edit">
             <Button
               size="small"
               color="edit"
               variant="icon"
               onClick={() => {
-                setIsRemoveDialog(true);
+                // setIsRemoveDialog(true);
                 // setIsOpen();
               }}
             >
               <ModeEdit />
             </Button>
           </Tooltip>
-          <Tooltip title="Reset student password">
+          <Tooltip title="Remove Classroom">
             <Button
               size="small"
               color="remove"
               variant="icon"
               onClick={() => {
-                setIsRemoveDialog(false);
+                // setIsRemoveDialog(false);
                 // setIsOpen(true);
               }}
             >
@@ -224,54 +232,6 @@ const AssignClassroom = () => {
     },
   ];
 
-  const columnsModal = [
-    { field: "id", headerName: "ID", width: 90 },
-    {
-      field: "firstName",
-      headerName: "First name",
-      flex: 1,
-    },
-    {
-      field: "lastName",
-      headerName: "Last name",
-      flex: 1,
-    },
-    {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      flex: 1,
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      sortable: false,
-      renderCell: (params) => (
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          justifyContent="center"
-          sx={{ height: "100%", width: "100%" }}
-        >
-          <Tooltip title="Remove from list">
-            <Button
-              size="small"
-              color="error"
-              variant="icon"
-              onClick={() => {
-                setIsRemoveDialog(true);
-                // setIsOpen(true);
-              }}
-            >
-              <PersonRemoveRoundedIcon />
-            </Button>
-          </Tooltip>
-        </Stack>
-      ),
-    },
-  ];
   return (
     <Stack
       spacing={0}
@@ -310,7 +270,8 @@ const AssignClassroom = () => {
               variant="contained"
               startIcon={<AddCircleIcon color="accent" />}
               sx={{ px: 7 }}
-              onClick={() => handleOpen("newClassroom")}
+              onClick={() => setIsAddNewClassOpen(true)}
+              disableElevation
             >
               New Classroom
             </Button>
@@ -333,81 +294,14 @@ const AssignClassroom = () => {
           />
         </Grid>
         {/* Modal component */}
-        <Modal open={open && isModal === "group"} onClose={handleClose}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "90%",
-              height: "90%",
-              bgcolor: "background.paper",
-              borderRadius: 1,
-              boxShadow: 24,
-              p: 4,
-            }}
-          >
-            <DataGrid
-              rows={rows}
-              columns={columnsModal}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 5,
-                  },
-                },
-              }}
-              pageSizeOptions={[5]}
-              checkboxSelection
-              disableRowSelectionOnClick
-            />
-          </Box>
-        </Modal>
-        <Modal open={open && isModal === "newClassroom"} onClose={handleClose}>
-          <Grid sx={modalStyle}>
-            <Grid sx={{ pb: "2%", textAlign: "center" }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                NEW CLASSROOM
-              </Typography>
-            </Grid>
-            <Grid container spacing={2}>
-              {/* 1st Text Input */}
-              <Grid item size={5}>
-                <TextField fullWidth label="Class name" variant="outlined" />
-              </Grid>
-
-              {/* 2nd Dropdown */}
-              <Grid item size={5}>
-                <Select fullWidth defaultValue="">
-                  <MenuItem value="">
-                    <em>Select an option</em>
-                  </MenuItem>
-                  <MenuItem value="Option 1">Option 1</MenuItem>
-                  <MenuItem value="Option 2">Option 2</MenuItem>
-                  <MenuItem value="Option 3">Option 3</MenuItem>
-                </Select>
-              </Grid>
-
-              {/* 3rd Text Input */}
-              <Grid item size={2}>
-                <TextField fullWidth label="Text Boss 2" variant="outlined" />
-              </Grid>
-            </Grid>
-
-            {/* Button Below */}
-            <Grid sx={{ mt: "10%", textAlign: "center" }}>
-              <Button
-                sx={{ px: "46%" }}
-                variant="contained"
-                color="primary"
-                onClick={handleClose}
-              >
-                Submit
-              </Button>
-            </Grid>
-          </Grid>
-        </Modal>
+        <ViewClassMemberTable
+          classData={isMemberTblOpen.classData}
+          isOpen={isMemberTblOpen.isOpen}
+          onClose={() => {
+            setIsMemberTblOpen({ isOpen: false, classId: null });
+          }}
+        />
+        <NewClassroomDialog open={isAddNewClassOpen} handleClose={()=>setIsAddNewClassOpen(false)}/>
       </Grid>
     </Stack>
   );
