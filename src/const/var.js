@@ -1,3 +1,5 @@
+export const serverIP = { value: null };
+
 export const userTypes = [
   { label: "Student", value: 2 },
   { label: "Teacher", value: 3 },

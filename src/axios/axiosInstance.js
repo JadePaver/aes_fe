@@ -1,13 +1,24 @@
 // src/axiosInstance.js
 import axios from "axios";
+import { serverIP } from "../const/var";
 
-// Create an Axios instance with default configurations
-const apiClient = axios.create({
-  baseURL: `http://${process.env.REACT_APP_IP_ADDRESS}:${process.env.REACT_APP_API_PORT}`, // Ensure this is correct
+//getApiClient
+export const apiClient = axios.create({
+  baseURL: "http://placeholder", // Temporary placeholder
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+// Function to set the correct baseURL dynamically
+export const setApiClientBaseURL = () => {
+  if (serverIP.value) {
+    apiClient.defaults.baseURL = `http://${serverIP.value}:${process.env.REACT_APP_API_PORT}`;
+    console.log("Updated baseURL to:", apiClient.defaults.baseURL);
+  } else {
+    console.error("serverIP is not set. Cannot update baseURL.");
+  }
+};
 
 // Optional: Add interceptors for request/response handling
 apiClient.interceptors.request.use(
