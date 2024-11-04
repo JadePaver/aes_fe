@@ -18,6 +18,7 @@ import ModulePage from "./pages/ModulePage";
 
 import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
+import GetServerIP from "./config/getServerIP.js";
 
 const theme = createTheme({
   typography: {
@@ -131,38 +132,40 @@ document.title = "A.E.S.";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/aes" element={<RootLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="assign_classroom">
-          <Route index element={<>assign_classroom</>} />
-          <Route path="members" element={<>members</>} />
-        </Route>
-        <Route path="user_management" element={<>user_management</>} />
-        <Route path="subject/:subjectId">
-          <Route index element={<SubjectPage />} />
-          <Route
-            path="students_result/:assessmentId/:studentId"
-            element={
-              <>
-                this page will show the result of specificic student in selected
-                assessment
-              </>
-            }
-          />
-        </Route>
+      <Route element={<GetServerIP/>}>
+        <Route path="/aes" element={<RootLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="assign_classroom">
+            <Route index element={<>assign_classroom</>} />
+            <Route path="members" element={<>members</>} />
+          </Route>
+          <Route path="user_management" element={<>user_management</>} />
+          <Route path="subject/:subjectId">
+            <Route index element={<SubjectPage />} />
+            <Route
+              path="students_result/:assessmentId/:studentId"
+              element={
+                <>
+                  this page will show the result of specificic student in
+                  selected assessment
+                </>
+              }
+            />
+          </Route>
 
-        <Route
-          exact
-          path="assessment_editor/:assessmentId?"
-          element={<AssessmentEditorPage />}
-        />
-        <Route exact path="module" element={<ModulePage />} />
+          <Route
+            exact
+            path="assessment_editor/:assessmentId?"
+            element={<AssessmentEditorPage />}
+          />
+          <Route exact path="module" element={<ModulePage />} />
+        </Route>
+        <Route exact path="/aes/login" element={<Login />} />
+        <Route exact path="/aes/register" element={<RegisterPage />} />
+        <Route exact path="/aes/test" element={<TestPage />} />
+        {/* <Route exact path="/fpsms/shopping" element={<Shopping />} >*/}
+        <Route path="*" element={<Page404 />} />
       </Route>
-      <Route exact path="/aes/login" element={<Login />} />
-      <Route exact path="/aes/register" element={<RegisterPage />} />
-      <Route exact path="/aes/test" element={<TestPage />} />
-      {/* <Route exact path="/fpsms/shopping" element={<Shopping />} >*/}
-      <Route path="*" element={<Page404 />} />
     </>
   )
 );

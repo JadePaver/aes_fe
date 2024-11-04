@@ -1,5 +1,6 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
+import apiClient from "../axios/axiosInstance";
 
 import Avatar from "@mui/material/Avatar";
 
@@ -71,14 +72,19 @@ export default function RootLayout() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-
-    // if (storedUser) {
-    //   setUser(JSON.parse(storedUser));
-    // } else {
-    //   navigate("/fpsms/login");
-    //   localStorage.removeItem("token");
-    // }
   }, [location]);
+  useEffect(()=>{
+
+    const fetchData = async () => {
+      try {
+        const response = await apiClient.get("/test");
+        console.log("Fetched data:", response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  fetchData()
+  },[])
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
