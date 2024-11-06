@@ -1,133 +1,102 @@
 import * as React from "react";
-import { styled } from "@mui/material/styles";
 import Grid from "@mui/material/Grid2";
 import ViewClassMemberTable from "../UserManagement/components/viewClassMemberTable";
-import { Button, Stack, Tooltip, Paper } from "@mui/material";
-
+import { Button, Stack, Tooltip } from "@mui/material";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
-
 import {
   HowToReg,
-  Group,
   ModeEdit,
   Lock,
-  LockResetOutlined,
-  LockOpen,
   MoveDown,
+  LockOpen,
+  ContactEmergency,
+  PersonAdd,
 } from "@mui/icons-material";
-
 import { useState } from "react";
-
 import { DataGrid } from "@mui/x-data-grid";
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
+const rows = [
+  {
+    id: 1,
+    subject: "Mathematics",
+    code: "MATH-101",
+    teacher: "John Doe",
+    dateCreated: "2024-01-10",
+  },
+  {
+    id: 2,
+    subject: "Physics",
+    code: "PHY-202",
+    teacher: "Jane Smith",
+    dateCreated: "2024-02-15",
+  },
+  {
+    id: 3,
+    subject: "Chemistry",
+    code: "CHEM-303",
+    teacher: "Michael Johnson",
+    dateCreated: "2024-03-20",
+  },
+  {
+    id: 4,
+    subject: "Biology",
+    code: "BIO-404",
+    teacher: "Emily Davis",
+    dateCreated: "2024-04-25",
+  },
+  {
+    id: 5,
+    subject: "History",
+    code: "HIST-505",
+    teacher: "Robert Brown",
+    dateCreated: "2024-05-30",
+  },
+  {
+    id: 6,
+    subject: "Geography",
+    code: "GEO-606",
+    teacher: "Laura Wilson",
+    dateCreated: "2024-06-12",
+  },
+  {
+    id: 7,
+    subject: "English Literature",
+    code: "ENG-707",
+    teacher: "Charles Clark",
+    dateCreated: "2024-07-04",
+  },
+  {
+    id: 8,
+    subject: "Computer Science",
+    code: "CS-808",
+    teacher: "Sophia Martinez",
+    dateCreated: "2024-08-16",
+  },
+  {
+    id: 9,
+    subject: "Art",
+    code: "ART-909",
+    teacher: "Lucas Thomas",
+    dateCreated: "2024-09-19",
+  },
+  {
+    id: 10,
+    subject: "Music",
+    code: "MUS-010",
+    teacher: "Anna Rodriguez",
+    dateCreated: "2024-10-21",
+  },
+];
 
-const UserMangement = () => {
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      userName: "jdoe",
-      code: "USR-1234",
-      userType: "Student",
-      dateCreated: "2024-01-10",
-      status: "Active",
-      isLocked: true,
-    },
-    {
-      id: 2,
-      userName: "asmith",
-      code: "USR-5678",
-      userType: "Guardian",
-      dateCreated: "2024-02-15",
-      status: "Deactivated",
-    },
-    {
-      id: 3,
-      userName: "mjones",
-      code: "USR-9101",
-      userType: "Teacher",
-      dateCreated: "2024-03-20",
-      status: "Pending",
-    },
-    {
-      id: 4,
-      userName: "bwhite",
-      code: "USR-1121",
-      userType: "Guardian",
-      dateCreated: "2024-04-25",
-      status: "Active",
-    },
-    {
-      id: 5,
-      userName: "clarkk",
-      code: "USR-3141",
-      userType: "Student",
-      dateCreated: "2024-05-30",
-      status: "Deactivated",
-    },
-    {
-      id: 6,
-      userName: "lwilson",
-      code: "USR-5161",
-      userType: "Teacher",
-      dateCreated: "2024-06-12",
-      status: "Pending",
-    },
-    {
-      id: 7,
-      userName: "treed",
-      code: "USR-7181",
-      userType: "Student",
-      dateCreated: "2024-07-04",
-      status: "Active",
-    },
-    {
-      id: 8,
-      userName: "abaker",
-      code: "USR-9202",
-      userType: "Guardian",
-      dateCreated: "2024-08-16",
-      status: "Deactivated",
-    },
-    {
-      id: 9,
-      userName: "knguyen",
-      code: "USR-2233",
-      userType: "Teacher",
-      dateCreated: "2024-09-19",
-      status: "Pending",
-    },
-    {
-      id: 10,
-      userName: "dsantos",
-      code: "USR-4455",
-      userType: "Student",
-      dateCreated: "2024-10-21",
-      status: "Active",
-    },
-  ]);
+const SubjectManagement = () => {
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
   const [isLocked, setIsLocked] = useState(true);
   const [isOpen, setIsOpen] = useState(null);
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const handleToggleLock = (id) => {
-    rows.map((row) => {
-      if (row.id === id) {
-        row.isLocked = !row.isLocked;
-      }
-      return row;
-    });
+  const handleToggleLock = () => {
+    setIsLocked(!isLocked); // Toggle between locked and unlocked
   };
   const [isMemberTblOpen, setIsMemberTblOpen] = useState({
     isOpen: false,
@@ -137,8 +106,8 @@ const UserMangement = () => {
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
     {
-      field: "userName",
-      headerName: "User Name",
+      field: "subject",
+      headerName: "Subject",
       flex: 1,
     },
     {
@@ -147,18 +116,13 @@ const UserMangement = () => {
       flex: 1,
     },
     {
-      field: "userType",
-      headerName: "User Type",
+      field: "teacher",
+      headerName: "Teacher",
       flex: 1,
     },
     {
       field: "dateCreated",
       headerName: "Date Created",
-      flex: 1,
-    },
-    {
-      field: "status",
-      headerName: "Status",
       flex: 1,
     },
     {
@@ -174,25 +138,16 @@ const UserMangement = () => {
           justifyContent="center"
           sx={{ height: "100%", width: "100%" }}
         >
-          {params.row.status === "Pending" ? (
-            <Tooltip title="Approve">
-              <Button
-                size="small"
-                color="primary"
-                variant="icon"
-                onClick={handleOpen}
-              >
-                <HowToReg />
-              </Button>
-            </Tooltip>
-          ) : (
-            <Tooltip title="Approve">
-              <Button variant="icon" disabled sx={{ opacity: 0 }}>
-                <HowToReg />
-              </Button>
-            </Tooltip>
-          )}
-
+          <Tooltip title="Frame">
+            <Button
+              size="small"
+              color="primary"
+              variant="icon"
+              onClick={handleOpen}
+            >
+              <HowToReg />
+            </Button>
+          </Tooltip>
           <Tooltip title="Group">
             <Button
               size="small"
@@ -218,30 +173,16 @@ const UserMangement = () => {
               <ModeEdit />
             </Button>
           </Tooltip>
-          {console.log("testete", params.row.id)}
-          <Tooltip Tooltip title={params.row.isLocked ? "Lock" : "Unlock"}>
+          <Tooltip Tooltip title={isLocked ? "Lock" : "Unlock"}>
             <Button
               size="small"
-              color={params.row.isLocked ? "lock" : "unlock"}
+              color={isLocked ? "lock" : "unlock"}
               variant="icon"
               onClick={() => {
-                handleToggleLock(params.row.id);
+                handleToggleLock();
               }}
             >
-              {params.row.isLocked ? <Lock /> : <LockOpen />}
-            </Button>
-          </Tooltip>
-          <Tooltip title="Reset student">
-            <Button
-              size="small"
-              color="reset"
-              variant="icon"
-              onClick={() => {
-                setIsRemoveDialog(false);
-                setIsOpen(true);
-              }}
-            >
-              <LockResetOutlined />
+              {isLocked ? <Lock /> : <LockOpen />}
             </Button>
           </Tooltip>
         </Stack>
@@ -249,54 +190,6 @@ const UserMangement = () => {
     },
   ];
 
-  const columnsModal = [
-    { field: "id", headerName: "ID", width: 90 },
-    {
-      field: "firstName",
-      headerName: "First name",
-      flex: 1,
-    },
-    {
-      field: "lastName",
-      headerName: "Last name",
-      flex: 1,
-    },
-    {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      flex: 1,
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      sortable: false,
-      renderCell: (params) => (
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          justifyContent="center"
-          sx={{ height: "100%", width: "100%" }}
-        >
-          <Tooltip title="Remove from list">
-            <Button
-              size="small"
-              color="error"
-              variant="icon"
-              onClick={() => {
-                setIsRemoveDialog(true);
-                setIsOpen(true);
-              }}
-            >
-              <PersonRemoveRoundedIcon />
-            </Button>
-          </Tooltip>
-        </Stack>
-      ),
-    },
-  ];
   return (
     <Stack
       spacing={0}
@@ -407,4 +300,4 @@ const UserMangement = () => {
     </Stack>
   );
 };
-export default UserMangement;
+export default SubjectManagement;

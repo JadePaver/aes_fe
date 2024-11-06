@@ -19,6 +19,7 @@ import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
 import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
 import UserManagement from "./pages/UserManagement";
+import SubjectManagement from "./pages/SubjectManagement";
 const theme = createTheme({
   typography: {
     fontFamily: "Poppins, sans-serif",
@@ -57,6 +58,19 @@ const theme = createTheme({
     },
     remove: {
       main: "#FF0000",
+    },
+    //
+    yeloh: {
+      main: "#BEC400",
+    },
+    lock: {
+      main: "#E8000C",
+    },
+    unlock: {
+      main: "#34D399",
+    },
+    reset: {
+      main: "#000000",
     },
   },
   components: {
@@ -139,6 +153,7 @@ const router = createBrowserRouter(
           <Route path="members" element={<>members</>} />
         </Route>
         <Route path="user_management" element={<UserManagement />} />
+        <Route path="subject_management" element={<SubjectManagement />} />
         Explanation
         <Route exact path="subject/" element={<></>} />
         <Route exact path="subject/:id" element={<SubjectPage />} />

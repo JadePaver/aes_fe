@@ -1,7 +1,6 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Grid from "@mui/material/Grid2";
-
 import {
   Button,
   Stack,
@@ -15,15 +14,14 @@ import {
   Typography,
   InputLabel,
 } from "@mui/material";
-
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import GroupsRounded from "@mui/icons-material/GroupsRounded";
 import { ModeEdit, PlaylistRemove } from "@mui/icons-material";
 import { useState } from "react";
-
 import { DataGrid } from "@mui/x-data-grid";
 import ViewClassMemberTable from "./components/viewClassMemberTable";
 import NewClassroomDialog from "./components/newClassroomDialog";
+
 const modalStyle = {
   position: "absolute",
   top: "50%",
@@ -121,22 +119,11 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 const AssignClassroom = () => {
-  const [isModal, setIsModal] = useState("");
   const [isAddNewClassOpen, setIsAddNewClassOpen] = useState(false);
   const [isMemberTblOpen, setIsMemberTblOpen] = useState({
     isOpen: false,
     classData: {},
   });
-  const [open, setOpen] = useState(false);
-  const handleOpen = (modal) => {
-    setOpen(true);
-    setIsModal(modal);
-  };
-  const handleClose = () => {
-    setOpen(false);
-    setIsModal("");
-  };
-
   const columns = [
     {
       field: "id",
@@ -195,7 +182,7 @@ const AssignClassroom = () => {
               color="primary"
               variant="icon"
               onClick={() =>
-                setIsMemberTblOpen({ isOpen: true, classData: params.row})
+                setIsMemberTblOpen({ isOpen: true, classData: params.row })
               }
             >
               <GroupsRounded />
@@ -301,7 +288,10 @@ const AssignClassroom = () => {
             setIsMemberTblOpen({ isOpen: false, classId: null });
           }}
         />
-        <NewClassroomDialog open={isAddNewClassOpen} handleClose={()=>setIsAddNewClassOpen(false)}/>
+        <NewClassroomDialog
+          open={isAddNewClassOpen}
+          handleClose={() => setIsAddNewClassOpen(false)}
+        />
       </Grid>
     </Stack>
   );
