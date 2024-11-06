@@ -11,7 +11,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
-import JoinSubButton from "./joinSubButton";
+import JoinSubButton from "./components/joinSubButton";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";

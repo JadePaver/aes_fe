@@ -1,6 +1,7 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
 import apiClient from "../axios/axiosInstance";
+import { jwtDecode } from "jwt-decode";
 
 import Avatar from "@mui/material/Avatar";
 
@@ -41,14 +42,14 @@ export default function RootLayout() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
   const { subjectName } = useSubject();
 
   const [snackbarData, setSnackbarData] = useState({
     open: false,
     message: "",
-    severity: "info",
+    severity: "info", // can be 'success', 'error', 'warning', or 'info'
   });
 
   const showSnackbar = ({ message, severity = "info" }) => {
@@ -71,20 +72,25 @@ export default function RootLayout() {
   };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-  }, [location]);
-  useEffect(()=>{
+    const token = localStorage.getItem("token");
+    console.log("no token");
 
-    const fetchData = async () => {
-      try {
-        const response = await apiClient.get("/test");
-        console.log("Fetched data:", response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-  fetchData()
-  },[])
+    if (!token) {
+      navigate("/aes/login");
+      return;
+    }
+
+    try {
+      const user = jwtDecode(token);
+      setUser(user);
+    } catch (error) {
+      navigate("/aes/login");
+    }
+  }, [location]);
+
+  useEffect(() => {
+    console.log("loaded!!!!");
+  }, []);
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
@@ -206,7 +212,12 @@ export default function RootLayout() {
                 alignItems: "center",
               }}
             >
-              <Stack spacing={1} direction="row" justifyContent="center" alignItems="center">
+              <Stack
+                spacing={1}
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+              >
                 <Button
                   color="accent"
                   variant="outlined"
@@ -219,12 +230,14 @@ export default function RootLayout() {
                     <DehazeRoundedIcon />
                   )}
                 </Button>
-                <Typography variant="white" fontSize={"2rem"} fontWeight={600}>{subjectName}</Typography>
+                <Typography variant="white" fontSize={"2rem"} fontWeight={600}>
+                  {subjectName}
+                </Typography>
               </Stack>
 
               <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                 <Notifications />
-                <ProfileMenu />
+                <ProfileMenu user={user} />
               </Stack>
             </Stack>
             <Box
