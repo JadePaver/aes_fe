@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 //getApiClient
 export const apiClient = axios.create({
-  baseURL: "http://placeholder", // Temporary placeholder
+  baseURL: "http://localhost:5001", // Temporary placeholder
   headers: {
     "Content-Type": "application/json",
   },

@@ -32,9 +32,10 @@ import ProfileMenu from "./components/profileMenu";
 import Notifications from "./components/notifications";
 import { useSubject } from "./components/subjectProvider";
 
-export const UserContext = createContext();
+const UserContext = createContext();
 const SnackbarContext = createContext();
 
+export const useUser = () => useContext(UserContext);
 export const useSnackbar = () => useContext(SnackbarContext);
 
 export default function RootLayout() {
@@ -71,30 +72,49 @@ export default function RootLayout() {
     setSidebarOpen(!sidebarOpen);
   };
 
+
+  const fetchImage = async (filename) => {
+    try {
+      const response = await apiClient.get(`/prof_img/get/${filename}`, {
+        responseType: "blob",
+      });
+
+      const imageBlob = response.data;
+      const imageObjectUrl = URL.createObjectURL(imageBlob);
+      localStorage.setItem("prof_img_url",imageObjectUrl)
+      setUser((prevUser) => ({
+        ...prevUser,
+        prof_img_url: localStorage.getItem("prof_img_url"),
+      }));
+    } catch (error) {
+      console.error("Error fetching image:", error);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("no token");
-
     if (!token) {
       navigate("/aes/login");
       return;
     }
-
+  
     try {
-      const user = jwtDecode(token);
-      setUser(user);
+      const decodedUser = jwtDecode(token);
+      setUser(decodedUser);
+      // Fetch image if profileImage exists
+      const  hasImgURL = localStorage.getItem("prof_img_url")
+      if (decodedUser.profileImage && !hasImgURL ) {
+        fetchImage(decodedUser.profileImage);
+      }
     } catch (error) {
       navigate("/aes/login");
     }
-  }, [location]);
-
-  useEffect(() => {
-    console.log("loaded!!!!");
-  }, []);
+  }, [location, user.profileImage]); // Add user.profileImage to the dependency array
+  
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
-      <UserContext.Provider value={user}>
+      <UserContext.Provider value={{user, setUser}}>
         <Box
           sx={{
             height: "100vh",
@@ -258,7 +278,8 @@ export default function RootLayout() {
           open={snackbarData.open}
           autoHideDuration={6000}
           onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          sx={{ marginTop: "3rem" }}
         >
           <Alert
             onClose={closeSnackbar}
