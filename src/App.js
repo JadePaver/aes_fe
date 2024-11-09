@@ -15,12 +15,12 @@ import TestPage from "./pages/Test";
 import Page404 from "./pages/Page404";
 import SubjectPage from "./pages/SubjectPage";
 import ModulePage from "./pages/ModulePage";
+
 import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
-import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
-import UserManagement from "./pages/UserManagement";
-import SubjectManagement from "./pages/SubjectManagement";
-import StudentMangement from "./pages/StudentManagement/studentManagement";
+import GetServerIP from "./config/getServerIP.js";
+import UserProfilePage from "./pages/UserProfilePage/userProfilePage.js";
+
 const theme = createTheme({
   typography: {
     fontFamily: "Poppins, sans-serif",
@@ -49,29 +49,6 @@ const theme = createTheme({
     gray: {
       main: "#757575", // Adjust this value to your preferred shade of gray
       contrastText: "#fff",
-    },
-    // assign classroom Icon color
-    group: {
-      main: "#34D399",
-    },
-    edit: {
-      main: "#007BFF",
-    },
-    remove: {
-      main: "#FF0000",
-    },
-    //
-    yeloh: {
-      main: "#BEC400",
-    },
-    lock: {
-      main: "#E8000C",
-    },
-    unlock: {
-      main: "#34D399",
-    },
-    reset: {
-      main: "#000000",
     },
   },
   components: {
@@ -140,6 +117,15 @@ const theme = createTheme({
         },
       },
     },
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          "& .MuiDataGrid-cell": {
+            color: "#000000", // Set the default text color for cells to black
+          },
+        },
+      },
+    },
   },
 });
 document.title = "A.E.S.";
@@ -147,30 +133,41 @@ document.title = "A.E.S.";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/aes" element={<RootLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="assign_classroom">
-          <Route index element={<AssignClassroom />} />
-          <Route path="members" element={<>members</>} />
+      <Route element={<GetServerIP />}>
+        <Route path="/aes" element={<RootLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="user_profile" element={<UserProfilePage />} />
+          <Route path="assign_classroom">
+            <Route index element={<>assign_classroom</>} />
+            <Route path="members" element={<>members</>} />
+          </Route>
+          <Route path="user_management" element={<>user_management</>} />
+          <Route path="subject/:subjectId">
+            <Route index element={<SubjectPage />} />
+            <Route
+              path="students_result/:assessmentId/:studentId"
+              element={
+                <>
+                  this page will show the result of specificic student in
+                  selected assessment
+                </>
+              }
+            />
+          </Route>
+
+          <Route
+            exact
+            path="assessment_editor/:assessmentId?"
+            element={<AssessmentEditorPage />}
+          />
+          <Route exact path="module" element={<ModulePage />} />
         </Route>
-        <Route path="user_management" element={<UserManagement />} />
-        <Route path="subject_management" element={<SubjectManagement />} />
-        <Route path="student_management" element={<StudentMangement />} />
-        Explanation
-        <Route exact path="subject/" element={<></>} />
-        <Route exact path="subject/:id" element={<SubjectPage />} />
-        <Route
-          exact
-          path="assessment_editor/:assessmentId?"
-          element={<AssessmentEditorPage />}
-        />
-        <Route exact path="module" element={<ModulePage />} />
+        <Route exact path="/aes/login" element={<Login />} />
+        <Route exact path="/aes/register" element={<RegisterPage />} />
+        <Route exact path="/aes/test" element={<TestPage />} />
+        {/* <Route exact path="/fpsms/shopping" element={<Shopping />} >*/}
+        <Route path="*" element={<Page404 />} />
       </Route>
-      <Route exact path="/aes/login" element={<Login />} />
-      <Route exact path="/aes/register" element={<RegisterPage />} />
-      <Route exact path="/aes/test" element={<TestPage />} />
-      {/* <Route exact path="/fpsms/shopping" element={<Shopping />} >*/}
-      <Route path="*" element={<Page404 />} />
     </>
   )
 );
