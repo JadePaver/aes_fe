@@ -1,6 +1,7 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
 import apiClient from "../axios/axiosInstance";
+import { jwtDecode } from "jwt-decode";
 
 import Avatar from "@mui/material/Avatar";
 
@@ -31,9 +32,10 @@ import ProfileMenu from "./components/profileMenu";
 import Notifications from "./components/notifications";
 import { useSubject } from "./components/subjectProvider";
 
-export const UserContext = createContext();
+const UserContext = createContext();
 const SnackbarContext = createContext();
 
+export const useUser = () => useContext(UserContext);
 export const useSnackbar = () => useContext(SnackbarContext);
 
 export default function RootLayout() {
@@ -41,14 +43,14 @@ export default function RootLayout() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
   const { subjectName } = useSubject();
 
   const [snackbarData, setSnackbarData] = useState({
     open: false,
     message: "",
-    severity: "info",
+    severity: "info", // can be 'success', 'error', 'warning', or 'info'
   });
 
   const showSnackbar = ({ message, severity = "info" }) => {
@@ -70,25 +72,49 @@ export default function RootLayout() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-  }, [location]);
-  useEffect(()=>{
 
-    const fetchData = async () => {
-      try {
-        const response = await apiClient.get("/test");
-        console.log("Fetched data:", response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+  const fetchImage = async (filename) => {
+    try {
+      const response = await apiClient.get(`/prof_img/get/${filename}`, {
+        responseType: "blob",
+      });
+
+      const imageBlob = response.data;
+      const imageObjectUrl = URL.createObjectURL(imageBlob);
+      localStorage.setItem("prof_img_url",imageObjectUrl)
+      setUser((prevUser) => ({
+        ...prevUser,
+        prof_img_url: localStorage.getItem("prof_img_url"),
+      }));
+    } catch (error) {
+      console.error("Error fetching image:", error);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/aes/login");
+      return;
+    }
+  
+    try {
+      const decodedUser = jwtDecode(token);
+      setUser(decodedUser);
+      // Fetch image if profileImage exists
+      const  hasImgURL = localStorage.getItem("prof_img_url")
+      if (decodedUser.profileImage && !hasImgURL ) {
+        fetchImage(decodedUser.profileImage);
       }
-    };
-  fetchData()
-  },[])
+    } catch (error) {
+      navigate("/aes/login");
+    }
+  }, [location, user.profileImage]); // Add user.profileImage to the dependency array
+  
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
-      <UserContext.Provider value={user}>
+      <UserContext.Provider value={{user, setUser}}>
         <Box
           sx={{
             height: "100vh",
@@ -206,7 +232,12 @@ export default function RootLayout() {
                 alignItems: "center",
               }}
             >
-              <Stack spacing={1} direction="row" justifyContent="center" alignItems="center">
+              <Stack
+                spacing={1}
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+              >
                 <Button
                   color="accent"
                   variant="outlined"
@@ -219,12 +250,14 @@ export default function RootLayout() {
                     <DehazeRoundedIcon />
                   )}
                 </Button>
-                <Typography variant="white" fontSize={"2rem"} fontWeight={600}>{subjectName}</Typography>
+                <Typography variant="white" fontSize={"2rem"} fontWeight={600}>
+                  {subjectName}
+                </Typography>
               </Stack>
 
               <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                 <Notifications />
-                <ProfileMenu />
+                <ProfileMenu user={user} />
               </Stack>
             </Stack>
             <Box
@@ -245,7 +278,8 @@ export default function RootLayout() {
           open={snackbarData.open}
           autoHideDuration={6000}
           onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          sx={{ marginTop: "3rem" }}
         >
           <Alert
             onClose={closeSnackbar}

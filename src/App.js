@@ -19,6 +19,7 @@ import ModulePage from "./pages/ModulePage";
 import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
 import GetServerIP from "./config/getServerIP.js";
+import UserProfilePage from "./pages/UserProfilePage/userProfilePage.js";
 
 const theme = createTheme({
   typography: {
@@ -132,9 +133,10 @@ document.title = "A.E.S.";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route element={<GetServerIP/>}>
+      <Route element={<GetServerIP />}>
         <Route path="/aes" element={<RootLayout />}>
           <Route index element={<Dashboard />} />
+          <Route path="user_profile" element={<UserProfilePage />} />
           <Route path="assign_classroom">
             <Route index element={<>assign_classroom</>} />
             <Route path="members" element={<>members</>} />

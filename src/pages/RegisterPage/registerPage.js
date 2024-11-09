@@ -8,8 +8,12 @@ import MenuItem from "@mui/material/MenuItem";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+
+import apiClient from "../../axios/axiosInstance";
 
 import { useEffect, useState } from "react";
 import { useLoaderData } from "react-router-dom";
@@ -35,9 +39,21 @@ const RegisterPage = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [activeStep, setActiveStep] = useState(0);
   const [errors, setErrors] = useState({});
+  const [sex, setSex] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success", // default severity
+  });
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const [formData, setFormData] = useState({
     fname: "",
-    ename: "",
+    ext: "",
     lname: "",
     mname: "",
     birthDate: selectedDate,
@@ -45,7 +61,7 @@ const RegisterPage = () => {
     contact: "",
     email: "",
     type: 2,
-    glevel: 1,
+    code: "",
     studentCode: "",
     username: "",
     password: "",
@@ -67,21 +83,38 @@ const RegisterPage = () => {
 
   const validateStep = () => {
     const stepErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (activeStep === 0) {
-      if (!formData.fname) stepErrors.fname = "First Name is required";
-      if (!formData.lname) stepErrors.lname = "Last Name is required";
-      if (!formData.mname) stepErrors.mname = "Middle Name is required";
+      if (!(formData.fname || "").trim())
+        stepErrors.fname = "First Name is required";
+      if (!(formData.lname || "").trim())
+        stepErrors.lname = "Last Name is required";
+      if (!(formData.mname || "").trim())
+        stepErrors.mname = "Middle Name is required";
       if (!formData.sex) stepErrors.sex = "Sex is required";
     } else if (activeStep === 1) {
-      if (!formData.contact) stepErrors.contact = "Contact # is required";
-      if (!formData.email) stepErrors.email = "Email is required";
+      if (!(formData.contact || "").trim())
+        stepErrors.contact = "Contact # is required";
+      if (!(formData.email || "").trim()) {
+        stepErrors.email = "Email is required";
+      } else if (!emailRegex.test(formData.email)) {
+        stepErrors.email = "Enter a valid email address";
+      }
     } else if (activeStep === 2) {
-      if (!formData.type) stepErrors.type = "User Type is required";
-      if (!formData.username) stepErrors.username = "Username is required";
-      if (!formData.password) stepErrors.password = "Password is required";
-      if (formData.password !== formData.cpassword)
+      if (!(formData.type))
+        stepErrors.type = "User Type is required";
+      if (!(formData.code || "").trim()) stepErrors.code = "Code is required";
+      if (!(formData.username || "").trim())
+        stepErrors.username = "Username is required";
+      if (!(formData.password || "").trim()) {
+        stepErrors.password = "Password is required";
+      } else if (formData.password.length < 6) {
+        stepErrors.password = "Password must be at least 6 characters long";
+      }
+      if (formData.password !== formData.cpassword) {
         stepErrors.cpassword = "Passwords do not match";
+      }
     }
 
     setErrors(stepErrors);
@@ -102,7 +135,6 @@ const RegisterPage = () => {
       case 2: // Use 2 instead of 02, as leading zeros are not valid in numeric literals
         return (
           <>
-            {" "}
             <Stack>
               <TextField
                 label="Current grade level"
@@ -173,12 +205,14 @@ const RegisterPage = () => {
               />
               <TextField
                 label="Ext."
-                name="ename"
+                name="ext"
                 variant="outlined"
                 sx={{ flex: 1 }}
                 placeholder="Jr,Sr,III"
-                InputLabelProps={{ shrink: true }}
-                value={formData.ename}
+                slotProps={{
+                  inputLabel: { shrink: true }, 
+                }}
+                value={formData.ext}
                 onChange={handleChange}
               />
               <TextField
@@ -234,12 +268,12 @@ const RegisterPage = () => {
                 error={!!errors.sex}
                 helperText={errors.sex}
               >
-                <MenuItem key={"Male"} value={"Male"}>
-                  {"Male"}
-                </MenuItem>
-                <MenuItem key={"Female"} value={"Female"}>
-                  {"Female"}
-                </MenuItem>
+                {sex.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.label.charAt(0).toUpperCase() +
+                      option.label.slice(1)}
+                  </MenuItem>
+                ))}
               </TextField>
             </Stack>
           </>
@@ -257,7 +291,17 @@ const RegisterPage = () => {
                 placeholder="+63.."
                 InputLabelProps={{ shrink: true }}
                 value={formData.contact}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\+?\d*$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                inputProps={{
+                  maxLength: 15, // Limit the length if desired
+                  pattern: "[0-9]*", // Mobile browsers may show a numeric keypad
+                  inputMode: "numeric", // Helps with mobile keypad opening to numbers only
+                }}
                 error={!!errors.contact}
                 helperText={errors.contact}
               />
@@ -295,9 +339,9 @@ const RegisterPage = () => {
                   error={!!errors.type}
                   helperText={errors.type}
                 >
-                  {userTypes.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
+                  {roles.map((option) => (
+                    <MenuItem key={option.id} value={option.id}>
+                      {option.name}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -308,11 +352,28 @@ const RegisterPage = () => {
             <Stack spacing={1}>
               <TextField
                 required
+                label="Activation Code"
+                name="code"
+                variant="outlined"
+                sx={{ flex: 1 }}
+                value={formData.code}
+                onChange={handleChange}
+                slotProps={{
+                  inputLabel: { shrink: true }, 
+                }}
+                error={!!errors.code}
+                helperText={errors.code}
+              />
+              <TextField
+                required
                 label="Username"
                 name="username"
                 variant="outlined"
                 value={formData.username}
                 onChange={handleChange}
+                slotProps={{
+                  inputLabel: { shrink: true }, 
+                }}
                 error={!!errors.username}
                 helperText={errors.username}
               />
@@ -366,21 +427,75 @@ const RegisterPage = () => {
     }
   };
 
-  const handleSubmit = () => {
-    if (formData.password !== formData.cpassword) {
-      setErrors((prev) => ({
-        ...prev,
-        cpassword: "Does not Match",
-      }));
-      return; // Early return to prevent further execution
-    } else {
-      stepForward();
-      console.log("apple");
+  const handleSubmit = async () => {
+    if (validateStep()) {
+      await registerAccount();
     }
   };
 
+  const registerAccount = async () => {
+    try {
+      const response = await apiClient.post("/users/register", formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log("User registered successfully:", response.data);
+      stepForward();
+      setSnackbar({
+        open: true,
+        message: "User registered successfully!",
+        severity: "success",
+      });
+    } catch (error) {
+      let errorMessage = "An error occurred. Please try again later.";
+      const newErrors = {};
+
+      if (error.response) {
+        console.error("Error:", error.response.data.error);
+        errorMessage = error.response.data.error;
+        if (errorMessage.includes("Username already exists")) {
+          newErrors.username = "Username already exists";
+        } else if (errorMessage.includes("Invalid or already assigned code")) {
+          newErrors.code = "Code is invalid or already assigned";
+        }
+      } else {
+        console.error("Error fetching data:", error);
+      }
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        ...newErrors, 
+      }));
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const getSex = async () => {
+      const response = await apiClient.get("/sex");
+      setSex(response.data);
+    };
+    const getRoles = async () => {
+      const response = await apiClient.get("/roles/filtered");
+      setRoles(response.data);
+    };
+    getRoles();
+    getSex();
+  }, []);
+
   return (
     <>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       <Box
         sx={{
           backgroundImage: `
@@ -414,7 +529,6 @@ const RegisterPage = () => {
               textAlign: "center",
             }}
             elevation={3}
-
           >
             <Typography variant="h4">REGISTRATION FORM</Typography>
             <Stepper activeStep={activeStep} sx={{ marginTop: "1rem" }}>
@@ -446,7 +560,12 @@ const RegisterPage = () => {
                 <Button
                   disabled={activeStep === 0}
                   onClick={stepBack}
-                  sx={{display:activeStep===3? "none":"block", mt: 1, mr: 1, minWidth: "15rem" }}
+                  sx={{
+                    display: activeStep === 3 ? "none" : "block",
+                    mt: 1,
+                    mr: 1,
+                    minWidth: "15rem",
+                  }}
                 >
                   Back
                 </Button>
@@ -462,9 +581,9 @@ const RegisterPage = () => {
                 ) : activeStep === steps.length - 1 ? (
                   <>
                     <Button
-                    disableElevation
+                      disableElevation
                       variant="outlined"
-                      sx={{ flex:1}}
+                      sx={{ flex: 1 }}
                       onClick={() => navigate("/aes/login")} // Navigate to login
                     >
                       Go to Login
