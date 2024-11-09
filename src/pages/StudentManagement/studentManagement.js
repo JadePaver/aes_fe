@@ -1,14 +1,14 @@
 import * as React from "react";
 import Grid from "@mui/material/Grid2";
-import ViewClassMemberTable from "../UserManagement/components/viewClassMemberTable";
+
 import { Button, Stack, Tooltip } from "@mui/material";
-import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
+import { useNavigate } from "react-router-dom";
+import NewClassroomDialog from "./components/newClassroomDialog";
 import {
-  HowToReg,
   ModeEdit,
-  Lock,
   MoveDown,
-  LockOpen,
+  PersonRemove,
+  LockReset,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
@@ -87,12 +87,17 @@ const rows = [
 ];
 
 const StudentMangement = () => {
+  const navigate = useNavigate();
+  const [isAddNewClassOpen, setIsAddNewClassOpen] = useState(false);
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
   const [isLocked, setIsLocked] = useState(true);
   const [isOpen, setIsOpen] = useState(null);
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClick = () => {
+    handleToggleLock();
+    navigate("/aes/assign_classroom"); // Replace with the route you want to navigate to
+  };
+
   const handleToggleLock = () => {
     setIsLocked(!isLocked); // Toggle between locked and unlocked
   };
@@ -136,24 +141,15 @@ const StudentMangement = () => {
           justifyContent="center"
           sx={{ height: "100%", width: "100%" }}
         >
-          <Tooltip title="Frame">
+          <Tooltip title="Group">
             <Button
               size="small"
               color="primary"
               variant="icon"
-              onClick={handleOpen}
-            >
-              <HowToReg />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Group">
-            <Button
-              size="small"
-              color="yeloh"
-              variant="icon"
-              onClick={() =>
-                setIsMemberTblOpen({ isOpen: true, classData: params.row })
-              }
+              onClick={() => {
+                setIsAddNewClassOpen(true);
+                setIsMemberTblOpen({ isOpen: true, classData: params.row });
+              }}
             >
               <MoveDown />
             </Button>
@@ -171,16 +167,26 @@ const StudentMangement = () => {
               <ModeEdit />
             </Button>
           </Tooltip>
-          <Tooltip Tooltip title={isLocked ? "Lock" : "Unlock"}>
+          <Tooltip Tooltip title="PersonRemove">
             <Button
               size="small"
-              color={isLocked ? "lock" : "unlock"}
+              color="lock"
               variant="icon"
               onClick={() => {
                 handleToggleLock();
               }}
             >
-              {isLocked ? <Lock /> : <LockOpen />}
+              <PersonRemove />
+            </Button>
+          </Tooltip>
+          <Tooltip Tooltip title="LockReset">
+            <Button
+              size="small"
+              color="reset"
+              variant="icon"
+              onClick={handleClick}
+            >
+              <LockReset />
             </Button>
           </Tooltip>
         </Stack>
@@ -212,25 +218,6 @@ const StudentMangement = () => {
           maxHeight: "calc(100vh - 2rem)",
         }}
       >
-        {/* <Grid
-          size={12}
-          sx={{
-            p: "0.5rem",
-            m: 0,
-            height: "8%",
-            alignContent: "center",
-          }}
-        >
-          <Box display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              startIcon={<AddCircleIcon color="accent" />}
-              sx={{ px: 7 }}
-            >
-              New Classroom
-            </Button>
-          </Box>
-        </Grid> */}
         <Grid size={12} sx={{ m: 0, height: "92%" }}>
           <DataGrid
             rows={rows}
@@ -256,44 +243,10 @@ const StudentMangement = () => {
           />
         </Grid>
         {/* Modal component */}
-        <ViewClassMemberTable
-          classData={isMemberTblOpen.classData}
-          isOpen={isMemberTblOpen.isOpen}
-          onClose={() => {
-            setIsMemberTblOpen({ isOpen: false, classId: null });
-          }}
+        <NewClassroomDialog
+          open={isAddNewClassOpen}
+          handleClose={() => setIsAddNewClassOpen(false)}
         />
-        {/* <Modal open={open} onClose={handleClose}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "90%",
-              height: "90%",
-              bgcolor: "background.paper",
-              borderRadius: 1,
-              boxShadow: 24,
-              p: 4,
-            }}
-          >
-            <DataGrid
-              rows={rows}
-              columns={columnsModal}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 5,
-                  },
-                },
-              }}
-              pageSizeOptions={[5]}
-              checkboxSelection
-              disableRowSelectionOnClick
-            />
-          </Box>
-        </Modal> */}
       </Grid>
     </Stack>
   );

@@ -20,6 +20,7 @@ import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
 import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
 import UserManagement from "./pages/UserManagement";
 import SubjectManagement from "./pages/SubjectManagement";
+import StudentMangement from "./pages/StudentManagement/studentManagement";
 const theme = createTheme({
   typography: {
     fontFamily: "Poppins, sans-serif",
@@ -154,6 +155,7 @@ const router = createBrowserRouter(
         </Route>
         <Route path="user_management" element={<UserManagement />} />
         <Route path="subject_management" element={<SubjectManagement />} />
+        <Route path="student_management" element={<StudentMangement />} />
         Explanation
         <Route exact path="subject/" element={<></>} />
         <Route exact path="subject/:id" element={<SubjectPage />} />

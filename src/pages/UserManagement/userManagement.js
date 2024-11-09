@@ -1,9 +1,9 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Grid from "@mui/material/Grid2";
-import ViewClassMemberTable from "../UserManagement/components/viewClassMemberTable";
-import { Button, Stack, Tooltip, Paper } from "@mui/material";
 
+import { Button, Stack, Tooltip, Paper } from "@mui/material";
+import NewClassroomDialog from "./components/newClassroomDialog";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 
 import {
@@ -32,6 +32,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 const UserMangement = () => {
+  const [isAddNewClassOpen, setIsAddNewClassOpen] = useState(false);
   const [rows, setRows] = useState([
     {
       id: 1,
@@ -116,7 +117,6 @@ const UserMangement = () => {
     },
   ]);
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
-  const [isLocked, setIsLocked] = useState(true);
   const [isOpen, setIsOpen] = useState(null);
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -218,7 +218,6 @@ const UserMangement = () => {
               <ModeEdit />
             </Button>
           </Tooltip>
-          {console.log("testete", params.row.id)}
           <Tooltip Tooltip title={params.row.isLocked ? "Lock" : "Unlock"}>
             <Button
               size="small"
@@ -239,6 +238,7 @@ const UserMangement = () => {
               onClick={() => {
                 setIsRemoveDialog(false);
                 setIsOpen(true);
+                setIsAddNewClassOpen(true);
               }}
             >
               <LockResetOutlined />
@@ -364,45 +364,10 @@ const UserMangement = () => {
             }}
           />
         </Grid>
-        {/* Modal component */}
-        <ViewClassMemberTable
-          classData={isMemberTblOpen.classData}
-          isOpen={isMemberTblOpen.isOpen}
-          onClose={() => {
-            setIsMemberTblOpen({ isOpen: false, classId: null });
-          }}
+        <NewClassroomDialog
+          open={isAddNewClassOpen}
+          handleClose={() => setIsAddNewClassOpen(false)}
         />
-        {/* <Modal open={open} onClose={handleClose}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "90%",
-              height: "90%",
-              bgcolor: "background.paper",
-              borderRadius: 1,
-              boxShadow: 24,
-              p: 4,
-            }}
-          >
-            <DataGrid
-              rows={rows}
-              columns={columnsModal}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 5,
-                  },
-                },
-              }}
-              pageSizeOptions={[5]}
-              checkboxSelection
-              disableRowSelectionOnClick
-            />
-          </Box>
-        </Modal> */}
       </Grid>
     </Stack>
   );

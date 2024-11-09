@@ -20,9 +20,9 @@ const NewClassroomDialog = ({ open, handleClose }) => {
           NEW CLASSROOM
         </Typography>
       </DialogTitle>
-      
+
       <DialogContent>
-        <Grid container spacing={2}sx={{p:"1rem 0"}}>
+        <Grid container spacing={2} sx={{ p: "1rem 0" }}>
           {/* 1st Text Input */}
           <Grid item size={5}>
             <TextField
@@ -65,18 +65,6 @@ const NewClassroomDialog = ({ open, handleClose }) => {
           </Grid>
         </Grid>
       </DialogContent>
-      
-      <DialogActions sx={{ justifyContent: "center", p: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          onClick={handleClose}
-          disableElevation
-        >
-          Submit
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };

@@ -1,6 +1,6 @@
 import * as React from "react";
 import Grid from "@mui/material/Grid2";
-import ViewClassMemberTable from "../UserManagement/components/viewClassMemberTable";
+
 import { Button, Stack, Tooltip } from "@mui/material";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 import {
@@ -145,17 +145,31 @@ const SubjectManagement = () => {
               variant="icon"
               onClick={handleOpen}
             >
-              <HowToReg />
+              <ContactEmergency />
             </Button>
           </Tooltip>
           <Tooltip title="Group">
             <Button
               size="small"
-              color="yeloh"
+              color="reset"
               variant="icon"
               onClick={() =>
                 setIsMemberTblOpen({ isOpen: true, classData: params.row })
               }
+            >
+              <PersonAdd />
+            </Button>
+          </Tooltip>
+
+          <Tooltip Tooltip title="Unlock">
+            <Button
+              size="small"
+              color="yeloh"
+              // {isLocked ? "lock" : "unlock"}
+              variant="icon"
+              onClick={() => {
+                handleToggleLock();
+              }}
             >
               <MoveDown />
             </Button>
@@ -171,18 +185,6 @@ const SubjectManagement = () => {
               }}
             >
               <ModeEdit />
-            </Button>
-          </Tooltip>
-          <Tooltip Tooltip title={isLocked ? "Lock" : "Unlock"}>
-            <Button
-              size="small"
-              color={isLocked ? "lock" : "unlock"}
-              variant="icon"
-              onClick={() => {
-                handleToggleLock();
-              }}
-            >
-              {isLocked ? <Lock /> : <LockOpen />}
             </Button>
           </Tooltip>
         </Stack>
@@ -258,13 +260,13 @@ const SubjectManagement = () => {
           />
         </Grid>
         {/* Modal component */}
-        <ViewClassMemberTable
+        {/* <ViewClassMemberTable
           classData={isMemberTblOpen.classData}
           isOpen={isMemberTblOpen.isOpen}
           onClose={() => {
             setIsMemberTblOpen({ isOpen: false, classId: null });
           }}
-        />
+        /> */}
         {/* <Modal open={open} onClose={handleClose}>
           <Box
             sx={{
