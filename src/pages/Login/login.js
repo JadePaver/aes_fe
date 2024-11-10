@@ -41,12 +41,13 @@ const Login = () => {
     e.preventDefault();
     setLoading(true); // Start loading
 
-    try {
+      console.log("logging in:");
+      try {
       const response = await apiClient.post("/users/login", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      console.log("User logged in successfully:", response.data);
+      console.log("User logged in successfully:", response);
       localStorage.setItem("token", response.data.token);
       navigate("/aes");
     } catch (error) {

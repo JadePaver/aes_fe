@@ -19,6 +19,8 @@ import { formatDate } from "../../const/formatter";
 
 import { useUser, useSnackbar } from "../../layouts/root_layout";
 import { AddPhotoAlternate } from "@mui/icons-material";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import EditIcon from "@mui/icons-material/Edit";
 
 import EditableTextField from "./components/EditableTextField";
 import EditableDatePicker from "./components/EditableDatePicker";
@@ -94,7 +96,7 @@ const UserProfilePage = () => {
         userData
       );
       setIsEditProfOpen(false);
-      setIsEditable(false)
+      setIsEditable(false);
       showSnackbar({
         message: response?.data?.message,
         severity: "success",
@@ -286,6 +288,8 @@ const UserProfilePage = () => {
             },
           }
         );
+        console.log("response:", response.data);
+        localStorage.setItem("token", response.data.newToken);
         showSnackbar({
           message: response?.data?.message,
           severity: "success",
@@ -697,8 +701,11 @@ const UserProfilePage = () => {
                     <Button
                       variant="outlined"
                       onClick={() => setIsOpenChangePass(true)}
+                      startIcon={
+                        <LockResetIcon fontSize="small" color="primary" />
+                      }
                     >
-                      Change password
+                      Change Password
                     </Button>
                   </Grid>
                   <Grid size={{ xs: 12, md: 12 }}>
@@ -717,7 +724,11 @@ const UserProfilePage = () => {
                         </Button>
                       </>
                     ) : (
-                      <Button variant="outlined" onClick={handleEditProfile}>
+                      <Button
+                        variant="outlined"
+                        onClick={handleEditProfile}
+                        startIcon={<EditIcon fontSize="small" />}
+                      >
                         Edit Profile Information
                       </Button>
                     )}
