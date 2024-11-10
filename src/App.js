@@ -15,6 +15,11 @@ import TestPage from "./pages/Test";
 import Page404 from "./pages/Page404";
 import SubjectPage from "./pages/SubjectPage";
 import ModulePage from "./pages/ModulePage";
+import UserManagementPage from "./pages/UserManagementPage";
+import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
+import SubjectManagement from "./pages/SubjectManagement";
+import StudentMangement from "./pages/StudentManagement/studentManagement";
+
 
 import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
 import UserManagement from "./pages/UserManagement";
@@ -55,7 +60,6 @@ const theme = createTheme({
       main: "#757575", // Adjust this value to your preferred shade of gray
       contrastText: "#fff",
     },
-    // assign classroom Icon color
     group: {
       main: "#34D399",
     },
@@ -96,7 +100,7 @@ const theme = createTheme({
         },
         icon: ({ ownerState, theme }) => ({
           padding: "0.25rem",
-          minWidth: 0,
+          minWidth: "2rem",
           width: "auto",
           display: "flex",
           alignItems: "center",
@@ -166,12 +170,10 @@ const router = createBrowserRouter(
           <Route index element={<Dashboard />} />
           <Route path="user_profile" element={<UserProfilePage />} />
           <Route path="assign_classroom">
-            <Route index element={<AssignClassroom />} />
+            <Route index element={<AssignClassroom/>} />
             <Route path="members" element={<>members</>} />
           </Route>
-          <Route path="user_management" element={<UserManagement />} />
-          <Route path="subject_management" element={<SubjectManagement />} />
-          <Route path="student_management" element={<StudentMangement />} />
+          <Route path="user_management" element={<UserManagementPage/>} />
           <Route path="subject/:subjectId">
             <Route index element={<SubjectPage />} />
             <Route

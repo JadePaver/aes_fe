@@ -37,6 +37,10 @@ const ProfileMenu = (props) => {
     navigate("/aes/login");
   };
 
+  useEffect(() => {
+    console.log("profMenu:", props.user);
+  }, [props.user]);
+
   return (
     <Stack
       direction="row"
@@ -47,11 +51,12 @@ const ProfileMenu = (props) => {
         {props.user.username}
       </Typography>
       <Avatar
-        src={
-          props.user.prof_img_url
-            ? props.user.prof_img_url
-            : localStorage.getItem("prof_img_url") // Fallback to localStorage
-        }
+        src={props.user?.prof_img_url}
+        // src={
+        //   props.user.prof_img_url
+        //     ? props.user.prof_img_url
+        //     : localStorage.getItem("prof_img_url")
+        // }
         alt="Profile Image"
         sx={{ cursor: "pointer" }}
         onClick={handleMenuOpen}
@@ -77,21 +82,7 @@ const ProfileMenu = (props) => {
             <ListItemIcon>
               <Person fontSize="small" color="primary" />
             </ListItemIcon>
-            Profile Details
-          </Button>
-        </MenuItem>
-        <MenuItem>
-          <Button
-            variant="outlined"
-            color="primary"
-            fullWidth
-            disableElevation
-            sx={{ justifyContent: "flex-start" }}
-          >
-            <ListItemIcon>
-              <LockResetIcon fontSize="small" color="primary" />
-            </ListItemIcon>
-            Change Password
+            Profile Information
           </Button>
         </MenuItem>
         <MenuItem>

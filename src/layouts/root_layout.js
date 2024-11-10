@@ -13,7 +13,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import Typography from "@mui/material/Typography";
+import Typography from "@mui/material/Typography";  
 import Button from "@mui/material/Button";
 import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
@@ -100,10 +100,10 @@ export default function RootLayout() {
   
     try {
       const decodedUser = jwtDecode(token);
+      console.log("decodedUser:",decodedUser)
       setUser(decodedUser);
       // Fetch image if profileImage exists
-      const  hasImgURL = localStorage.getItem("prof_img_url")
-      if (decodedUser.profileImage && !hasImgURL ) {
+      if (decodedUser.profileImage ) {
         fetchImage(decodedUser.profileImage);
       }
     } catch (error) {
@@ -111,6 +111,25 @@ export default function RootLayout() {
     }
   }, [location, user.profileImage]); // Add user.profileImage to the dependency array
   
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newImgUrl = localStorage.getItem("prof_img_url");
+      if (newImgUrl) {
+        setUser((prevUser) => ({
+          ...prevUser,
+          prof_img_url: newImgUrl,
+        }));
+      }
+    };
+
+    // Add event listener for storage changes
+    window.addEventListener("storage", handleStorageChange);
+
+    // Clean up the event listener
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
@@ -205,7 +224,7 @@ export default function RootLayout() {
               <Nav
                 icon={GroupRoundedIcon} // Pass the icon component here
                 label="User Managment"
-                navigateTo="/user_management"
+                navigateTo="user_management"
                 sidebarOpen={sidebarOpen}
               />
             </Stack>
