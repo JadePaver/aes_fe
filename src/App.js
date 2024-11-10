@@ -21,6 +21,11 @@ import SubjectManagement from "./pages/SubjectManagement";
 import StudentMangement from "./pages/StudentManagement/studentManagement";
 
 
+import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
+import UserManagement from "./pages/UserManagement";
+import SubjectManagement from "./pages/SubjectManagement";
+import StudentMangement from "./pages/StudentManagement/studentManagement";
+
 import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
 import GetServerIP from "./config/getServerIP.js";
