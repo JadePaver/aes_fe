@@ -13,7 +13,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import Typography from "@mui/material/Typography";  
+import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
@@ -72,7 +72,6 @@ export default function RootLayout() {
     setSidebarOpen(!sidebarOpen);
   };
 
-
   const fetchImage = async (filename) => {
     try {
       const response = await apiClient.get(`/prof_img/get/${filename}`, {
@@ -81,7 +80,7 @@ export default function RootLayout() {
 
       const imageBlob = response.data;
       const imageObjectUrl = URL.createObjectURL(imageBlob);
-      localStorage.setItem("prof_img_url",imageObjectUrl)
+      localStorage.setItem("prof_img_url", imageObjectUrl);
       setUser((prevUser) => ({
         ...prevUser,
         prof_img_url: localStorage.getItem("prof_img_url"),
@@ -97,20 +96,20 @@ export default function RootLayout() {
       navigate("/aes/login");
       return;
     }
-  
+
     try {
       const decodedUser = jwtDecode(token);
-      console.log("decodedUser:",decodedUser)
+      console.log("decodedUser:", decodedUser);
       setUser(decodedUser);
       // Fetch image if profileImage exists
-      if (decodedUser.profileImage ) {
+      if (decodedUser.profileImage) {
         fetchImage(decodedUser.profileImage);
       }
     } catch (error) {
       navigate("/aes/login");
     }
   }, [location, user.profileImage]); // Add user.profileImage to the dependency array
-  
+
   useEffect(() => {
     const handleStorageChange = () => {
       const newImgUrl = localStorage.getItem("prof_img_url");
@@ -133,7 +132,7 @@ export default function RootLayout() {
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
-      <UserContext.Provider value={{user, setUser}}>
+      <UserContext.Provider value={{ user, setUser }}>
         <Box
           sx={{
             height: "100vh",
@@ -146,7 +145,9 @@ export default function RootLayout() {
             id="sidebar"
             sx={{
               bgcolor: sidebarOpen ? "var(--primary)" : "var(--accent)",
-              width: sidebarOpen ? "15vw" : "3vw",
+              width: sidebarOpen ? "15vw" : "4vw",
+              paddingTop: sidebarOpen ? "0" : 5,
+              paddingLeft: sidebarOpen ? "0" : 1.5,
               overflow: "hidden",
               height: "100vh",
               display: "flex",
