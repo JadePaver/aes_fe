@@ -46,14 +46,19 @@ const UserManagementPage = () => {
         `/users/toggleLock/${selectedRow?.id}`,
         selectedRow
       );
-      setIsLockOpen(false)
+      setIsLockOpen(false);
       setSelectedRow(null);
       getUsers();
       showSnackbar({
         message: response?.data?.message || "Password reset successfully",
         severity: "success",
       });
-    } catch (error) {}
+    } catch (error) {
+      showSnackbar({
+        message: error.message,
+        severity: "error",
+      });
+    }
   };
 
   const handleResetPass = async () => {

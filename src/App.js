@@ -16,6 +16,7 @@ import Page404 from "./pages/Page404";
 import SubjectPage from "./pages/SubjectPage";
 import ModulePage from "./pages/ModulePage";
 
+import ClassroomManagementPage from "./pages/ClassroomManagementPage";
 import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
 import UserManagement from "./pages/UserManagementPage";
 import SubjectManagement from "./pages/SubjectManagement";
@@ -165,8 +166,10 @@ const router = createBrowserRouter(
         <Route path="/aes" element={<RootLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="user_profile" element={<UserProfilePage />} />
-          <Route path="assign_classroom">
-            <Route index element={<AssignClassroom />} />
+
+          <Route path="classroom_management">
+            <Route index element={<ClassroomManagementPage/>} />
+
             <Route path="members" element={<>members</>} />
           </Route>
           <Route path="user_management" element={<UserManagement />} />

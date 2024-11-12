@@ -15,6 +15,7 @@ import Stack from "@mui/material/Stack";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+
 import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
 import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
@@ -26,6 +27,7 @@ import TodayRoundedIcon from "@mui/icons-material/TodayRounded";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import ImageIcon from "@mui/icons-material/Image";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 
 import Nav from "./components/nav";
 import ProfileMenu from "./components/profileMenu";
@@ -217,9 +219,9 @@ export default function RootLayout() {
                 sidebarOpen={sidebarOpen}
               />
               <Nav
-                icon={TodayRoundedIcon} // Pass the icon component here
-                label="Delivery Scheadule"
-                navigateTo="/delivery_schedule"
+                icon={MeetingRoomIcon} // Pass the icon component here
+                label="Classroom Management"
+                navigateTo="classroom_management"
                 sidebarOpen={sidebarOpen}
               />
               <Nav
