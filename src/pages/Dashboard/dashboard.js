@@ -26,20 +26,12 @@ const Dashboard = () => {
   const { subjectName, setSubjectName } = useSubject();
   const courses = [
     {
-      id:2,
+      id: 2,
       label: "GEC-4",
       year: 2024,
       instructor: "Mr. Hideo Kinshomi",
       subCode: "ABC-123",
     },
-    {
-      id:1,
-      label: "GEC-5",
-      year: 2024,
-      instructor: "Ms. Ayaka Yoshida",
-      status: "124",
-      subCode: "ASD-475",
-    },    
   ];
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, index) => currentYear - index); // Create an array of years

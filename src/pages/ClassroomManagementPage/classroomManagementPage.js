@@ -17,113 +17,44 @@ import {
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import GroupsRounded from "@mui/icons-material/GroupsRounded";
 import { ModeEdit, PlaylistRemove } from "@mui/icons-material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
+
 import ViewClassMemberTable from "./components/viewClassMemberTable";
 import NewClassroomDialog from "./components/newClassroomDialog";
+import apiClient from "../../axios/axiosInstance";
+import RemoveClassroomDialog from "./components/removeClassroomDialog";
+import EditClassroomDialog from "./components/editClassroomDialog";
 
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 600,
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: 2,
-};
-
-const rows = [
-  {
-    id: 1,
-    className: "Snow",
-    code: "AN0-7UI-MF8",
-    gradeLevel: 1,
-    year: "2024",
-  },
-  {
-    id: 2,
-    className: "Sunshine",
-    code: "BK4-3QD-ZXP",
-    gradeLevel: 2,
-    year: "2023",
-  },
-  {
-    id: 3,
-    className: "Rain",
-    code: "CC1-9KL-HTR",
-    gradeLevel: 3,
-    year: "2022",
-  },
-  {
-    id: 4,
-    className: "Wind",
-    code: "DT6-8YO-JJK",
-    gradeLevel: 4,
-    year: "2024",
-  },
-  {
-    id: 5,
-    className: "Storm",
-    code: "EF7-5VM-BLC",
-    gradeLevel: 5,
-    year: "2023",
-  },
-  {
-    id: 6,
-    className: "Hail",
-    code: "GJ2-2NS-RQW",
-    gradeLevel: 1,
-    year: "2024",
-  },
-  {
-    id: 7,
-    className: "Thunder",
-    code: "HK0-6RT-ZWV",
-    gradeLevel: 3,
-    year: "2022",
-  },
-  {
-    id: 8,
-    className: "Cloud",
-    code: "IP5-4KU-YVB",
-    gradeLevel: 2,
-    year: "2024",
-  },
-  {
-    id: 9,
-    className: "Breeze",
-    code: "LM8-1QA-TFG",
-    gradeLevel: 4,
-    year: "2023",
-  },
-  {
-    id: 10,
-    className: "Mist",
-    code: "NV9-3OP-XCR",
-    gradeLevel: 5,
-    year: "2024",
-  },
-];
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
-
-const AssignClassroom = () => {
-  const [isAddNewClassOpen, setIsAddNewClassOpen] = useState(false);
+const ClassroomManagementPage = () => {
+  const [classrooms, setClassrooms] = useState([]);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [isMemberTblOpen, setIsMemberTblOpen] = useState({
     isOpen: false,
     classData: {},
   });
+
+  const handleOnchange = (e) => {
+    const { name, value } = e.target;
+    setSelected({
+      ...selected,
+      [name]: value,
+    });
+  };
+
+  const getClassrooms = async () => {
+    try {
+      const response = await apiClient.post("/classrooms");
+      console.log("classrooms:", response.data);
+      setClassrooms(response.data);
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
   const columns = [
     {
       field: "id",
@@ -133,7 +64,7 @@ const AssignClassroom = () => {
       headerAlign: "center",
     },
     {
-      field: "className",
+      field: "name",
       headerName: "Class Name",
       flex: 1,
       align: "center",
@@ -147,7 +78,7 @@ const AssignClassroom = () => {
       headerAlign: "center",
     },
     {
-      field: "gradeLevel",
+      field: "grade",
       headerName: "Grade Level",
       type: "number",
       flex: 1,
@@ -194,6 +125,9 @@ const AssignClassroom = () => {
               color="edit"
               variant="icon"
               onClick={() => {
+                setIsEditOpen(true);
+                console.log("selected:",params.row)
+                setSelected(params.row);
                 // setIsRemoveDialog(true);
                 // setIsOpen();
               }}
@@ -207,6 +141,8 @@ const AssignClassroom = () => {
               color="remove"
               variant="icon"
               onClick={() => {
+                setIsRemoveOpen(true);
+                setSelected(params.row);
                 // setIsRemoveDialog(false);
                 // setIsOpen(true);
               }}
@@ -218,6 +154,10 @@ const AssignClassroom = () => {
       ),
     },
   ];
+
+  useEffect(() => {
+    getClassrooms();
+  }, []);
 
   return (
     <Stack
@@ -257,7 +197,7 @@ const AssignClassroom = () => {
               variant="contained"
               startIcon={<AddCircleIcon color="accent" />}
               sx={{ px: 7 }}
-              onClick={() => setIsAddNewClassOpen(true)}
+              onClick={() => setIsAddOpen(true)}
               disableElevation
             >
               New Classroom
@@ -266,7 +206,7 @@ const AssignClassroom = () => {
         </Grid>
         <Grid size={12} sx={{ m: 0, height: "92%" }}>
           <DataGrid
-            rows={rows}
+            rows={classrooms}
             columns={columns}
             initialState={{
               pagination: {
@@ -289,11 +229,25 @@ const AssignClassroom = () => {
           }}
         />
         <NewClassroomDialog
-          open={isAddNewClassOpen}
-          handleClose={() => setIsAddNewClassOpen(false)}
+          open={isAddOpen}
+          handleClose={() => setIsAddOpen(false)}
+          refresh={getClassrooms}
+        />
+        <RemoveClassroomDialog
+          open={isRemoveOpen}
+          handleClose={() => setIsRemoveOpen(false)}
+          refresh={getClassrooms}
+          selected={selected}
+        />
+        <EditClassroomDialog
+          handleOnchange={handleOnchange}
+          open={isEditOpen}
+          handleClose={() => setIsEditOpen(false)}
+          refresh={getClassrooms}
+          selected={selected}
         />
       </Grid>
     </Stack>
   );
 };
-export default AssignClassroom;
+export default ClassroomManagementPage;
