@@ -25,25 +25,28 @@ export const setApiClientBaseURL = () => {
 // Request interceptor to add the token to requests
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token && typeof token === "string") { // Ensure token is a string
-      config.headers.Authorization = `Bearer ${token}`;
-      
-      try {
-        // Check if the token is expired before sending the request
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000;
-        if (decodedToken.exp < currentTime) {
-          // Token is expired; clear it and redirect to login
+    if (config.url !== "/users/login") { // Exclude login request
+      const token = localStorage.getItem("token");
+      if (token && typeof token === "string") { // Ensure token is a string
+        config.headers.Authorization = `Bearer ${token}`;
+        
+        try {
+          // Check if the token is expired before sending the request
+          const decodedToken = jwtDecode(token);
+          const currentTime = Date.now() / 1000;
+          if (decodedToken.exp < currentTime) {
+            // Token is expired; clear it and reject the request
+            localStorage.removeItem("token");
+            return Promise.reject(new Error("Token expired"));
+          }
+        } catch (error) {
+          console.error("Token decoding error:", error);
           localStorage.removeItem("token");
-          return Promise.reject(new Error("Token expired"));
+          return Promise.reject(new Error("Invalid token"));
         }
-      } catch (error) {
-        console.error("Token decoding error:", error);
-        localStorage.removeItem("token");
-        return Promise.reject(new Error("Invalid token"));
       }
     }
+    console.log("without token")
     return config;
   },
   (error) => Promise.reject(error)

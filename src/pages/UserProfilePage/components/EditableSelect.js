@@ -24,10 +24,31 @@ const EditableSelect = ({ value, handleChange, isEditable, sex, errors }) => {
           onChange={handleCustomInputChange} // Custom input change handler
           error={!!errors?.sex}
           helperText={errors?.sex}
+          sx={{
+            m: 0, // Remove margin
+            "& .MuiOutlinedInput-root": {
+              height: "32px",
+              padding: 0, // Remove padding in the root element
+              display: "flex",
+              alignItems: "center",
+              fontSize: "1rem", // Adjust font size as needed
+              color: "inherit", // Ensure color consistency
+            },
+            "& .MuiInputBase-input": {
+              padding: "0 0 0 0.5rem", // Custom padding inside the input field
+              fontSize: "1rem",
+              color: "inherit",
+            },
+          }}
+          inputProps={{
+            style: { fontSize: "1rem", color: "inherit" }, // Consistent font styling
+          }}
         >
           {sex.map((option) => (
             <MenuItem key={option.id} value={option.id}>
-              {option.label.charAt(0).toUpperCase() + option.label.slice(1)}
+              <Typography variant="body1" color="black">
+                {option.label.charAt(0).toUpperCase() + option.label.slice(1)}
+              </Typography>
             </MenuItem>
           ))}
         </TextField>

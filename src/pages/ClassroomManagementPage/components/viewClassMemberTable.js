@@ -1,35 +1,129 @@
-import { useState } from "react";
-import { Box, Stack, Tooltip, Button, Modal, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Stack,
+  Tooltip,
+  Button,
+  Modal,
+  Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import HowToRegRoundedIcon from "@mui/icons-material/HowToRegRounded";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
-import LockResetRoundedIcon from "@mui/icons-material/LockResetRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
-const ViewClassMemberTable = ({ isOpen, onClose, classData }) => {
+import apiClient from "../../../axios/axiosInstance";
+
+import { useSnackbar } from "../../../layouts/root_layout";
+
+const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
+  const { showSnackbar } = useSnackbar();
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [selectedMember, setSelectedMember] = useState(null);
 
-  const columnsModal = [
-    { field: "id", headerName: "ID", width: 90 },
+  const getMembers = async () => {
+    try {
+      const response = await apiClient.post(
+        `/classrooms/get_members/${selected.id}`
+      );
+      console.log("members:", response.data);
+      setMembers(response.data);
+    } catch (error) {
+      console.log("err:", error);
+    }
+  };
+
+  const removeMember = async () => {
+    try {
+      console.log("Removing member:", selectedMember);
+      const response = await apiClient.post(
+        `/classrooms/remove_member/${selectedMember?.id}`,
+        selectedMember
+      );
+      setMembers(members.filter((member) => member.id !== selectedMember.id));
+      setSelectedMember(null);
+      setIsRemoveDialog(false);
+      showSnackbar({
+        message: response?.data?.message,
+        severity: "success",
+      });
+    } catch (error) {
+      console.log("Error removing member:", error);
+      showSnackbar({
+        message: error.response?.data?.error,
+        severity: "error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen === true) {
+      console.log("memberloaded:", selected);
+      getMembers();
+    }
+  }, [isOpen]);
+
+  const columns = [
     {
-      field: "firstName",
-      headerName: "First name",
-      flex: 1,
+      field: "fullname",
+      headerName: "Full Name",
+      flex: 2,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => {
+        const { fName, mName, lName, ext_name } = params.row;
+        // Combine name fields into a full name
+        return `${fName || ""} ${mName || ""} ${lName || ""} ${
+          ext_name || ""
+        }`.trim();
+      },
     },
     {
-      field: "lastName",
-      headerName: "Last name",
+      field: "archive_codes.code",
+      headerName: "Code",
       flex: 1,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => params.row?.archive_codes[0]?.code || "--:--", // Display "N/A" if user_code is null
     },
+
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
+      field: "role",
+      headerName: "Role",
       flex: 1,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) =>
+        (
+          <>
+            <Stack
+              sx={{
+                backgroundColor:
+                  params.row.role?.name === "Student" ? "#4caf50" : "#f57c00",
+                color: "white",
+                borderRadius: "4px",
+                padding: "4px 8px",
+                minWidth: "100%",
+                minHeight: "100%",
+                textAlign: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Typography color="white">{params.row.role?.name}</Typography>
+            </Stack>
+          </>
+        ) || "No Role Assigned", // Display "No Role Assigned" if role is null
     },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 1,
+      flex: 2,
       sortable: false,
       renderCell: (params) => (
         <Stack
@@ -45,8 +139,8 @@ const ViewClassMemberTable = ({ isOpen, onClose, classData }) => {
               color="error"
               variant="icon"
               onClick={() => {
+                setSelectedMember(params.row);
                 setIsRemoveDialog(true);
-                // setIsOpen(true);
               }}
             >
               <PersonRemoveRoundedIcon />
@@ -57,102 +151,41 @@ const ViewClassMemberTable = ({ isOpen, onClose, classData }) => {
     },
   ];
 
-  const rows = [
-    {
-      id: 1,
-      className: "Snow",
-      code: "AN0-7UI-MF8",
-      gradeLevel: 1,
-      year: "2024",
-    },
-    {
-      id: 2,
-      className: "Sunshine",
-      code: "BK4-3QD-ZXP",
-      gradeLevel: 2,
-      year: "2023",
-    },
-    {
-      id: 3,
-      className: "Rain",
-      code: "CC1-9KL-HTR",
-      gradeLevel: 3,
-      year: "2022",
-    },
-    {
-      id: 4,
-      className: "Wind",
-      code: "DT6-8YO-JJK",
-      gradeLevel: 4,
-      year: "2024",
-    },
-    {
-      id: 5,
-      className: "Storm",
-      code: "EF7-5VM-BLC",
-      gradeLevel: 5,
-      year: "2023",
-    },
-    {
-      id: 6,
-      className: "Hail",
-      code: "GJ2-2NS-RQW",
-      gradeLevel: 1,
-      year: "2024",
-    },
-    {
-      id: 7,
-      className: "Thunder",
-      code: "HK0-6RT-ZWV",
-      gradeLevel: 3,
-      year: "2022",
-    },
-    {
-      id: 8,
-      className: "Cloud",
-      code: "IP5-4KU-YVB",
-      gradeLevel: 2,
-      year: "2024",
-    },
-    {
-      id: 9,
-      className: "Breeze",
-      code: "LM8-1QA-TFG",
-      gradeLevel: 4,
-      year: "2023",
-    },
-    {
-      id: 10,
-      className: "Mist",
-      code: "NV9-3OP-XCR",
-      gradeLevel: 5,
-      year: "2024",
-    },
-  ];
-
   return (
     <>
-      <Modal open={isOpen} onClose={onClose}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "90%",
-            height: "90%",
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
+      <Dialog
+        open={isOpen}
+        onClose={onClose}
+        fullWidth
+        PaperProps={{
+          sx: {
+            minWidth: "90%",
+            minHeight: "90%",
+          },
+        }}
+      >
+        <DialogTitle>
           <Typography variant="h6">
-            {classData?.className}({classData?.year})
+            {selected?.name}({selected?.year})
           </Typography>
+          <Button
+            onClick={onClose}
+            variant="icon"
+            disableElevation
+            color="error"
+            style={{
+              position: "absolute",
+              top: "0px",
+              right: "0px",
+            }}
+          >
+            <CloseRoundedIcon />
+          </Button>
+        </DialogTitle>
+        <DialogContent sx={{ display: "flex" }}>
           <DataGrid
-            rows={rows}
-            columns={columnsModal}
+            rows={members}
+            columns={columns}
             initialState={{
               pagination: {
                 paginationModel: {
@@ -163,9 +196,28 @@ const ViewClassMemberTable = ({ isOpen, onClose, classData }) => {
             pageSizeOptions={[5]}
             checkboxSelection
             disableRowSelectionOnClick
+            autoHeight
           />
-        </Box>
-      </Modal>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isRemoveDialog} onClose={() => setIsRemoveDialog(false)}>
+        <DialogTitle>Confirm Removal</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to remove {selectedMember?.fName}{" "}
+            {selectedMember?.lName} from the class?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsRemoveDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={removeMember} color="error">
+            Remove
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

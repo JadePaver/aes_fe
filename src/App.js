@@ -17,7 +17,6 @@ import SubjectPage from "./pages/SubjectPage";
 import ModulePage from "./pages/ModulePage";
 
 import ClassroomManagementPage from "./pages/ClassroomManagementPage";
-import AssignClassroom from "./pages/AssignClassroom/assignClassroom";
 import UserManagement from "./pages/UserManagementPage";
 import SubjectManagement from "./pages/SubjectManagement";
 import StudentMangement from "./pages/StudentManagement/studentManagement";
@@ -56,7 +55,6 @@ const theme = createTheme({
       main: "#757575", // Adjust this value to your preferred shade of gray
       contrastText: "#fff",
     },
-    // assign classroom Icon color
     group: {
       main: "#34D399",
     },
@@ -97,7 +95,7 @@ const theme = createTheme({
         },
         icon: ({ ownerState, theme }) => ({
           padding: "0.25rem",
-          minWidth: 0,
+          minWidth: "2rem",
           width: "auto",
           display: "flex",
           alignItems: "center",

@@ -16,6 +16,8 @@ import {
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import GroupsRounded from "@mui/icons-material/GroupsRounded";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import MoveUpRoundedIcon from "@mui/icons-material/MoveUpRounded";
 import { ModeEdit, PlaylistRemove } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
@@ -25,12 +27,17 @@ import NewClassroomDialog from "./components/newClassroomDialog";
 import apiClient from "../../axios/axiosInstance";
 import RemoveClassroomDialog from "./components/removeClassroomDialog";
 import EditClassroomDialog from "./components/editClassroomDialog";
+import AddToClassroomDialog from "./components/addToClassroomDialog";
+import TransferStudentDialog from "./components/transferStudentsDialog";
 
 const ClassroomManagementPage = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isMemberOpen, setIsMemberOpen] = useState(false);
+  const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [isMemberTblOpen, setIsMemberTblOpen] = useState({
     isOpen: false,
@@ -93,6 +100,13 @@ const ClassroomManagementPage = () => {
       headerAlign: "center",
     },
     {
+      field: "totalUsers",
+      headerName: "Total # of members",
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
       field: "actions",
       headerName: "Actions",
       flex: 1,
@@ -107,26 +121,54 @@ const ClassroomManagementPage = () => {
           justifyContent="center"
           sx={{ height: "100%", width: "100%" }}
         >
-          <Tooltip title="Approve">
+          <Tooltip title="Transfer Students Classroom">
+            <Button
+              size="small"
+              color="secondary"
+              variant="icon"
+              onClick={() => {
+                setIsTransferOpen(true);
+                setSelected(params.row);
+              }}
+            >
+              <MoveUpRoundedIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Add Member">
+            <Button
+              size="small"
+              color="yeloh"
+              variant="icon"
+              onClick={() => {
+                console.log("adding");
+                setIsAddMemberOpen(true);
+                setSelected(params.row);
+              }}
+            >
+              <PersonAddIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="View Members">
             <Button
               size="small"
               color="primary"
               variant="icon"
-              onClick={() =>
-                setIsMemberTblOpen({ isOpen: true, classData: params.row })
-              }
+              onClick={() => {
+                setIsMemberOpen(true);
+                setSelected(params.row);
+              }}
             >
               <GroupsRounded />
             </Button>
           </Tooltip>
-          <Tooltip title="Edit">
+          <Tooltip title="Edit Classroom">
             <Button
               size="small"
               color="edit"
               variant="icon"
               onClick={() => {
                 setIsEditOpen(true);
-                console.log("selected:",params.row)
+                console.log("selected:", params.row);
                 setSelected(params.row);
                 // setIsRemoveDialog(true);
                 // setIsOpen();
@@ -221,11 +263,27 @@ const ClassroomManagementPage = () => {
           />
         </Grid>
         {/* Modal component */}
+        <TransferStudentDialog
+          selected={selected}
+          isOpen={isTransferOpen}
+          refresh={getClassrooms}
+          handleClose={() => {
+            setIsTransferOpen(false);
+          }}
+        />
+        <AddToClassroomDialog
+          selected={selected}
+          isOpen={isAddMemberOpen}
+          refresh={getClassrooms}
+          handleClose={() => {
+            setIsAddMemberOpen(false);
+          }}
+        />
         <ViewClassMemberTable
-          classData={isMemberTblOpen.classData}
-          isOpen={isMemberTblOpen.isOpen}
+          selected={selected}
+          isOpen={isMemberOpen}
           onClose={() => {
-            setIsMemberTblOpen({ isOpen: false, classId: null });
+            setIsMemberOpen(false);
           }}
         />
         <NewClassroomDialog
