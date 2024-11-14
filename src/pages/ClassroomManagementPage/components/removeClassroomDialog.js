@@ -22,7 +22,6 @@ const RemoveClassroomDialog = ({ open, handleClose, refresh, selected }) => {
 
   const handleSubmit = async () => {
     try {
-      console.log("selected:", selected);
       const response = await apiClient.post(
         `/classrooms/remove/${selected?.id}`
       );
@@ -35,6 +34,10 @@ const RemoveClassroomDialog = ({ open, handleClose, refresh, selected }) => {
       refresh();
     } catch (error) {
       console.error("Error removing classroom:", error);
+      showSnackbar({
+        message: error.response?.data?.error,
+        severity: "error",
+      });
     }
   };
 

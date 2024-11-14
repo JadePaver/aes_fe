@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -18,6 +17,8 @@ import Grid from "@mui/material/Grid2";
 
 import { forwardRef } from "react";
 import { gradeLevels } from "../../../const/var";
+import apiClient from "../../../axios/axiosInstance";
+import { useSnackbar } from "../../../layouts/root_layout";
 
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="left" ref={ref} {...props} />;
@@ -32,11 +33,25 @@ const EditClassroomDialog = ({
 }) => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, index) => currentYear - index); // Create an array of years
+  const { showSnackbar } = useSnackbar();
 
   const handleSubmit = async () => {
     try {
       console.log("editClass:", selected);
-    } catch (error) {}
+
+      const response = await apiClient.post(`/classrooms/update/${selected?.id}`, selected);
+      handleClose();
+      refresh();
+      showSnackbar({
+        message: response?.data?.message,
+        severity: "success",
+      });
+    } catch (error) {
+      showSnackbar({
+        message: error.response?.data?.error,
+        severity: "error",
+      });
+    }
   };
 
   return (
@@ -60,7 +75,7 @@ const EditClassroomDialog = ({
       }}
     >
       <DialogTitle textAlign="center" fontWeight={600}>
-        Update Classroom Information
+        UPDATE CLASSROOM INFORMATION
       </DialogTitle>
       <DialogContent
         sx={{
@@ -140,16 +155,17 @@ const EditClassroomDialog = ({
       </DialogContent>
       <DialogActions sx={{ justifyContent: "center", p: 2 }}>
         <Button
+        size="large"
           variant="contained"
           color="primary"
           fullWidth
           onClick={handleSubmit}
           disableElevation
         >
-          Update
+          UPDATE
         </Button>
-        <Button variant="outlined" fullWidth onClick={handleClose}>
-          Cancel
+        <Button size="large" variant="outlined" fullWidth onClick={handleClose}>
+          CANCEL
         </Button>
       </DialogActions>
     </Dialog>

@@ -534,13 +534,13 @@ const UserProfilePage = () => {
                 </Box>
               )}
             </Grid>
-            <Grid container size={{ md: 12 }}>
+            <Grid container size={{ md: 12 }} columnSpacing={5}>
               <Grid item size={{ md: 6 }}>
                 {/* Added padding for better spacing */}
                 <Typography variant="body1" fontWeight={600}>
                   Name:
                 </Typography>
-                <Grid container spacing={1} paddingBlockEnd={1}>
+                <Grid container spacing={1}paddingBlockEnd={1}>
                   {" "}
                   {/* Added spacing between rows */}
                   <Grid item size={{ xs: 6, md: 2 }}>
