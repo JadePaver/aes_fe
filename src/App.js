@@ -20,6 +20,7 @@ import ClassroomManagementPage from "./pages/ClassroomManagementPage";
 import UserManagement from "./pages/UserManagementPage";
 import SubjectManagement from "./pages/SubjectManagement";
 import StudentMangement from "./pages/StudentManagement/studentManagement";
+import ThisYear from "./pages/ThisYear";
 
 import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
@@ -166,11 +167,12 @@ const router = createBrowserRouter(
           <Route path="user_profile" element={<UserProfilePage />} />
 
           <Route path="classroom_management">
-            <Route index element={<ClassroomManagementPage/>} />
+            <Route index element={<ClassroomManagementPage />} />
 
             <Route path="members" element={<>members</>} />
           </Route>
           <Route path="user_management" element={<UserManagement />} />
+          <Route path="thisyear" element={<ThisYear />} />
           <Route path="subject_management" element={<SubjectManagement />} />
           <Route path="student_management" element={<StudentMangement />} />
           <Route path="subject/:subjectId">
