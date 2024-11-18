@@ -15,6 +15,7 @@ import {
   CardContent,
   CardMedia,
   Typography,
+  Divider,
 } from "@mui/material";
 import apiClient from "../../axios/axiosInstance";
 const ThisYear = () => {
@@ -49,14 +50,14 @@ const ThisYear = () => {
     >
       <Grid
         container
-        rowSpacing={0}
+        rowSpacing={2}
         columnSpacing={0}
         sx={{
           width: "100%",
           height: "100%",
+          p: "1rem",
           background: "white",
           borderRadius: "0.2rem",
-          // p: "1rem 0",
           overflowY: "auto",
           maxHeight: "calc(100vh - 2rem)",
         }}
@@ -65,13 +66,10 @@ const ThisYear = () => {
           container
           size={12}
           sx={{
-            p: "0.5rem",
-            m: 0,
-            height: "50%",
-            alignContent: "center",
+            height: "58%",
           }}
         >
-          <Grid size={6} sx={{ height: "100%" }}>
+          <Grid size={5.75} sx={{ height: "100%" }}>
             <Grid
               size={12}
               sx={{
@@ -82,152 +80,170 @@ const ThisYear = () => {
                 alignItems: "center",
               }}
             >
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignContent="center"
-                sx={{
-                  fontSize: "1.5rem",
-                  fontWeight: "bold",
-                  borderBottom: "2px solid",
-                  width: "30%",
-                  textAlign: "center",
-                }}
-              >
+              <Typography variant="h4" fontWeight={700}>
                 THIS YEAR
-              </Box>
+              </Typography>
             </Grid>
             <Grid
+              container
               size={12}
               sx={{
                 m: 0,
-                height: "85%",
-                alignContent: "center",
+                maxHeight: "85%",
+                minHeight: "85%",
+                justifyContent: "space-between",
               }}
             >
               <Grid
-                container
-                size={12}
+                item
+                size={5.75}
                 sx={{
-                  m: 0,
-                  height: "85%",
-                  alignContent: "center",
+                  minHeight: "100%",
+                  maxWidth: 280,
+                  display: "flex",
+                  justifyContent: "center",
                 }}
               >
-                <Grid size={6}>
-                  <Box display="flex" justifyContent="center">
-                    <Card
-                      sx={{
-                        maxWidth: "100%",
-                        m: "0.5rem",
-                        maxHeight: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "0.2rem solid",
-                        borderColor: "green",
-                        // p:
-                      }}
+                <Card
+                  sx={{
+                    minWidth: "100%",
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    minHeight: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "0.3rem solid green",
+                    borderRadius: "0.4rem",
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      textAlign: "center",
+                      pt: 5,
+                      pb: 5,
+                      minHeight: "70%",
+                    }}
+                  >
+                    <Box display="flex" alignItems="center">
+                      <SchoolIcon
+                        sx={{ fontSize: 50, mr: 1, color: "green" }}
+                      />
+                      <Typography variant="h4" sx={{ color: "green" }}>
+                        155,000
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                  <CardActions
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      width: "100%",
+                      bgcolor: "green", // Shortened syntax for backgroundColor
+                      py: 1, // Vertical padding
+                      color: "white",
+                      minHeight: "30%",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      fontWeight={550}
+                      sx={{ color: "white" }}
                     >
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%",
-                          textAlign: "center",
-                          pt: 5,
-                          pb: 5,
-                        }}
-                      >
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          sx={{ fontSize: 40, color: "green" }}
-                        >
-                          <SchoolIcon sx={{ fontSize: 50, mr: 1 }} />
-                          1000
-                        </Box>
-                      </CardContent>
-                      <CardActions
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          width: "100%",
-                          bgcolor: "green", // Shortened syntax for backgroundColor
-                          py: 1, // Vertical padding
-                          px: 2, // Horizontal padding
-                          mt: "auto", // Pushes CardActions to the bottom of the card if needed
-                          fontSize: 25,
-                          color: "white",
-                        }}
-                      >
-                        New Students
-                      </CardActions>
-                    </Card>
-                  </Box>
-                </Grid>
-                <Grid size={6}>
-                  <Box display="flex" justifyContent="center">
-                    <Card
-                      sx={{
-                        maxWidth: "100%",
-                        m: "0.5rem",
-                        maxHeight: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "0.2rem solid",
-                        borderColor: "green",
-                        // p:
-                      }}
+                      New Students
+                    </Typography>
+                  </CardActions>
+                </Card>
+              </Grid>
+              <Grid
+                item
+                size={5.75}
+                sx={{
+                  minHeight: "100%",
+                  maxWidth: 280,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Card
+                  sx={{
+                    minWidth: "100%",
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    minHeight: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "0.3rem solid green",
+                    borderRadius: "0.4rem",
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      textAlign: "center",
+                      pt: 5,
+                      pb: 5,
+                      minHeight: "70%",
+                    }}
+                  >
+                    <Box display="flex" alignItems="center">
+                      <SchoolIcon
+                        sx={{ fontSize: 50, mr: 1, color: "green" }}
+                      />
+                      <Typography variant="h4" sx={{ color: "green" }}>
+                        53
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                  <CardActions
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      width: "100%",
+                      bgcolor: "green", // Shortened syntax for backgroundColor
+                      py: 1, // Vertical padding
+                      color: "white",
+                      minHeight: "30%",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      fontWeight={550}
+                      sx={{ color: "white" }}
                     >
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%",
-                          textAlign: "center",
-                          pt: 5,
-                          pb: 5,
-                        }}
-                      >
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          sx={{ fontSize: 40, color: "green" }}
-                        >
-                          <MenuBookIcon sx={{ fontSize: 50, mr: 1 }} />
-                          1000
-                        </Box>
-                      </CardContent>
-                      <CardActions
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          width: "100%",
-                          bgcolor: "green", // Shortened syntax for backgroundColor
-                          py: 1, // Vertical padding
-                          px: 2, // Horizontal padding
-                          mt: "auto", // Pushes CardActions to the bottom of the card if needed
-                          fontSize: 23.5,
-                          color: "white",
-                        }}
-                      >
-                        Subjects Created
-                      </CardActions>
-                    </Card>
-                  </Box>
-                </Grid>
+                      Subject Created
+                    </Typography>
+                  </CardActions>
+                </Card>
               </Grid>
             </Grid>
           </Grid>
-          <Grid size={6} sx={{ height: "100%" }}>
+          <Grid item size={{ md: 0.5 }}>
+            <Divider
+              orientation="vertical"
+              flexItem
+              sx={{
+                m: "0 auto",
+                maxWidth: "1px",
+                minHeight: "100%",
+                borderRadius: "0.4rem",
+                border: "5px solid",
+              }}
+            />
+          </Grid>
+          <Grid size={5.75} sx={{ height: "100%" }}>
             <Grid
               size={12}
               sx={{
@@ -238,151 +254,153 @@ const ThisYear = () => {
                 alignItems: "center",
               }}
             >
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignContent="center"
-                sx={{
-                  fontSize: "1.5rem",
-                  fontWeight: "bold",
-                  borderBottom: "2px solid",
-                  width: "27%",
-                  textAlign: "center",
-                }}
-              >
+              <Typography variant="h4" fontWeight={700}>
                 OVERALL
-              </Box>
+              </Typography>
             </Grid>
             <Grid
-              // container
+              container
               size={12}
               sx={{
-                // p: "0.5rem",
                 m: 0,
-                height: "85%",
-                alignContent: "center",
+                maxHeight: "85%",
+                minHeight: "85%",
+                justifyContent: "space-between",
               }}
             >
               <Grid
-                container
-                size={12}
+                item
+                size={5.75}
                 sx={{
-                  // p: "0.5rem",
-                  m: 0,
-                  height: "85%",
-                  alignContent: "center",
+                  minHeight: "100%",
+                  maxWidth: 280,
+                  display: "flex",
+                  justifyContent: "center",
                 }}
               >
-                <Grid size={6}>
-                  <Box display="flex" justifyContent="center">
-                    <Card
-                      sx={{
-                        maxWidth: "100%",
-                        m: "0.5rem",
-                        maxHeight: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "0.2rem solid",
-                        borderColor: "green",
-                        // p:
-                      }}
+                <Card
+                  sx={{
+                    minWidth: "100%",
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    minHeight: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "0.3rem solid green",
+                    borderRadius: "0.4rem",
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      textAlign: "center",
+                      pt: 5,
+                      pb: 5,
+                      minHeight: "70%",
+                    }}
+                  >
+                    <Box display="flex" alignItems="center">
+                      <SchoolIcon
+                        sx={{ fontSize: 50, mr: 1, color: "green" }}
+                      />
+                      <Typography variant="h4" sx={{ color: "green" }}>
+                        155,000
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                  <CardActions
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      width: "100%",
+                      bgcolor: "green", // Shortened syntax for backgroundColor
+                      py: 1, // Vertical padding
+                      color: "white",
+                      minHeight: "30%",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      fontWeight={550}
+                      sx={{ color: "white" }}
                     >
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%",
-                          textAlign: "center",
-                          pt: 5,
-                          pb: 5,
-                        }}
-                      >
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          sx={{ fontSize: 40, color: "green" }}
-                        >
-                          <SchoolIcon sx={{ fontSize: 50, mr: 1 }} />
-                          1000
-                        </Box>
-                      </CardContent>
-                      <CardActions
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          width: "100%",
-                          bgcolor: "green", // Shortened syntax for backgroundColor
-                          py: 1, // Vertical padding
-                          px: 2, // Horizontal padding
-                          mt: "auto", // Pushes CardActions to the bottom of the card if needed
-                          fontSize: 25,
-                          color: "white",
-                        }}
-                      >
-                        Students
-                      </CardActions>
-                    </Card>
-                  </Box>
-                </Grid>
-                <Grid size={6}>
-                  <Box display="flex" justifyContent="center">
-                    <Card
-                      sx={{
-                        maxWidth: "100%",
-                        m: "0.5rem",
-                        maxHeight: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "0.2rem solid",
-                        borderColor: "green",
-                        // p:
-                      }}
+                      New Students
+                    </Typography>
+                  </CardActions>
+                </Card>
+              </Grid>
+              <Grid
+                item
+                size={5.75}
+                sx={{
+                  minHeight: "100%",
+                  maxWidth: 280,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Card
+                  sx={{
+                    minWidth: "100%",
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    minHeight: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "0.3rem solid green",
+                    borderRadius: "0.4rem",
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      textAlign: "center",
+                      pt: 5,
+                      pb: 5,
+                      minHeight: "70%",
+                    }}
+                  >
+                    <Box display="flex" alignItems="center">
+                      <SchoolIcon
+                        sx={{ fontSize: 50, mr: 1, color: "green" }}
+                      />
+                      <Typography variant="h4" sx={{ color: "green" }}>
+                        53
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                  <CardActions
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      width: "100%",
+                      bgcolor: "green", // Shortened syntax for backgroundColor
+                      py: 1, // Vertical padding
+                      color: "white",
+                      minHeight: "30%",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      fontWeight={550}
+                      sx={{ color: "white" }}
                     >
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%",
-                          textAlign: "center",
-                          pt: 5,
-                          pb: 5,
-                        }}
-                      >
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          sx={{ fontSize: 40, color: "green" }}
-                        >
-                          <MenuBookIcon sx={{ fontSize: 50, mr: 1 }} />
-                          1000
-                        </Box>
-                      </CardContent>
-                      <CardActions
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          width: "100%",
-                          bgcolor: "green", // Shortened syntax for backgroundColor
-                          py: 1, // Vertical padding
-                          px: 2, // Horizontal padding
-                          mt: "auto", // Pushes CardActions to the bottom of the card if needed
-                          fontSize: 23.5,
-                          color: "white",
-                        }}
-                      >
-                        Subjects Created
-                      </CardActions>
-                    </Card>
-                  </Box>
-                </Grid>
+                      Subject Created
+                    </Typography>
+                  </CardActions>
+                </Card>
               </Grid>
             </Grid>
           </Grid>
@@ -391,14 +409,17 @@ const ThisYear = () => {
           container
           size={12}
           sx={{
-            p: "0.5rem",
-            m: 0,
-            height: "50%",
+            height: "40%",
             alignContent: "center",
           }}
         >
-          <Grid size={12}>
-            <Box display="flex" justifyContent="center">
+          <Grid item xs={12} sx={{ height: "100%", width: "100%" }}>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              sx={{ height: "100%", width: "100%" }}
+            >
               <BarChart
                 xAxis={[
                   {
@@ -414,13 +435,17 @@ const ThisYear = () => {
                   },
                 ]}
                 series={[
-                  { data: [4, 3, 5, 2, 1, 4] }, // Updated to include values for all six groups
+                  { data: [4, 3, 5, 2, 1, 4] },
                   { data: [1, 6, 3, 5, 2, 3] },
                   { data: [2, 5, 6, 1, 4, 2] },
                   { data: [2, 5, 6, 3, 5, 1] },
                 ]}
-                width={1000}
-                height={300}
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  border: "2px solid",
+                  borderRadius: "0.4rem",
+                }}
               />
             </Box>
           </Grid>

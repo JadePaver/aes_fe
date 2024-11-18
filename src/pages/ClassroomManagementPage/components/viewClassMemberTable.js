@@ -183,21 +183,22 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
           </Button>
         </DialogTitle>
         <DialogContent sx={{ display: "flex" }}>
-          <DataGrid
-            rows={members}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 5,
+          <Box sx={{ flexGrow: 1 }}>
+            <DataGrid
+              rows={members}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 5,
+                  },
                 },
-              },
-            }}
-            pageSizeOptions={[5]}
-            checkboxSelection
-            disableRowSelectionOnClick
-            autoHeight
-          />
+              }}
+              pageSizeOptions={[5]}
+              checkboxSelection
+              disableRowSelectionOnClick
+            />
+          </Box>
         </DialogContent>
       </Dialog>
 
