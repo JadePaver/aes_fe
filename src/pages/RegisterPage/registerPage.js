@@ -102,8 +102,7 @@ const RegisterPage = () => {
         stepErrors.email = "Enter a valid email address";
       }
     } else if (activeStep === 2) {
-      if (!(formData.type))
-        stepErrors.type = "User Type is required";
+      if (!formData.type) stepErrors.type = "User Type is required";
       if (!(formData.code || "").trim()) stepErrors.code = "Code is required";
       if (!(formData.username || "").trim())
         stepErrors.username = "Username is required";
@@ -210,7 +209,7 @@ const RegisterPage = () => {
                 sx={{ flex: 1 }}
                 placeholder="Jr,Sr,III"
                 slotProps={{
-                  inputLabel: { shrink: true }, 
+                  inputLabel: { shrink: true },
                 }}
                 value={formData.ext}
                 onChange={handleChange}
@@ -359,7 +358,7 @@ const RegisterPage = () => {
                 value={formData.code}
                 onChange={handleChange}
                 slotProps={{
-                  inputLabel: { shrink: true }, 
+                  inputLabel: { shrink: true },
                 }}
                 error={!!errors.code}
                 helperText={errors.code}
@@ -372,7 +371,7 @@ const RegisterPage = () => {
                 value={formData.username}
                 onChange={handleChange}
                 slotProps={{
-                  inputLabel: { shrink: true }, 
+                  inputLabel: { shrink: true },
                 }}
                 error={!!errors.username}
                 helperText={errors.username}
@@ -462,7 +461,7 @@ const RegisterPage = () => {
       }
       setErrors((prevErrors) => ({
         ...prevErrors,
-        ...newErrors, 
+        ...newErrors,
       }));
       setSnackbar({
         open: true,
@@ -481,6 +480,9 @@ const RegisterPage = () => {
       const response = await apiClient.get("/roles/filtered");
       setRoles(response.data);
     };
+
+    localStorage.clear();
+
     getRoles();
     getSex();
   }, []);

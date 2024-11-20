@@ -165,7 +165,6 @@ const router = createBrowserRouter(
         <Route path="/aes" element={<RootLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="user_profile" element={<UserProfilePage />} />
-
           <Route path="classroom_management">
             <Route index element={<ClassroomManagementPage />} />
 

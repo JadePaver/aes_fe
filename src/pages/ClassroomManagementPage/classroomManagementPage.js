@@ -226,25 +226,25 @@ const ClassroomManagementPage = () => {
         }}
       >
         <Grid
-          size={12}
+          size={{md:12}}
           sx={{
+            display:"flex",
             p: "0.5rem",
             m: 0,
             height: "8%",
             alignContent: "center",
+            justifyContent: "flex-end",
           }}
         >
-          <Box display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              startIcon={<AddCircleIcon color="accent" />}
-              sx={{ px: 7 }}
-              onClick={() => setIsAddOpen(true)}
-              disableElevation
-            >
-              New Classroom
-            </Button>
-          </Box>
+          <Button
+            variant="contained"
+            startIcon={<AddCircleIcon color="accent" />}
+            sx={{ px: 7 }}
+            onClick={() => setIsAddOpen(true)}
+            disableElevation
+          >
+            New Classroom
+          </Button>
         </Grid>
         <Grid size={12} sx={{ m: 0, height: "92%" }}>
           <DataGrid
