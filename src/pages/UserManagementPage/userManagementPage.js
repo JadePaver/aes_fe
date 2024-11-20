@@ -2,7 +2,7 @@ import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Grid from "@mui/material/Grid2";
 
-import { Button, Stack, Tooltip, Paper, Typography } from "@mui/material";
+import { Button, Stack, Tooltip, Paper, Typography, Box } from "@mui/material";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 import {
   HowToReg,
@@ -16,6 +16,7 @@ import {
 
 import { useState, useEffect } from "react";
 
+import AssignClassroomDialog from "./components/assignClassroomDialog";
 import ResetPassDialog from "./components/resetPassDialog";
 import LockToggleDialog from "./components/lockToggleDialog";
 import { DataGrid } from "@mui/x-data-grid";
@@ -32,13 +33,9 @@ const UserManagementPage = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
 
-  const [isRemoveDialog, setIsRemoveDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [isOpen, setIsOpen] = useState(null);
-  const [isLockDialog, setIsLockDialog] = useState(false);
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
 
   const handleLockToggle = async () => {
     try {
@@ -123,9 +120,24 @@ const UserManagementPage = () => {
       },
     },
     {
-      field: "assignedClassroom",
+      field: "classroomName",
       headerName: "Classroom",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%", // Ensure it takes the full height of the cell
+              width: "100%", // Ensure it takes the full width of the cell
+            }}
+          >
+            <Typography color="black">{params.row?.classroomName}</Typography>
+          </Box>
+        );
+      },
     },
     {
       field: "role_id",
@@ -197,51 +209,30 @@ const UserManagementPage = () => {
           justifyContent="center"
           sx={{ height: "100%", width: "100%" }}
         >
-          {params.row.status === "Pending" ? (
-            <Tooltip title="Approve">
-              <Button
-                size="small"
-                color="primary"
-                variant="icon"
-                onClick={() => handleOpen(params.row.id)}
-              >
-                <HowToReg />
-              </Button>
-            </Tooltip>
-          ) : (
-            <Tooltip title="Approve">
-              <Button variant="icon" disabled sx={{ opacity: 0 }}>
-                <HowToReg />
-              </Button>
-            </Tooltip>
-          )}
-
-          <Tooltip title="Group">
+          <Tooltip title="Assign Classroom">
             <Button
               size="small"
               color="warning"
               variant="icon"
-              onClick={() =>
-                setIsMemberTblOpen({ isOpen: true, classData: params.row })
-              }
+              onClick={() => {
+                setIsAssignOpen(true);
+                setSelected(params.row);
+              }}
             >
               <MoveDown />
             </Button>
           </Tooltip>
 
-          <Tooltip title="Edit">
+          {/* <Tooltip title="Edit">
             <Button
               size="small"
               color="secondary"
               variant="icon"
-              onClick={() => {
-                setIsRemoveDialog(false);
-                setIsOpen(true);
-              }}
+              onClick={() => {}}
             >
               <ModeEdit />
             </Button>
-          </Tooltip>
+          </Tooltip> */}
 
           <Tooltip title={params.row.isLocked ? "Unlock" : "Lock"}>
             <Button
@@ -330,8 +321,13 @@ const UserManagementPage = () => {
 
   const getUsers = async () => {
     const response = await apiClient.post(`/users/getAll/${decodedUser.id}`);
-    console.log("users:", response.data);
-    setUsers(response.data);
+    const data = response.data;
+    const rows = data.map((row) => ({
+      ...row,
+      classroomName: row.assigned_classroom?.[0]?.classroom?.name,
+    }));
+    console.log("formated:", rows);
+    setUsers(rows);
   };
 
   useEffect(() => {
@@ -437,6 +433,12 @@ const UserManagementPage = () => {
           />
         </Grid>
       </Stack>
+      <AssignClassroomDialog
+        isOpen={isAssignOpen}
+        handleClose={() => setIsAssignOpen(false)}
+        selected={selected}
+        refresh={getUsers}
+      />
     </>
   );
 };
