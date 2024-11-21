@@ -3,31 +3,19 @@ import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
 import apiClient from "../axios/axiosInstance";
 import { jwtDecode } from "jwt-decode";
 
-import Avatar from "@mui/material/Avatar";
-
 import Box from "@mui/material/Box";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Badge from "@mui/material/Badge";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
-import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
-import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
-import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
+import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import GroupRoundedIcon from "@mui/icons-material/GroupRounded";
 import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftRounded";
 import DehazeRoundedIcon from "@mui/icons-material/DehazeRounded";
-import Logout from "@mui/icons-material/Logout";
-import TodayRoundedIcon from "@mui/icons-material/TodayRounded";
-import LockResetIcon from "@mui/icons-material/LockReset";
-import ImageIcon from "@mui/icons-material/Image";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 
 import Nav from "./components/nav";
 import ProfileMenu from "./components/profileMenu";
@@ -201,21 +189,15 @@ export default function RootLayout() {
               }}
             >
               <Nav
-                icon={SpaceDashboardOutlinedIcon} // Pass the icon component here
+                icon={DashboardRoundedIcon} // Pass the icon component here
                 label="Home"
                 navigateTo="/aes"
                 sidebarOpen={sidebarOpen}
               />
               <Nav
-                icon={ShoppingCartRoundedIcon} // Pass the icon component here
-                label="Purchase Order"
-                navigateTo="/purchase_order"
-                sidebarOpen={sidebarOpen}
-              />
-              <Nav
-                icon={Inventory2RoundedIcon} // Pass the icon component here
-                label="Inventory"
-                navigateTo="/inventory"
+                icon={AutoStoriesRoundedIcon} // Pass the icon component here
+                label="Subject Management"
+                navigateTo="subject_management"
                 sidebarOpen={sidebarOpen}
               />
               <Nav
