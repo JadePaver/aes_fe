@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Card, CardActions, CardContent, Box } from "@mui/material";
+import { Typography, Card, CardActions, CardContent } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 const Cards = ({ title, data, icon }) => {
   return (
@@ -20,7 +20,7 @@ const Cards = ({ title, data, icon }) => {
       <CardContent
         sx={{
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
           width: "100%",
@@ -30,13 +30,11 @@ const Cards = ({ title, data, icon }) => {
           minHeight: "70%",
         }}
       >
-        <Box display="flex" alignItems="center">
-          {icon}
-          {/* <SchoolIcon sx={{ fontSize: 50, mr: 1, color: "green" }} /> */}
-          <Typography variant="h4" sx={{ color: "green" }}>
-            {data}
-          </Typography>
-        </Box>
+        {icon}
+        {/* <SchoolIcon sx={{ fontSize: 50, mr: 1, color: "green" }} /> */}
+        <Typography variant="h4" sx={{ color: "green" }}>
+          {data}
+        </Typography>
       </CardContent>
       <CardActions
         sx={{
