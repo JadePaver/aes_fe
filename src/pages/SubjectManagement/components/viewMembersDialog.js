@@ -6,52 +6,39 @@ import {
   Button,
   Typography,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  DialogActions,
 } from "@mui/material";
+
+import { formatDate } from "../../../const/formatter";
 import { DataGrid } from "@mui/x-data-grid";
-import HowToRegRoundedIcon from "@mui/icons-material/HowToRegRounded";
-import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-
 import apiClient from "../../../axios/axiosInstance";
-
 import { useSnackbar } from "../../../layouts/root_layout";
 
-const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
-  const { showSnackbar } = useSnackbar();
-  const [isRemoveDialog, setIsRemoveDialog] = useState(false);
-  const [members, setMembers] = useState([]);
-  const [selectedMember, setSelectedMember] = useState(null);
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 
-  const getMembers = async () => {
-    try {
-      const response = await apiClient.post(
-        `/classrooms/get_members/${selected.id}`
-      );
-      console.log("members:", response.data);
-      setMembers(response.data);
-    } catch (error) {
-      console.log("err:", error);
-    }
-  };
+const ViewMembersDialog = ({ isOpen, handleClose, refresh, selected }) => {
+  const { showSnackbar } = useSnackbar();
+  const [members, setMembers] = useState([]);
+  const [isRemoveDialog, setIsRemoveDialog] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
 
   const removeMember = async () => {
     try {
-      console.log("Removing member:", selectedMember);
       const response = await apiClient.post(
-        `/classrooms/remove_member/${selectedMember?.id}`,
-        selectedMember
+        `/subjects/remove_member/${selectedMember?.id}`,
+        selected
       );
-      setMembers(members.filter((member) => member.id !== selectedMember.id));
-      setSelectedMember(null);
-      setIsRemoveDialog(false);
+      setIsRemoveDialog(false)
       showSnackbar({
         message: response?.data?.message,
         severity: "success",
       });
+      getMembers();
+      refresh();
     } catch (error) {
       console.log("Error removing member:", error);
       showSnackbar({
@@ -60,13 +47,6 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
       });
     }
   };
-
-  useEffect(() => {
-    if (isOpen === true) {
-      console.log("memberloaded:", selected);
-      getMembers();
-    }
-  }, [isOpen]);
 
   const columns = [
     {
@@ -84,45 +64,33 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
       },
     },
     {
-      field: "archive_codes.code",
+      field: "archiveCodes",
       headerName: "Code",
       flex: 1,
-      align: "center",
-      headerAlign: "center",
-      renderCell: (params) => params.row?.archive_codes[0]?.code || "--:--", // Display "N/A" if user_code is null
+      valueGetter: (params) => {
+        return `${params[0]?.code}`;
+      },
     },
-
     {
       field: "role",
       headerName: "Role",
       flex: 1,
-      align: "center",
-      headerAlign: "center",
-      renderCell: (params) =>
-        (
-          <>
-            <Stack
-              sx={{
-                backgroundColor:
-                  params.row.role?.name === "Student" ? "#4caf50" : "#f57c00",
-                color: "white",
-                borderRadius: "4px",
-                padding: "4px 8px",
-                minWidth: "100%",
-                minHeight: "100%",
-                textAlign: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Typography color="white">{params.row.role?.name}</Typography>
-            </Stack>
-          </>
-        ) || "No Role Assigned", // Display "No Role Assigned" if role is null
+      valueGetter: (params) => {
+        return `${params?.name}`;
+      },
+    },
+    {
+      field: "dateAdded",
+      headerName: "Date joined",
+      flex: 1,
+      valueGetter: (params) => {
+        return `${formatDate(params)}`;
+      },
     },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 2,
+      flex: 1,
       sortable: false,
       renderCell: (params) => (
         <Stack
@@ -150,11 +118,27 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
     },
   ];
 
+  const getMembers = async () => {
+    try {
+      const response = await apiClient.post(
+        `/subjects/get_members/${selected.id}`
+      );
+      setMembers(response.data);
+    } catch (error) {
+      console.log("err:", error);
+    }
+  };
+  useEffect(() => {
+    if (isOpen === true) {
+      getMembers();
+    }
+  }, [isOpen]);
+
   return (
     <>
       <Dialog
         open={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
         fullWidth
         PaperProps={{
           sx: {
@@ -168,7 +152,7 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
             {selected?.name}({selected?.year})
           </Typography>
           <Button
-            onClick={onClose}
+            onClick={handleClose}
             variant="icon"
             disableElevation
             color="error"
@@ -200,7 +184,6 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
           </Box>
         </DialogContent>
       </Dialog>
-
       <Dialog open={isRemoveDialog} onClose={() => setIsRemoveDialog(false)}>
         <DialogTitle>Confirm Removal</DialogTitle>
         <DialogContent>
@@ -222,4 +205,4 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
   );
 };
 
-export default ViewClassMemberTable;
+export default ViewMembersDialog;

@@ -21,7 +21,7 @@ import Grid from "@mui/material/Grid2";
 import apiClient from "../../../axios/axiosInstance";
 import { useSnackbar } from "../../../layouts/root_layout";
 
-const NewSubjectDialog = ({ isOpen, handleClose }) => {
+const NewSubjectDialog = ({ isOpen, handleClose, refresh }) => {
   const { showSnackbar } = useSnackbar();
   const [classrooms, setClassrooms] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -37,9 +37,7 @@ const NewSubjectDialog = ({ isOpen, handleClose }) => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    console.log("val:", value);
-    console.log("name:", name);
-    console.log("event:", event);
+
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -49,6 +47,20 @@ const NewSubjectDialog = ({ isOpen, handleClose }) => {
     setErrors((prevErrors) => ({
       ...prevErrors,
       [name]: null,
+    }));
+  };
+
+  const handleSubjectChange = (event, newValue) => {
+    console.log("name:", newValue);
+    setFormData((prevData) => ({
+      ...prevData,
+      name: newValue,
+    }));
+
+    // Clear the specific field's error for 'selectedClass'
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      name: null,
     }));
   };
 
@@ -132,7 +144,7 @@ const NewSubjectDialog = ({ isOpen, handleClose }) => {
     console.log("Submitted Data:", formData);
     try {
       const response = await apiClient.post(`/subjects/create`, formData);
-
+      refresh();
       handleClose();
       showSnackbar({
         message: response?.data?.message,
@@ -180,21 +192,9 @@ const NewSubjectDialog = ({ isOpen, handleClose }) => {
           <Grid item size={{ md: 4 }}>
             <Autocomplete
               freeSolo
-              options={subjects}
+              options={subjects} // The options now just contain strings (subject names)
               value={formData.name}
-              onChange={(event, newValue) => {
-                // Handle when a user selects an option or types a custom value
-                setFormData((prevData) => ({
-                  ...prevData,
-                  name: newValue || "", // Update `name` with the selected value or the typed value
-                }));
-
-                // Clear the specific field's error
-                setErrors((prevErrors) => ({
-                  ...prevErrors,
-                  name: null,
-                }));
-              }}
+              onInputChange={handleSubjectChange}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -211,7 +211,7 @@ const NewSubjectDialog = ({ isOpen, handleClose }) => {
                   <Typography color="black">{option}</Typography>
                 </li>
               )}
-              isOptionEqualToValue={(option, value) => option === value} // Match options with the value
+              isOptionEqualToValue={(option, value) => option.id === value?.id}
             />
           </Grid>
           <Grid

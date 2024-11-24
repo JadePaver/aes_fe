@@ -1,10 +1,14 @@
 import * as React from "react";
 
 import NewSubjectDialog from "./components/newSubjectDialog";
+import EnrollClassDialog from "./components/enrollClassDialog";
+import ViewMembersDialog from "./components/viewMembersDialog";
+import EnrollUserDialog from "./components/enrollUserDialog";
 
 import Grid from "@mui/material/Grid2";
 import { Button, Stack, Tooltip, Typography } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import GroupsRounded from "@mui/icons-material/GroupsRounded";
 import {
   ModeEdit,
   MoveDown,
@@ -19,18 +23,32 @@ import { formatDate } from "../../const/formatter";
 const SubjectManagement = () => {
   const [isLocked, setIsLocked] = useState(true);
   const [subjects, setSubjects] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [isNewSubjectOpen, setIsNewSubjectOpen] = useState(false);
-
-  const handleToggleLock = () => {
-    setIsLocked(!isLocked); // Toggle between locked and unlocked
-  };
+  const [isMemberOpen, setIsMemberOpen] = useState(false);
+  const [isEnrollClassOpen, setIsEnrollClassOpen] = useState(false);
+  const [isEnrollUserOpen, setIsEnrollUserOpen] = useState(false);
 
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
+    { field: "id", headerName: "ID", flex: 1 },
     {
-      field: "name",
+      field: "subjectWithYear",
       headerName: "Subject",
       flex: 1,
+      valueGetter: (params) => {
+        return `${params}`;
+      },
+      renderCell: (params) => (
+        <Typography
+          color="black"
+          sx={{
+            alignContent: "center",
+            minHeight: "100%",
+          }}
+        >
+          {params.row?.subjectWithYear}
+        </Typography>
+      ),
     },
     {
       field: "code",
@@ -38,10 +56,26 @@ const SubjectManagement = () => {
       flex: 2,
     },
     {
-      field: "classroomName",
+      field: "classroom",
       headerName: "Classroom",
       flex: 2,
+      valueGetter: (params) => {
+        return `${params?.name} (${params?.year})`;
+      },
+      renderCell: (params) => (
+        <Typography
+          color="black"
+          sx={{
+            textAlign: "center",
+            alignContent: "center",
+            minHeight: "100%",
+          }}
+        >
+          {params.row?.classroom?.name} ({params.row?.classroom?.year})
+        </Typography>
+      ),
     },
+
     {
       field: "dateCreated",
       headerName: "Date Created",
@@ -62,6 +96,25 @@ const SubjectManagement = () => {
       ),
     },
     {
+      field: "assignedUserCount",
+      headerName: "Total # of members",
+      flex: 1,
+      renderCell: (params) => (
+        <>
+          <Typography
+            color="black"
+            sx={{
+              textAlign: "center",
+              alignContent: "center",
+              minHeight: "100%",
+            }}
+          >
+            {params.row?.assignedUserCount}
+          </Typography>
+        </>
+      ),
+    },
+    {
       field: "actions",
       headerName: "Actions",
       flex: 1,
@@ -74,33 +127,44 @@ const SubjectManagement = () => {
           justifyContent="center"
           sx={{ height: "100%", width: "100%" }}
         >
-          <Tooltip title="Frame">
-            <Button size="small" color="primary" variant="icon">
-              <ContactEmergency />
+          <Tooltip title="View Members">
+            <Button
+              size="small"
+              color="primary"
+              variant="icon"
+              onClick={() => {
+                setIsMemberOpen(true);
+                setSelected(params.row);
+              }}
+            >
+              <GroupsRounded />
             </Button>
           </Tooltip>
-          <Tooltip title="Group">
-            <Button size="small" color="reset" variant="icon">
+          <Tooltip title="Enroll User">
+            <Button
+              size="small"
+              color="reset"
+              variant="icon"
+              onClick={() => {
+                setIsEnrollUserOpen(true);
+                setSelected(params.row);
+              }}
+            >
               <PersonAdd />
             </Button>
           </Tooltip>
 
-          <Tooltip Tooltip title="Unlock">
+          <Tooltip title="Reassign Classroom">
             <Button
               size="small"
               color="yeloh"
-              // {isLocked ? "lock" : "unlock"}
               variant="icon"
               onClick={() => {
-                handleToggleLock();
+                setSelected(params.row);
+                setIsEnrollClassOpen(true);
               }}
             >
               <MoveDown />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Edit">
-            <Button size="small" color="edit" variant="icon" onClick={() => {}}>
-              <ModeEdit />
             </Button>
           </Tooltip>
         </Stack>
@@ -111,8 +175,17 @@ const SubjectManagement = () => {
   const getSubjects = async () => {
     try {
       const response = await apiClient.post("/subjects/");
-      console.log("sunjectsTurn:", response.data);
-      setSubjects(response.data);
+      console.log("response:", response.data);
+
+      const processedSubjects = response.data.map((item) => ({
+        ...item,
+        nameWithYear: `${item.name} (${item.year})`,
+        subjectWithYear: item.classroom ? `${item.name} (${item.year})` : "N/A",
+      }));
+
+      setSubjects(processedSubjects);
+
+      console.log("subjects:", processedSubjects);
     } catch (error) {}
   };
 
@@ -174,7 +247,8 @@ const SubjectManagement = () => {
               initialState={{
                 columns: {
                   columnVisibilityModel: {
-                    id: false, // Set the `id` column to be hidden
+                    id: false,
+                    dateCreated: false,
                   },
                 },
                 pagination: {
@@ -184,14 +258,6 @@ const SubjectManagement = () => {
                 },
               }}
               disableRowSelectionOnClick
-              sx={{
-                "& .MuiDataGrid-cell": {
-                  color: "black", // Change cell text color
-                },
-                "& .MuiDataGrid-columnHeaderTitle": {
-                  color: "black", // Change column header text color
-                },
-              }}
             />
           </Grid>
         </Grid>
@@ -199,6 +265,27 @@ const SubjectManagement = () => {
       <NewSubjectDialog
         isOpen={isNewSubjectOpen}
         handleClose={() => setIsNewSubjectOpen(false)}
+        refresh={getSubjects}
+      />
+      <EnrollUserDialog
+        isOpen={isEnrollUserOpen}
+        handleClose={() => {
+          setIsEnrollUserOpen(false);
+        }}
+        selected={selected}
+        refresh={getSubjects}
+      />
+      <EnrollClassDialog
+        isOpen={isEnrollClassOpen}
+        handleClose={() => setIsEnrollClassOpen(false)}
+        selected={selected}
+        refresh={getSubjects}
+      />
+      <ViewMembersDialog
+        isOpen={isMemberOpen}
+        handleClose={() => setIsMemberOpen(false)}
+        selected={selected}
+        refresh={getSubjects}
       />
     </>
   );
