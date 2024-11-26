@@ -89,7 +89,6 @@ export default function RootLayout() {
 
     try {
       const decodedUser = jwtDecode(token);
-      console.log("decodedUser:", decodedUser);
       setUser(decodedUser);
       // Fetch image if profileImage exists
       if (decodedUser.profileImage) {

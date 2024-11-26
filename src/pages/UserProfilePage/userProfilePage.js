@@ -236,7 +236,6 @@ const UserProfilePage = () => {
       const response = await apiClient.get(`/prof_img/get/${filename}`, {
         responseType: "blob",
       });
-
       const imageBlob = response.data;
       const imageObjectUrl = URL.createObjectURL(imageBlob);
       setImageUrl(imageObjectUrl);

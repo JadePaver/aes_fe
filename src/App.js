@@ -174,7 +174,7 @@ const router = createBrowserRouter(
           <Route path="thisyear" element={<ThisYear />} />
           <Route path="subject_management" element={<SubjectManagement />} />
           <Route path="student_management" element={<StudentMangement />} />
-          <Route path="subject/:subjectId">
+          <Route path="subject/:subject_id">
             <Route index element={<SubjectPage />} />
             <Route
               path="students_result/:assessmentId/:studentId"
