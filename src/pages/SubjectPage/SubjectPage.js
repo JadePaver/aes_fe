@@ -21,6 +21,9 @@ import GradesProgress from "./components/gradesProgress";
 import MemberListTable from "./components/memberListTable";
 import ModuleDialog from "./components/moduleDialog";
 import StudentAssessResultTable from "./components/studentsAssessResTable";
+import ModulePanel from "./components/modulePanel";
+
+import apiClient from "../../axios/axiosInstance";
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -85,6 +88,7 @@ const modules = [
 
 const SubjectPage = () => {
   const navigate = useNavigate();
+  const { subject_id } = useParams();
   const { subjectName, setSubjectName } = useSubject();
   const [currentPreview, setCurrentPreview] = useState({});
   const [value, setValue] = useState(0);
@@ -98,9 +102,17 @@ const SubjectPage = () => {
   };
   const subject = { id: 1, label: "GEC - 4" };
 
+  const getSubjectDetails = async () => {
+    try {
+      const response = await apiClient.post(`/subjects/details/${1}/${2}`);
+    } catch (error) {}
+  };
+
   useEffect(() => {
     setSubjectName(subject.label);
+    getSubjectDetails();
   }, []);
+
   return (
     <>
       <Stack
@@ -163,7 +175,7 @@ const SubjectPage = () => {
                 >
                   NEW ASSESSMENT
                 </Button>
-                <ModuleDialog />
+                <ModuleDialog subjectID={subject_id} />
                 <Button variant="contained" disableElevation>
                   <GroupsRoundedIcon />
                 </Button>
@@ -374,9 +386,8 @@ const SubjectPage = () => {
                       </Typography>
                     </Stack>
                   </Stack>
-                  <Box sx={{minHeight:"100%", m:"1rem 0"}}>
-                  <StudentAssessResultTable/>
-
+                  <Box sx={{ minHeight: "100%", m: "1rem 0" }}>
+                    <StudentAssessResultTable />
                   </Box>
                   {currentPreview.isDone === 1 ? (
                     <Button
@@ -401,124 +412,7 @@ const SubjectPage = () => {
               </Grid>
             </TabPanel>
             <TabPanel value={value} index={1}>
-              {/* Content for Modules view */}
-              <Grid
-                container
-                sx={{
-                  height: "100%",
-                }}
-              >
-                <Grid
-                  item
-                  size={{
-                    md: 5.75,
-                  }}
-                  sx={{
-                    overflowY: "auto", // Correctly place overflowY here
-                    maxHeight: "calc(80vh - 2rem)", // Set max height
-                    padding: "0rem 1rem",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <Stack spacing={1}>
-                    {modules.map((module) => (
-                      <Button
-                        key={module.module_id}
-                        variant="outlined"
-                        sx={{ mb: 2 }}
-                        onClick={() => handleChangePreview(module)}
-                      >
-                        <Stack
-                          direction="row"
-                          justifyContent="space-between"
-                          sx={{ width: "100%", p: "1rem 0" }}
-                        >
-                          <Typography fontWeight={600} color="black">
-                            {module.label}
-                          </Typography>
-                          <Stack spacing={1} direction="row">
-                            <Typography>Posted:</Typography>
-                            <Typography color="black">
-                              {module.postedDate}
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </Button>
-                    ))}
-                  </Stack>
-                </Grid>
-                <Grid
-                  item
-                  size={{ md: 0.1 }}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Divider
-                    orientation="vertical"
-                    sx={{
-                      border: "5px solid var(--secondary)",
-                      borderRadius: "5px",
-                      height: "92.5%",
-                    }}
-                    color="primary"
-                  />
-                </Grid>
-                <Grid
-                  item
-                  size={{ md: 5.95 }}
-                  sx={{
-                    overflowY: "auto", // Correctly place overflowY here
-                    maxHeight: "calc(80vh - 2rem)", // Set max height
-                    padding: "0rem 1rem",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <Stack spacing={2}>
-                    <Stack
-                      spacing={1}
-                      direction="row"
-                      justifyContent="space-between"
-                    >
-                      <Typography fontWeight={600}>Label: </Typography>
-                      <Typography color="black">
-                        {currentPreview.label || "Select an module"}
-                      </Typography>
-                    </Stack>
-                    <Stack
-                      spacing={1}
-                      direction="row"
-                      justifyContent="space-between"
-                    >
-                      <Typography fontWeight={600}>Description: </Typography>
-                      <Typography color="black">
-                        {currentPreview.description || "N/A"}
-                      </Typography>
-                    </Stack>
-                    <Stack spacing={1}>
-                      <Typography fontWeight={600}>Attached Files: </Typography>
-                      {currentPreview.attachedFiles &&
-                      currentPreview.attachedFiles.length > 0 ? (
-                        currentPreview.attachedFiles.map((file, index) => (
-                          <Button
-                            key={index}
-                            variant="outlined"
-                            startIcon={<FileDownloadOutlinedIcon />}
-                            sx={{ width: "fit-content", p: "0.35rem 1rem" }}
-                          >
-                            {file.label}
-                          </Button>
-                        ))
-                      ) : (
-                        <Typography color="grey">No files attached.</Typography>
-                      )}
-                    </Stack>
-                  </Stack>
-                </Grid>
-              </Grid>
+              <ModulePanel subjectID={subject_id} />
             </TabPanel>
             <TabPanel value={value} index={2}>
               <Stack sx={{ p: "0rem 1rem 2rem 1rem", height: "100%" }}>
@@ -535,5 +429,4 @@ const SubjectPage = () => {
     </>
   );
 };
-
 export default SubjectPage;

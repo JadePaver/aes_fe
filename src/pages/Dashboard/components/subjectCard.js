@@ -7,7 +7,7 @@ import SubjectOptions from "./subjectOptions";
 
 import { useNavigate } from "react-router-dom";
 
-const SubjectCard = ({ course }) => {
+const SubjectCard = ({ subject }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -35,7 +35,7 @@ const SubjectCard = ({ course }) => {
       >
         <Stack
           onClick={() => {
-            navigate(`subject/${course.id}`);
+            navigate(`subject/${subject.id}`);
           }}
         >
           <Box
@@ -51,10 +51,10 @@ const SubjectCard = ({ course }) => {
               mb: "0.5rem",
             }}
           />
-          <Typography variant="h6">{course.label}</Typography>
+          <Typography variant="h6">{subject.name}</Typography>
           <Stack direction="row" justifyContent="space-between">
-            <Typography>{course.year}</Typography>
-            {course.status && (
+            <Typography>{subject.year}</Typography>
+            {/* {subject.status && (
               <Stack
                 direction="row"
                 spacing={1}
@@ -74,7 +74,7 @@ const SubjectCard = ({ course }) => {
                 </Typography>
                 <AccessTimeIcon sx={{ color: "var(--yel)" }} />
               </Stack>
-            )}
+            )} */}
           </Stack>
         </Stack>
       </Box>
@@ -86,10 +86,18 @@ const SubjectCard = ({ course }) => {
         >
           <SchoolIcon />
           <Typography variant="caption" sx={{ color: "black" }}>
-            {course.instructor}
+            {[
+              subject.instructors[0]?.fName,
+              subject.instructors[0]?.mName,
+              subject.instructors[0]?.lName,
+              subject.instructors[0]?.ext_name,
+            ]
+              .filter(Boolean) // Remove any null, undefined, or empty values
+              .join(" ")}{" "}
           </Typography>
         </Stack>
-        <SubjectOptions subCode={course.subCode} />
+
+        <SubjectOptions subCode={subject.code} />
       </Stack>
     </Card>
   );

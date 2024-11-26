@@ -13,22 +13,30 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { jwtDecode } from "jwt-decode";
 
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import DisabledByDefaultRoundedIcon from "@mui/icons-material/DisabledByDefaultRounded";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSnackbar } from "../../../layouts/root_layout";
+import apiClient from "../../../axios/axiosInstance";
 import { upload } from "@testing-library/user-event/dist/upload";
 
-const ModuleDialog = (data = {}) => {
+const ModuleDialog = ({ subjectID }) => {
+  const { showSnackbar } = useSnackbar();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(true);
+  const [moduleData, setModuleData] = useState({});
   const [uploadFiles, setUploadFiles] = useState([]);
 
-  const [postDate, setPostDate] = useState(dayjs());
-
-  const changeDate = (newValue) => {
-    setPostDate(newValue);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setModuleData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleFileChange = (event) => {
@@ -47,6 +55,67 @@ const ModuleDialog = (data = {}) => {
     );
   };
 
+  const token = localStorage.getItem("token");
+
+  const decodedUser = jwtDecode(token);
+
+  const handleSubmit = async () => {
+    try {
+      const formData = new FormData();
+
+      const uploadFilesWithMeta = uploadFiles.map((file) => ({
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      }));
+
+      // Include file metadata in the data object
+      const data = {
+        ...moduleData,
+        uploadFiles: uploadFilesWithMeta,
+        subject_id: subjectID,
+        user_id: decodedUser.id,
+      };
+      // Append key-value pairs from moduleData
+      Object.entries(moduleData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      // Append each file
+      uploadFiles.forEach((file) => {
+        formData.append("files", file); // Ensure field name matches Multer's expectation
+      });
+
+      console.log("final:", data);
+      const serializedData = encodeURIComponent(JSON.stringify(data));
+
+      const response = await apiClient.post(
+        `/modules/create/${serializedData}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Ensure proper content type
+          },
+        }
+      );
+      showSnackbar({
+        message: response?.data?.message,
+        severity: "success",
+      });
+
+      setIsOpen(false); // Close modal on success
+    } catch (error) {
+      console.error("Error submitting module data:", error);
+      showSnackbar({
+        message: error.response?.data?.error,
+        severity: "error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    console.log("uploadFiles:", uploadFiles);
+  }, [uploadFiles]);
   return (
     <>
       <Button
@@ -73,13 +142,21 @@ const ModuleDialog = (data = {}) => {
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ p: "1rem 0" }}>
-            <TextField name="label" label="Module Label" variant="outlined" />
+            <TextField
+              name="name"
+              label="Module Name"
+              variant="outlined"
+              value={moduleData.name}
+              onChange={handleInputChange}
+            />
             <TextField
               multiline
               rows={6}
               name="description"
               label="Description"
               variant="outlined"
+              value={moduleData.description}
+              onChange={handleInputChange}
             />
             <FormControl fullWidth variant="outlined">
               <InputLabel
@@ -87,7 +164,7 @@ const ModuleDialog = (data = {}) => {
                 htmlFor="file-upload"
                 sx={{ bgcolor: "var(--accent)" }}
               >
-                {uploadFiles.length? "Add Files":"Upload Files"}
+                {uploadFiles.length ? "Add Files" : "Upload Files"}
               </InputLabel>
               <TextField
                 id="file-upload"
@@ -101,7 +178,7 @@ const ModuleDialog = (data = {}) => {
               />
             </FormControl>
             {uploadFiles.length > 0 && (
-              <Stack spacing={1} sx={{p:"0 1rem"}}>
+              <Stack spacing={1} sx={{ p: "0 1rem" }}>
                 {uploadFiles.map((file, index) => (
                   <Stack
                     direction="row"
@@ -117,7 +194,9 @@ const ModuleDialog = (data = {}) => {
                         size="small"
                         onClick={() => handleRemoveFile(index)}
                       >
-                        <DisabledByDefaultRoundedIcon sx={{fontSize:"2rem"}} />
+                        <DisabledByDefaultRoundedIcon
+                          sx={{ fontSize: "2rem" }}
+                        />
                       </IconButton>
                     </Stack>
                   </Stack>
@@ -128,8 +207,12 @@ const ModuleDialog = (data = {}) => {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 label="Posting Date"
-                value={postDate}
-                onChange={(newValue) => changeDate(newValue)}
+                value={moduleData.postingDate || null}
+                onChange={(newValue) =>
+                  handleInputChange({
+                    target: { name: "postingDate", value: newValue },
+                  })
+                }
                 renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
@@ -139,9 +222,9 @@ const ModuleDialog = (data = {}) => {
           {isEdit ? (
             <Button
               fullWidth
-              onClick={() => setIsOpen(false)}
               size="large"
               variant="contained"
+              onClick={handleSubmit}
               disableElevation
             >
               SUBMIT

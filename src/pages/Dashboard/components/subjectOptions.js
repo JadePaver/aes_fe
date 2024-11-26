@@ -12,8 +12,10 @@ import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import { useSnackbar } from "../../../layouts/root_layout";
 
 const SubjectOptions = (props) => {
+  const { showSnackbar } = useSnackbar();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -22,6 +24,17 @@ const SubjectOptions = (props) => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleCopy = () => {
+    if (props?.subCode) {
+      navigator.clipboard.writeText(props.subCode).then(() => {
+        showSnackbar({
+          message: "Subject code copied to clipboard!",
+          severity: "success",
+        });
+      });
+    }
   };
 
   return (
@@ -52,11 +65,11 @@ const SubjectOptions = (props) => {
           >
             <Typography>Code:</Typography>
             <Typography sx={{ color: "black" }}>{props?.subCode}</Typography>
-            <IconButton sx={{ cursor: "pointer" }}>
+            <IconButton sx={{ cursor: "pointer" }} onClick={handleCopy}>
               <ContentCopyRoundedIcon color="primary" />
             </IconButton>
           </Stack>
-          <Stack
+          {/* <Stack
             spacing={1}
             direction="row"
             alignItems="center"
@@ -69,7 +82,7 @@ const SubjectOptions = (props) => {
             >
               EDIT
             </Button>
-          </Stack>
+          </Stack> */}
           <Stack
             spacing={1}
             direction="row"
@@ -82,7 +95,7 @@ const SubjectOptions = (props) => {
               startIcon={<DeleteOutlineOutlinedIcon />}
               color="error"
             >
-              DELETE
+              REMOVE
             </Button>
           </Stack>
         </Stack>

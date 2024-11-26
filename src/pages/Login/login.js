@@ -11,7 +11,6 @@ import LinearProgress from "@mui/material/LinearProgress";
 import KeyIcon from "@mui/icons-material/Key";
 
 import apiClient from "../../axios/axiosInstance";
-import { jwtDecode } from "jwt-decode";
 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";

@@ -17,22 +17,20 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SchoolIcon from "@mui/icons-material/School";
-import { useEffect, useState, useContext } from "react";
 
+import { useEffect, useState, useContext } from "react";
+import { jwtDecode } from "jwt-decode";
+
+import apiClient from "../../axios/axiosInstance";
 import { useSubject } from "../../layouts/components/subjectProvider";
+import { useSnackbar } from "../../layouts/root_layout";
 import SubjectCard from "./components/subjectCard";
 
 const Dashboard = () => {
+  const { showSnackbar } = useSnackbar();
   const { subjectName, setSubjectName } = useSubject();
-  const courses = [
-    {
-      id: 2,
-      label: "GEC-4",
-      year: 2024,
-      instructor: "Mr. Hideo Kinshomi",
-      subCode: "ABC-123",
-    },
-  ];
+  const [subjects, setSubjects] = useState([]);
+
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, index) => currentYear - index); // Create an array of years
 
@@ -41,8 +39,30 @@ const Dashboard = () => {
   const handleChange = (event) => {
     setSelectedYear(event.target.value);
   };
+
+  const token = localStorage.getItem("token");
+
+  const decodedUser = jwtDecode(token);
+
+  const getTeacherSubjects = async () => {
+    try {
+      const response = await apiClient.post(
+        `/subjects/get_assigned/${decodedUser.id}`
+      );
+
+      setSubjects(response.data);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+      showSnackbar({
+        message: error.response?.data?.message,
+        severity: "error",
+      });
+    }
+  };
+
   useEffect(() => {
     setSubjectName("");
+    getTeacherSubjects();
   }, []);
 
   return (
@@ -116,9 +136,9 @@ const Dashboard = () => {
               </Stack>
             </Stack>
           </Grid>
-          {courses.map((course, index) => (
+          {subjects.map((subject, index) => (
             <Grid item size={{ md: 2, sm: 4, xs: 6 }} key={index}>
-              <SubjectCard course={course} />
+              <SubjectCard subject={subject} />
             </Grid>
           ))}
           <Grid
