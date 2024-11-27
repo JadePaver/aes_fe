@@ -23,7 +23,7 @@ import { useSnackbar } from "../../../layouts/root_layout";
 import apiClient from "../../../axios/axiosInstance";
 import { upload } from "@testing-library/user-event/dist/upload";
 
-const ModuleDialog = ({ subjectID }) => {
+const ModuleDialog = ({ subjectID, refresh }) => {
   const { showSnackbar } = useSnackbar();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -86,7 +86,6 @@ const ModuleDialog = ({ subjectID }) => {
         formData.append("files", file); // Ensure field name matches Multer's expectation
       });
 
-      console.log("final:", data);
       const serializedData = encodeURIComponent(JSON.stringify(data));
 
       const response = await apiClient.post(
@@ -98,6 +97,7 @@ const ModuleDialog = ({ subjectID }) => {
           },
         }
       );
+      refresh();
       showSnackbar({
         message: response?.data?.message,
         severity: "success",
@@ -113,9 +113,6 @@ const ModuleDialog = ({ subjectID }) => {
     }
   };
 
-  useEffect(() => {
-    console.log("uploadFiles:", uploadFiles);
-  }, [uploadFiles]);
   return (
     <>
       <Button
@@ -146,7 +143,7 @@ const ModuleDialog = ({ subjectID }) => {
               name="name"
               label="Module Name"
               variant="outlined"
-              value={moduleData.name}
+              value={moduleData.name || ""} 
               onChange={handleInputChange}
             />
             <TextField
@@ -155,7 +152,7 @@ const ModuleDialog = ({ subjectID }) => {
               name="description"
               label="Description"
               variant="outlined"
-              value={moduleData.description}
+              value={moduleData.description || ""}
               onChange={handleInputChange}
             />
             <FormControl fullWidth variant="outlined">

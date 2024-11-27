@@ -7,6 +7,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import Paper from "@mui/material/Paper";
 
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
@@ -15,42 +16,62 @@ import HowToRegRoundedIcon from "@mui/icons-material/HowToRegRounded";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 import LockResetRoundedIcon from "@mui/icons-material/LockResetRounded";
 
+import apiClient from "../../../axios/axiosInstance";
+import { useSnackbar } from "../../../layouts/root_layout";
+import { formatDate } from "../../../const/formatter";
+
 import { DataGrid } from "@mui/x-data-grid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const rows = [
-  { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
-  { id: 2, lastName: "Lannister", firstName: "Cersei", age: 31 },
-  { id: 3, lastName: "Lannister", firstName: "Jaime", age: 31 },
-  { id: 4, lastName: "Stark", firstName: "Arya", age: 11 },
-  { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-  { id: 6, lastName: "Melisandre", firstName: "Katy", age: 150 },
-  { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-];
+const MembersPanel = ({ subjectId }) => {
+  const { showSnackbar } = useSnackbar();
 
-const MemberListTable = () => {
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [selectedMember, setSelectedMember] = useState();
 
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
     {
-      field: "firstName",
-      headerName: "First name",
-      flex: 1,
+      field: "fullname",
+      headerName: "Full Name",
+      flex: 2,
+      align: "center",
+      headerAlign: "center",
+      valueGetter: (params) => {
+        return `${params}`;
+      },
+      renderCell: (params) => {
+        const { fName, mName, lName, ext_name } = params.row;
+        // Combine name fields into a full name
+        return `${fName || ""} ${mName || ""} ${lName || ""} ${
+          ext_name || ""
+        }`.trim();
+      },
     },
     {
-      field: "lastName",
-      headerName: "Last name",
+      field: "archiveCodes",
+      headerName: "Code",
       flex: 1,
+      valueGetter: (params) => {
+        return `${params[0]?.code}`;
+      },
     },
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
+      field: "role",
+      headerName: "Role",
       flex: 1,
+      valueGetter: (params) => {
+        return `${params?.name}`;
+      },
+    },
+    {
+      field: "dateAdded",
+      headerName: "Date joined",
+      flex: 1,
+      valueGetter: (params) => {
+        return `${formatDate(params)}`;
+      },
     },
     {
       field: "actions",
@@ -65,35 +86,17 @@ const MemberListTable = () => {
           justifyContent="center"
           sx={{ height: "100%", width: "100%" }}
         >
-          <Tooltip title="Approve">
-            <Button size="small" color="primary" variant="icon">
-              <HowToRegRoundedIcon />
-            </Button>
-          </Tooltip>
           <Tooltip title="Remove from list">
             <Button
               size="small"
               color="error"
               variant="icon"
               onClick={() => {
+                setSelectedMember(params.row);
                 setIsRemoveDialog(true);
-                setIsOpen(true);
               }}
             >
               <PersonRemoveRoundedIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Reset student password">
-            <Button
-              size="small"
-              color="gray"
-              variant="icon"
-              onClick={() => {
-                setIsRemoveDialog(false);
-                setIsOpen(true);
-              }}
-            >
-              <LockResetRoundedIcon />
             </Button>
           </Tooltip>
         </Stack>
@@ -101,22 +104,55 @@ const MemberListTable = () => {
     },
   ];
 
+  const getMembers = async () => {
+    try {
+      const response = await apiClient.post(
+        `/subjects/get_members/${subjectId}`
+      );
+
+      const processedData = response.data.map((member) => ({
+        ...member,
+        fullname: `${member.fName || ""} ${member.mName || ""} ${
+          member.lName || ""
+        } ${member.ext_name || ""}`.trim(),
+      }));
+
+      setRows(processedData);
+    } catch (error) {
+      console.error("Error submitting module data:", error);
+      showSnackbar({
+        message: error.response?.data?.error,
+        severity: "error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    getMembers();
+  }, []);
+
   return (
     <>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
-            },
-          },
-        }}
-        pageSizeOptions={[5, 10, 20, 50, 100]}
-        disableRowSelectionOnClick
-        sx={{ height: "100%" }}
-      />
+      <Stack sx={{ p: "0rem 1rem 2rem 1rem", height: "100%" }}>
+        <Box sx={{ height: "100%", width: "100%" }}>
+          <Paper elevation={1} sx={{ height: "100%" }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 5,
+                  },
+                },
+              }}
+              pageSizeOptions={[5, 10, 20, 50, 100]}
+              disableRowSelectionOnClick
+              sx={{ height: "100%" }}
+            />
+          </Paper>
+        </Box>
+      </Stack>
 
       <Dialog open={isOpen} onClose={() => setIsOpen(false)}>
         <DialogTitle sx={{ display: "flex", justifyContent: "center" }}>
@@ -149,4 +185,4 @@ const MemberListTable = () => {
   );
 };
 
-export default MemberListTable;
+export default MembersPanel;
