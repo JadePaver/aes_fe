@@ -19,6 +19,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SchoolIcon from "@mui/icons-material/School";
 
 import { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 import apiClient from "../../axios/axiosInstance";
@@ -30,6 +31,7 @@ const Dashboard = () => {
   const { showSnackbar } = useSnackbar();
   const { subjectName, setSubjectName } = useSubject();
   const [subjects, setSubjects] = useState([]);
+  const navigate = useNavigate();
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, index) => currentYear - index); // Create an array of years
@@ -40,11 +42,7 @@ const Dashboard = () => {
     setSelectedYear(event.target.value);
   };
 
-  const token = localStorage.getItem("token");
-
-  const decodedUser = jwtDecode(token);
-
-  const getTeacherSubjects = async () => {
+  const getTeacherSubjects = async (decodedUser) => {
     try {
       const response = await apiClient.post(
         `/subjects/get_assigned/${decodedUser.id}`
@@ -61,8 +59,17 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/aes/login");
+      return;
+    }
+
+    const decodedUser = jwtDecode(token);
+
     setSubjectName("");
-    getTeacherSubjects();
+    getTeacherSubjects(decodedUser);
   }, []);
 
   return (
@@ -136,11 +143,20 @@ const Dashboard = () => {
               </Stack>
             </Stack>
           </Grid>
-          {subjects.map((subject, index) => (
-            <Grid item size={{ md: 2, sm: 4, xs: 6 }} key={index}>
-              <SubjectCard subject={subject} />
+          {subjects.length > 0 ? (
+            subjects.map((subject, index) => (
+              <Grid item size={{ md: 2, sm: 4, xs: 6 }} key={index}>
+                <SubjectCard subject={subject} />
+              </Grid>
+            ))
+          ) : (
+            <Grid size={{ md: 12 }} sx={{alignContent:"center"}}>
+              <Typography variant="h6" align="center">
+                No subject you're currently enrolled.
+              </Typography>
             </Grid>
-          ))}
+          )}
+
           <Grid
             item
             size={12}

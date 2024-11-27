@@ -1,41 +1,21 @@
-import { Stack, Button, Typography, Divider } from "@mui/material";
+import { Stack, Button, Typography, Divider, Box } from "@mui/material";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import Grid from "@mui/material/Grid2";
 import { useState, useEffect } from "react";
 
 import { formatDateTime } from "../../../const/formatter";
 import apiClient from "../../../axios/axiosInstance";
-import { useSnackbar } from "../../../layouts/root_layout";
 
-const ModulePanel = ({ subjectID }) => {
-  const { showSnackbar } = useSnackbar();
+const ModulePanel = ({ getModules, modules }) => {
   const [selected, setSelected] = useState();
-  const [modules, setModules] = useState([]);
   const [files, setFiles] = useState([]);
-
-  const getModules = async () => {
-    try {
-      console.log("SUBJECTID:", subjectID);
-      const response = await apiClient.post(`/modules/by_subject/${subjectID}`);
-
-      console.log("modules:", response.data);
-      setModules(response.data);
-    } catch (error) {
-      console.error("Error fetching subjects:", error);
-      showSnackbar({
-        message: error.response?.data?.message,
-        severity: "error",
-      });
-    }
-  };
 
   const handleLoadModule = async (module) => {
     try {
-      console.log("SUBJECTID:", module);
+      setSelected(module);
       const response = await apiClient.post(
         `/modules/get_attached_files/${module?.id}`
       );
-
-      console.log("modules:", response.data);
 
       // Assuming the response contains the files with base64 strings
       const modulesWithFileUrls = response.data.files.map((file) => {
@@ -64,15 +44,9 @@ const ModulePanel = ({ subjectID }) => {
         return file;
       });
 
-      console.log("modulesWithFileUrls:", modulesWithFileUrls);
-      // Set the modules state to the transformed data
       setFiles(modulesWithFileUrls);
     } catch (error) {
       console.error("Error fetching subjects:", error);
-      showSnackbar({
-        message: error.response?.data?.message,
-        severity: "error",
-      });
     }
   };
 
@@ -159,57 +133,60 @@ const ModulePanel = ({ subjectID }) => {
         }}
       >
         <Stack spacing={2}>
-          {files.map((file) => {
-            return (
-              <a
-                key={file.id}
-                href={file.fileUrl}
-                download={file.label} // This will set the download file name as the label
-                style={{ textDecoration: "none", color: "blue" }} // Optional styling
-              >
-                {file.label}
-              </a>
-            );
-          })}
-
-          {/* <Stack
-            spacing={1}
-            direction="row"
-            justifyContent="space-between"
-          >
+          <Stack spacing={1} direction="row" justifyContent="space-between">
             <Typography fontWeight={600}>Label: </Typography>
             <Typography color="black">
-              {currentPreview.label || "Select an module"}
+              {selected?.name || "Select an module"}
             </Typography>
           </Stack>
-          <Stack
-            spacing={1}
-            direction="row"
-            justifyContent="space-between"
-          >
+          <Stack spacing={1} direction="row" justifyContent="space-between">
             <Typography fontWeight={600}>Description: </Typography>
             <Typography color="black">
-              {currentPreview.description || "N/A"}
+              {selected?.description || "N/A"}
             </Typography>
           </Stack>
-          <Stack spacing={1}>
-            <Typography fontWeight={600}>Attached Files: </Typography>
-            {currentPreview.attachedFiles &&
-              currentPreview.attachedFiles.length > 0 ? (
-              currentPreview.attachedFiles.map((file, index) => (
+          {files.map((file) => {
+            // Extract file extension or MIME type
+            const fileExtension = file.label.split(".").pop().toLowerCase();
+            const isImage = [
+              "jpg",
+              "jpeg",
+              "png",
+              "gif",
+              "bmp",
+              "webp",
+            ].includes(fileExtension);
+
+            return isImage ? (
+              <Box key={file.id} sx={{ mb: 2 }}>
+                <img
+                  src={file.fileUrl}
+                  alt={file.label}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "200px",
+                    borderRadius: "8px",
+                  }}
+                />
+              </Box>
+            ) : (
+              <Box key={file.id} sx={{ mb: 2 }}>
                 <Button
-                  key={index}
+                  fullWidth
                   variant="outlined"
+                  size="small"
+                  component="a"
+                  href={file.fileUrl}
+                  download={file.label} // Set the download filename
+                  sx={{ textTransform: "none" }}
                   startIcon={<FileDownloadOutlinedIcon />}
-                  sx={{ width: "fit-content", p: "0.35rem 1rem" }}
+                  disableElevation
                 >
                   {file.label}
                 </Button>
-              ))
-            ) : (
-              <Typography color="grey">No files attached.</Typography>
-            )}
-          </Stack> */}
+              </Box>
+            );
+          })}
         </Stack>
       </Grid>
     </Grid>

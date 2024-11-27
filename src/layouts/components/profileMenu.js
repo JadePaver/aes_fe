@@ -37,10 +37,6 @@ const ProfileMenu = (props) => {
     navigate("/aes/login");
   };
 
-  useEffect(() => {
-    console.log("profMenu:", props.user);
-  }, [props.user]);
-
   return (
     <Stack
       direction="row"

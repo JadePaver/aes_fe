@@ -12,13 +12,16 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import AccessAlarmRoundedIcon from "@mui/icons-material/AccessAlarmRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
+import ChecklistRoundedIcon from "@mui/icons-material/ChecklistRounded";
 
 import { useSubject } from "../../layouts/components/subjectProvider";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { useSnackbar } from "../../layouts/root_layout";
 import GradesProgress from "./components/gradesProgress";
-import MemberListTable from "./components/memberListTable";
+import MembersPanel from "./components/membersPanel";
 import ModuleDialog from "./components/moduleDialog";
 import StudentAssessResultTable from "./components/studentsAssessResTable";
 import ModulePanel from "./components/modulePanel";
@@ -71,47 +74,73 @@ const data = [
   },
 ];
 
-const modules = [
-  {
-    module_id: 1,
-    label: "MODULE#1",
-    description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Assumenda ex repellendus aperiam natus accusantium hic.",
-    attachedFiles: [
-      { label: "File#2.pdf" },
-      { label: "File#2214214214.pdf" },
-      { label: "File#3214214241214124214.pdf" },
-    ],
-    postedDate: "02/15/2024 1:00PM",
-  },
-];
-
 const SubjectPage = () => {
+  const { showSnackbar } = useSnackbar();
+  const [modules, setModules] = useState([]);
   const navigate = useNavigate();
   const { subject_id } = useParams();
   const { subjectName, setSubjectName } = useSubject();
   const [currentPreview, setCurrentPreview] = useState({});
   const [value, setValue] = useState(0);
+  const [subjectDetails, setSubjectDetails] = useState();
 
   const handleChangePreview = (data) => {
     setCurrentPreview(data);
   };
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleChangePanel = (event, newValue) => {
+    if (newValue !== undefined) {
+      setValue(newValue); // Only update state if newValue is not undefined
+    }
   };
+
   const subject = { id: 1, label: "GEC - 4" };
 
+  const getModules = async () => {
+    try {
+      const response = await apiClient.post(
+        `/modules/by_subject/${subject_id}`
+      );
+      console.log("modules???", response.data)
+
+      setModules(response.data);
+    } catch (error) {
+      console.error("Error fetching modules:", error);
+      showSnackbar({
+        message: error.response?.data?.message,
+        severity: "error",
+      });
+    }
+  };
   const getSubjectDetails = async () => {
     try {
-      const response = await apiClient.post(`/subjects/details/${1}/${2}`);
-    } catch (error) {}
-  };
+      const response = await apiClient.post(
+        `/subjects/details/${subject_id}`
+      );
+      console.log(response.data);
+      setSubjectDetails(response.data)
+      setSubjectName(response.data?.name);
+
+      
+    } catch (error) {
+      console.error("Error fetching subjectdetails:", error);
+      showSnackbar({
+        message: error.response?.data?.message,
+        severity: "error",
+      });
+    }
+  }
+
+
 
   useEffect(() => {
-    setSubjectName(subject.label);
     getSubjectDetails();
+    getModules();
   }, []);
+
+  useEffect(() => {
+    console.log("value:", value);
+  }, [value]);
 
   return (
     <>
@@ -133,35 +162,16 @@ const SubjectPage = () => {
             height: "100%",
             background: "white",
             borderRadius: "0.2rem",
-            p: "1rem 0",
+            p: "0",
             // overflowY: "auto",
             // maxHeight: "calc(100vh - 2rem)",
           }}
         >
           <Box sx={{ width: "100%" }}>
-            <Tabs value={value} onChange={handleChange}>
-              <Tab label="Assessment" />
-              <Tab label="Modules" />
-              <Tab
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                label={
-                  <Stack
-                    spacing={1}
-                    direction="row"
-                    textAlign="center"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <GroupsRoundedIcon />
-                    <Typography variant="body">MEMBERS</Typography>
-                  </Stack>
-                }
-              />
+            <Tabs value={value} onChange={handleChangePanel}>
+              <Tab icon={<ChecklistRoundedIcon />} label="Assessment" value={0}/>
+              <Tab icon={<MenuBookRoundedIcon />} label="Modules" value={1} />
+              <Tab icon={<GroupsRoundedIcon />} label="Members" value={2} />
 
               <Stack
                 direction="row"
@@ -175,7 +185,7 @@ const SubjectPage = () => {
                 >
                   NEW ASSESSMENT
                 </Button>
-                <ModuleDialog subjectID={subject_id} />
+                <ModuleDialog subjectID={subject_id} refresh={getModules} />
                 <Button variant="contained" disableElevation>
                   <GroupsRoundedIcon />
                 </Button>
@@ -412,16 +422,14 @@ const SubjectPage = () => {
               </Grid>
             </TabPanel>
             <TabPanel value={value} index={1}>
-              <ModulePanel subjectID={subject_id} />
+              <ModulePanel
+                subjectID={subject_id}
+                getModules={getModules}
+                modules={modules}
+              />
             </TabPanel>
             <TabPanel value={value} index={2}>
-              <Stack sx={{ p: "0rem 1rem 2rem 1rem", height: "100%" }}>
-                <Box sx={{ height: "100%", width: "100%" }}>
-                  <Paper elevation={1} sx={{ height: "100%" }}>
-                    <MemberListTable />
-                  </Paper>
-                </Box>
-              </Stack>
+              <MembersPanel subjectId={subject_id} />
             </TabPanel>
           </Box>
         </Grid>
