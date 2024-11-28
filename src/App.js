@@ -185,13 +185,13 @@ const router = createBrowserRouter(
                 </>
               }
             />
+            <Route
+              exact
+              path="assessment_create"
+              element={<AssessmentEditorPage />}
+            />
           </Route>
 
-          <Route
-            exact
-            path="assessment_editor/:assessmentId?"
-            element={<AssessmentEditorPage />}
-          />
           <Route exact path="module" element={<ModulePage />} />
         </Route>
         <Route exact path="/aes/login" element={<Login />} />

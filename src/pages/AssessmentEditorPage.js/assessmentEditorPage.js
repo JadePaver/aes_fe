@@ -12,11 +12,13 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
+  InputAdornment,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import DisabledByDefaultRoundedIcon from "@mui/icons-material/DisabledByDefaultRounded";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import TimerOutlinedIcon from "@mui/icons-material/TimerOutlined";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 
@@ -24,11 +26,28 @@ import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import {
+  useNavigate,
+  useParams,
+  useLocation,
+  matchPath,
+} from "react-router-dom";
+
+import { useSubject } from "../../layouts/components/subjectProvider";
+import apiClient from "../../axios/axiosInstance";
+import { useSnackbar } from "../../layouts/root_layout";
 
 const AssessmentEditorPage = () => {
+  const { subject_id } = useParams();
+  const location = useLocation();
+  const { showSnackbar } = useSnackbar();
+
+  const { subjectName, setSubjectName } = useSubject();
+
   const [newAssessment, setNewAssessment] = useState({
-    label: "",
-    Description: "",
+    subject_id: subject_id,
+    name: "",
+    description: "",
     allowLate: false,
     startDate: dayjs(),
     endDate: dayjs(),
@@ -40,14 +59,17 @@ const AssessmentEditorPage = () => {
       label: "",
       points: 0,
       type: 1,
-      file: "",
-      choices: [
-        { id: 1, label: "Apples", isCorrect: 0 },
-        { id: 2, label: "Oranges", isCorrect: 0 },
-        { id: 3, label: "Banana", isCorrect: 0 },
-      ],
+      choices: [],
     },
   ]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewAssessment((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const handleFileChange = (event, index) => {
     const file = event.target.files[0];
@@ -55,15 +77,80 @@ const AssessmentEditorPage = () => {
       const fileUrl = URL.createObjectURL(file);
       setQuestions((prevQuestions) =>
         prevQuestions.map((question, i) =>
-          i === index ? { ...question, file: fileUrl } : question
+          i === index
+            ? { ...question, fileBlob: fileUrl, file: file }
+            : question
         )
       );
     }
   };
 
+  const handleCreateAssessment = async () => {
+    try {
+      const transformedQuestions = questions.map((question) => {
+        if (question.file && question.file.name) {
+          return {
+            ...question,
+            file: {
+              originalName: question.file.name,
+              size: question.file.size,
+              type: question.file.type,
+            },
+          };
+        }
+        return {
+          ...question,
+          file: null, // Retain an empty object if no valid file is present
+        };
+      });
+
+      const data = { ...newAssessment, questions: transformedQuestions };
+      const formData = new FormData();
+
+      const serializedData = encodeURIComponent(JSON.stringify(data));
+
+      // Add files from questions array to FormData
+      questions.forEach((question) => {
+        if (question.file) {
+          formData.append("files", question.file); // Ensure `question.file` is a valid File object
+        }
+      });
+
+      const response = await apiClient.post(
+        `/assessments/create/${serializedData}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Ensure proper content type
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error submitting new Assessment data's:", error);
+      showSnackbar({
+        message: error.response?.data?.error,
+        severity: "error",
+      });
+    }
+  };
+
+  const getSubjectDetails = async () => {
+    try {
+      const response = await apiClient.post(`/subjects/details/${subject_id}`);
+      setSubjectName(response.data?.name);
+    } catch (error) {
+      console.error("Error fetching subjectdetails:", error);
+      showSnackbar({
+        message: error.response?.data?.message,
+        severity: "error",
+      });
+    }
+  };
+
   useEffect(() => {
-    console.log("q:", questions);
-  }, [questions]);
+    getSubjectDetails();
+  }, []);
+
   return (
     <>
       <Stack
@@ -101,8 +188,10 @@ const AssessmentEditorPage = () => {
           <Grid item size={12}>
             <TextField
               variant="outlined"
-              name="label"
-              label="Assessment Label"
+              name="name"
+              value={newAssessment.name}
+              onChange={handleChange}
+              label="Assessment Name"
               placeholder="Write your Assessment name here"
               fullWidth
               slotProps={{
@@ -112,11 +201,13 @@ const AssessmentEditorPage = () => {
               }}
             />
           </Grid>
-          <Grid item size={12}>
+          <Grid item size={{ md: 12 }}>
             <TextField
               variant="outlined"
               name="description"
               label="Description"
+              value={newAssessment.description}
+              onChange={handleChange}
               multiline
               rows={10}
               fullWidth
@@ -128,7 +219,7 @@ const AssessmentEditorPage = () => {
               }}
             />
           </Grid>
-          <Grid item size={5}>
+          <Grid item size={{ md: 3 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 label="Start Date"
@@ -141,7 +232,7 @@ const AssessmentEditorPage = () => {
               />
             </LocalizationProvider>
           </Grid>
-          <Grid item size={5}>
+          <Grid item size={{ md: 3 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 label="End Date"
@@ -154,7 +245,35 @@ const AssessmentEditorPage = () => {
               />
             </LocalizationProvider>
           </Grid>
-          <Grid item size={2}>
+          <Grid item size={{ md: 3 }}></Grid>
+
+          <Grid item size={{ md: 1.5 }}>
+            <TextField
+              variant="outlined"
+              name="duration"
+              value={newAssessment.duration}
+              type="number"
+              onChange={handleChange}
+              label="Duration"
+              fullWidth
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <TimerOutlinedIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">Minutes</InputAdornment>
+                  ),
+                },
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
+          </Grid>
+          <Grid item size={{ md: 1.5 }}>
             <Stack
               direction="row"
               justifyContent="space-between"
@@ -199,7 +318,7 @@ const AssessmentEditorPage = () => {
                   <Box>
                     {question.file && (
                       <img
-                        src={question.file}
+                        src={question.fileBlob}
                         alt={`Upload preview for question ${index + 1}`}
                         style={{
                           maxWidth: "40%",
@@ -590,7 +709,7 @@ const AssessmentEditorPage = () => {
             <Button
               fullWidth
               size="large"
-              variant="contained"
+              variant="outlined"
               disableElevation
               onClick={() => {
                 setQuestions([
@@ -600,11 +719,24 @@ const AssessmentEditorPage = () => {
                     text: "",
                     type: 1,
                     choices: [],
+                    points: 0,
+                    caseSensitive: false,
                   }, // Add a new question with unique ID
                 ]);
               }}
             >
               Add Question
+            </Button>
+          </Grid>
+          <Grid item size={12}>
+            <Button
+              fullWidth
+              size="large"
+              variant="contained"
+              disableElevation
+              onClick={handleCreateAssessment}
+            >
+              SUBMIT ASSESSMENT
             </Button>
           </Grid>
         </Grid>

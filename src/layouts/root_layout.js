@@ -1,5 +1,5 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
-import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
+import { Outlet, useNavigate, useLocation, matchPath } from "react-router-dom";
 import apiClient from "../axios/axiosInstance";
 import { jwtDecode } from "jwt-decode";
 
@@ -35,7 +35,7 @@ export default function RootLayout() {
   const location = useLocation();
   const [user, setUser] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
-  const { subjectName } = useSubject();
+  const { subjectName, setSubjectName } = useSubject();
 
   const [snackbarData, setSnackbarData] = useState({
     open: false,
@@ -98,6 +98,20 @@ export default function RootLayout() {
     } catch (error) {
       navigate("/aes/login");
     }
+
+    const isInSubjectRoutes = matchPath(
+      {
+        path: "/aes/subject/:subject_id/*",
+        end: false,
+      },
+      location.pathname
+    );
+
+    if (!isInSubjectRoutes) {
+      console.log("Leaving subject routes, clearing subjectName...");
+      setSubjectName("");
+    }
+
   }, [location, user.profileImage]); // Add user.profileImage to the dependency array
 
   useEffect(() => {

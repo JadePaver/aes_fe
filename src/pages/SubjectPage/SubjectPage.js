@@ -17,7 +17,7 @@ import ChecklistRoundedIcon from "@mui/icons-material/ChecklistRounded";
 
 import { useSubject } from "../../layouts/components/subjectProvider";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation, matchPath } from "react-router-dom";
 
 import { useSnackbar } from "../../layouts/root_layout";
 import GradesProgress from "./components/gradesProgress";
@@ -76,8 +76,10 @@ const data = [
 
 const SubjectPage = () => {
   const { showSnackbar } = useSnackbar();
-  const [modules, setModules] = useState([]);
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const [modules, setModules] = useState([]);
   const { subject_id } = useParams();
   const { subjectName, setSubjectName } = useSubject();
   const [currentPreview, setCurrentPreview] = useState({});
@@ -93,8 +95,6 @@ const SubjectPage = () => {
       setValue(newValue); // Only update state if newValue is not undefined
     }
   };
-
-  const subject = { id: 1, label: "GEC - 4" };
 
   const getModules = async () => {
     try {
@@ -138,9 +138,6 @@ const SubjectPage = () => {
     getModules();
   }, []);
 
-  useEffect(() => {
-    console.log("value:", value);
-  }, [value]);
 
   return (
     <>
@@ -181,7 +178,7 @@ const SubjectPage = () => {
                 <Button
                   variant="outlined"
                   startIcon={<AddCircleOutlineRoundedIcon />}
-                  onClick={() => navigate(`/aes/assessment_editor/${2}`)}
+                  onClick={() => navigate(`assessment_create`)}
                 >
                   NEW ASSESSMENT
                 </Button>
