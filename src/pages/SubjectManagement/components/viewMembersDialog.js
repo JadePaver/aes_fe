@@ -11,7 +11,9 @@ import {
   DialogTitle,
   DialogActions,
 } from "@mui/material";
-
+import { jwtDecode } from "jwt-decode";
+import { LockResetOutlined } from "@mui/icons-material";
+import ResetPassDialog from "./resetPassDialog";
 import { formatDate } from "../../../const/formatter";
 import { DataGrid } from "@mui/x-data-grid";
 import apiClient from "../../../axios/axiosInstance";
@@ -23,16 +25,54 @@ import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 const ViewMembersDialog = ({ isOpen, handleClose, refresh, selected }) => {
   const { showSnackbar } = useSnackbar();
   const [members, setMembers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const token = localStorage.getItem("token");
 
+  const decodedUser = jwtDecode(token);
+  console.log("decodedUser:", decodedUser);
+  const getUsers = async () => {
+    const response = await apiClient.post(`/users/getAll/${decodedUser.id}`);
+    const data = response.data;
+    const rows = data.map((row) => ({
+      ...row,
+      classroomName: row.assigned_classroom?.[0]?.classroom?.name,
+    }));
+    console.log("formated:", rows);
+    setUsers(rows);
+  };
+  const handleResetPass = async () => {
+    try {
+      const response = await apiClient.post(
+        `/users/reset_pass/${selectedRow?.id}`
+      );
+      setIsResetOpen(false);
+      setSelectedRow(null);
+      getUsers();
+      showSnackbar({
+        message: response?.data?.message || "Password reset successfully",
+        severity: "success",
+      });
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.error || "Failed to reset password";
+
+      showSnackbar({
+        message: errorMessage,
+        severity: "error",
+      });
+    }
+  };
   const removeMember = async () => {
     try {
       const response = await apiClient.post(
         `/subjects/remove_member/${selectedMember?.id}`,
         selected
       );
-      setIsRemoveDialog(false)
+      setIsRemoveDialog(false);
       showSnackbar({
         message: response?.data?.message,
         severity: "success",
@@ -113,6 +153,17 @@ const ViewMembersDialog = ({ isOpen, handleClose, refresh, selected }) => {
               <PersonRemoveRoundedIcon />
             </Button>
           </Tooltip>
+          <Button
+            size="small"
+            color="info"
+            variant="icon"
+            onClick={() => {
+              setIsResetOpen(true);
+              setSelectedRow(params.row);
+            }}
+          >
+            <LockResetOutlined />
+          </Button>
         </Stack>
       ),
     },
@@ -201,6 +252,15 @@ const ViewMembersDialog = ({ isOpen, handleClose, refresh, selected }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <ResetPassDialog
+        open={isResetOpen}
+        handleClose={() => {
+          setIsResetOpen(false);
+          setSelectedRow(null);
+        }}
+        onConfirm={handleResetPass}
+        selected={selectedRow}
+      />
     </>
   );
 };

@@ -94,8 +94,11 @@ const RegisterPage = () => {
         stepErrors.mname = "Middle Name is required";
       if (!formData.sex) stepErrors.sex = "Sex is required";
     } else if (activeStep === 1) {
-      if (!(formData.contact || "").trim())
+      if (!(formData.contact || "").trim()) {
         stepErrors.contact = "Contact # is required";
+      } else if (!/^\d{11}(\d{2})?$/.test(formData.contact)) {
+        stepErrors.contact = "Enter a valid Contact #";
+      }
       if (!(formData.email || "").trim()) {
         stepErrors.email = "Email is required";
       } else if (!emailRegex.test(formData.email)) {

@@ -6,7 +6,17 @@ import ViewMembersDialog from "./components/viewMembersDialog";
 import EnrollUserDialog from "./components/enrollUserDialog";
 
 import Grid from "@mui/material/Grid2";
-import { Button, Stack, Tooltip, Typography } from "@mui/material";
+import {
+  Button,
+  Stack,
+  Tooltip,
+  Typography,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  DialogActions,
+} from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import GroupsRounded from "@mui/icons-material/GroupsRounded";
 import {
@@ -23,6 +33,9 @@ import { formatDate } from "../../const/formatter";
 const SubjectManagement = () => {
   const [isLocked, setIsLocked] = useState(true);
   const [subjects, setSubjects] = useState([]);
+  const [oldRow, setOldRow] = useState(true);
+  const [newRow, setNewRow] = useState([]);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [isNewSubjectOpen, setIsNewSubjectOpen] = useState(false);
   const [isMemberOpen, setIsMemberOpen] = useState(false);
@@ -34,6 +47,7 @@ const SubjectManagement = () => {
     {
       field: "subjectWithYear",
       headerName: "Subject",
+      editable: true,
       flex: 1,
       valueGetter: (params) => {
         return `${params}`;
@@ -188,10 +202,50 @@ const SubjectManagement = () => {
       console.log("subjects:", processedSubjects);
     } catch (error) {}
   };
+  const updateSubjectName = async (subjectId, newName) => {
+    try {
+      const response = await apiClient.put(
+        `/subjects/update/${subjectId}/name`,
+        {
+          name: newName,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Failed to update subject name:",
+        error.response?.data || error.message
+      );
+      throw error.response?.data || error.message;
+    }
+  };
 
   useEffect(() => {
     getSubjects();
   }, []);
+
+  const processRowUpdate = async (oldRow, newRow) => {
+    try {
+      // console.log("Processing: ", oldRow);
+      // // Call the API to update the subject name
+      await updateSubjectName(newRow.id, newRow.name);
+      // If successful, update the state with the new data
+      const updatedRows = subjects.map((row) =>
+        row.id === newRow.id ? { ...row, ...newRow } : row
+      );
+
+      setSubjects([...updatedRows]);
+
+      console.log("Updated subjects:", updatedRows);
+
+      return newRow; // Return the updated row to finalize the edit
+    } catch (error) {
+      console.error("Error updating subject name:", error);
+
+      // Optionally, revert the changes if the API call fails
+      return oldRow;
+    }
+  };
 
   return (
     <>
@@ -244,6 +298,16 @@ const SubjectManagement = () => {
               rows={subjects}
               columns={columns}
               pageSizeOptions={[5, 10, 25, 50, 100]}
+              processRowUpdate={
+                processRowUpdate
+                //   (e) => {
+                //   console.log("Process", e);
+                //   setOldRow(e);
+
+                //   setIsUpdateDialogOpen(true);
+                // }
+              }
+              experimentalFeatures={{ newEditingApi: true }}
               initialState={{
                 columns: {
                   columnVisibilityModel: {
@@ -261,6 +325,18 @@ const SubjectManagement = () => {
             />
           </Grid>
         </Grid>
+        <Dialog open={isUpdateDialogOpen}>
+          <DialogActions>
+            <Button onClick={processRowUpdate}>submit</Button>
+            <Button
+              onClick={() => {
+                setIsUpdateDialogOpen(false);
+              }}
+            >
+              cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Stack>
       <NewSubjectDialog
         isOpen={isNewSubjectOpen}
