@@ -102,6 +102,8 @@ const SubjectPage = () => {
     }
   };
 
+ 
+
   useEffect(() => {
     getSubjectDetails();
     getModules();

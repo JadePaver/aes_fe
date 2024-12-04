@@ -9,18 +9,22 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import apiClient from "../../axios/axiosInstance";
 import { useSnackbar } from "../../layouts/root_layout";
 import { useParams } from "react-router-dom";
+import Timer from "./components/timer";
 
 const TakeAssessmentPage = ({}) => {
+  const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
   const { assessment_id } = useParams();
   const [assessment, setAssessment] = useState();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [assessmentResult, setAssessmentResult] = useState();
+  const [remainingTime, setRemainingTime] = useState();
 
   const getAssessments = async () => {
     try {
@@ -28,15 +32,24 @@ const TakeAssessmentPage = ({}) => {
         `/assessments/get_by_id/${assessment_id}`
       );
 
-      console.log("assessment:", response.data);
-
       setAssessment(response.data);
+      setRemainingTime(response.data.timeRemaining);
     } catch (error) {
-      console.error("Error submitting module data:", error);
+      let errorMessage = "An unexpected error occurred.";
+      if (error.response) {
+        errorMessage =
+          error.response.data?.message || error.response.statusText;
+      } else if (error.request) {
+        errorMessage =
+          "Unable to connect to the server. Please try again later.";
+      }
+
+      console.error("Error fetching assessment:", error);
       showSnackbar({
-        message: error.response?.data?.error,
+        message: errorMessage,
         severity: "error",
       });
+      navigate(-1)
     }
   };
 
@@ -46,8 +59,6 @@ const TakeAssessmentPage = ({}) => {
         `/assessments/last_record/${assessment_id}`
       );
       setAssessmentResult(response.data);
-
-      console.log("lastResult:", response.data);
     } catch (error) {
       console.error("Error getting lastResult data:", error);
       showSnackbar({
@@ -94,8 +105,6 @@ const TakeAssessmentPage = ({}) => {
         stringAnswer: answer,
       });
     }
-    console.log("updatedAnswers:", updatedAnswers);
-    console.log("currentQuestion:", currentQuestion);
     setAnswers(updatedAnswers);
   };
 
@@ -112,10 +121,24 @@ const TakeAssessmentPage = ({}) => {
         `/assessments/record_result/${assessment_id}`,
         data
       );
+      showSnackbar({
+        message: response.data?.message,
+        severity: "success",
+      });
+      navigate(-1)
       console.log("submitted");
     } catch (error) {
       console.error("error:", error);
+      showSnackbar({
+        message: error.response?.data?.error,
+        severity: "error",
+      });
     }
+  };
+
+  const onTimerExpire = () => {
+    console.log("Timer expired! Running the expiration function...");
+    // Add your expiration logic here
   };
 
   return (
@@ -154,7 +177,14 @@ const TakeAssessmentPage = ({}) => {
               borderRadius: "0.2rem",
             }}
           >
-            <Typography variant="h4">{assessment.name}</Typography>
+            <Grid container>
+              <Grid item size={{ md: 6 }}>
+                <Typography variant="h4">{assessment.name}</Typography>
+              </Grid>
+              <Grid item size={{ md: 6 }}>
+                <Timer time={remainingTime} onTimerExpire={handleSubmit} />
+              </Grid>
+            </Grid>
             <Grid
               container
               sx={{

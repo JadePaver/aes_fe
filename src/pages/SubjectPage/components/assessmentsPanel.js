@@ -27,10 +27,39 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
   const navigate = useNavigate();
   const [currentPreview, setCurrentPreview] = useState({});
   const [confirmTakeOpen, setConfirmTakeOpen] = useState(false);
+  const [userResults, setUserResults] = useState([]);
 
   const handleChangePreview = (data) => {
+    const matchingResult = userResults.find(
+      (result) => result.assessment_id === data.id
+    );
+
+    console.log("matchingResult:", matchingResult);
+    if (matchingResult) {
+      // Update data.isDone to 1 if a match is found
+      data.isDone = 1;
+      data.max_score = matchingResult.max_score;
+      data.total_score = matchingResult.total_score;
+    }
     console.log("current:", data);
+
     setCurrentPreview(data);
+  };
+
+  const getUserResults = async () => {
+    try {
+      const response = await apiClient.post(
+        `/assessments/user_results/${subjectID}`
+      );
+      console.log("RESULTS:", response.data);
+      setUserResults(response.data);
+    } catch (error) {
+      console.error("Error fetching assessment results:", error);
+      showSnackbar({
+        message: error.response?.data?.message,
+        severity: "error",
+      });
+    }
   };
 
   const handleStartAssessment = async () => {
@@ -52,6 +81,10 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
       });
     }
   };
+
+  useEffect(() => {
+    getUserResults();
+  }, []);
 
   return (
     <>
@@ -205,26 +238,29 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
                 {currentPreview.allowedLate ? "Allowed" : "Not Allowed"}
               </Typography>
             </Stack>
-            {/* <Stack
-              spacing={1}
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Typography fontWeight={600}>Score:</Typography>
-              <GradesProgress
-                variant="determinate"
-                value={
-                  ((currentPreview.score || 0) /
-                    (currentPreview.totalScore || 1)) *
-                  100
-                }
-                size="5rem"
-              />
-              <Typography color="black">
-                {currentPreview.score || "0"}/{currentPreview.totalScore || "0"}
-              </Typography>
-            </Stack> */}
+            {currentPreview.total_score || currentPreview.max_score ? (
+              <Stack
+                spacing={1}
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Typography fontWeight={600}>Score:</Typography>
+                <GradesProgress
+                  variant="determinate"
+                  value={
+                    ((currentPreview.total_score || 0) /
+                      (currentPreview.max_score || 1)) *
+                    100
+                  }
+                  size="5rem"
+                />
+                <Typography color="black">
+                  {currentPreview.total_score || "0"}/
+                  {currentPreview.max_score || "0"}
+                </Typography>
+              </Stack>
+            ) : <></>}
           </Stack>
           {/* <Box sx={{ minHeight: "100%", m: "1rem 0" }}>
             <StudentAssessResultTable />
