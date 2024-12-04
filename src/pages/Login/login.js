@@ -46,8 +46,9 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
       });
 
-      console.log("User logged in successfully:", response);
-      localStorage.setItem("token", response.data.token);
+      console.log("User logged in successfully:", response.data);
+      localStorage.setItem("token", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
       navigate("/aes");
     } catch (error) {
       console.log("error:", error);

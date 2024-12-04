@@ -125,6 +125,10 @@ const AssessmentEditorPage = () => {
           },
         }
       );
+      showSnackbar({
+        message: response?.data?.message,
+        severity: "success",
+      });
     } catch (error) {
       console.error("Error submitting new Assessment data's:", error);
       showSnackbar({
@@ -228,6 +232,7 @@ const AssessmentEditorPage = () => {
                   setNewAssessment({ ...newAssessment, startDate: newValue })
                 }
                 renderInput={(params) => <TextField {...params} fullWidth />}
+                minDateTime={dayjs()} 
                 sx={{ width: "100%" }}
               />
             </LocalizationProvider>
@@ -241,6 +246,7 @@ const AssessmentEditorPage = () => {
                   setNewAssessment({ ...newAssessment, endDate: newValue })
                 }
                 renderInput={(params) => <TextField {...params} fullWidth />}
+                minDateTime={newAssessment.startDate || dayjs()}
                 sx={{ width: "100%" }}
               />
             </LocalizationProvider>

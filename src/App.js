@@ -7,7 +7,9 @@ import {
 import "./App.css";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
+
 import RootLayout from "./layouts/root_layout";
+
 import Dashboard from "./pages/Dashboard/dashboard";
 import Login from "./pages/Login";
 import RegisterPage from "./pages/RegisterPage";
@@ -15,17 +17,17 @@ import TestPage from "./pages/Test";
 import Page404 from "./pages/Page404";
 import SubjectPage from "./pages/SubjectPage";
 import ModulePage from "./pages/ModulePage";
-
 import ClassroomManagementPage from "./pages/ClassroomManagementPage";
 import UserManagement from "./pages/UserManagementPage";
 import SubjectManagement from "./pages/SubjectManagement";
 import StudentMangement from "./pages/StudentManagement/studentManagement";
 import ThisYear from "./pages/ThisYear";
-
-import { SubjectProvider } from "./layouts/components/subjectProvider";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage.js";
-import GetServerIP from "./config/getServerIP.js";
 import UserProfilePage from "./pages/UserProfilePage/userProfilePage.js";
+import TakeAssessmentPage from "./pages/TakeAssessmentPage/takeAssessmentPage.js";
+
+import GetServerIP from "./config/getServerIP.js";
+import { SubjectProvider } from "./layouts/components/subjectProvider";
 
 const theme = createTheme({
   typography: {
@@ -189,6 +191,11 @@ const router = createBrowserRouter(
               exact
               path="assessment_create"
               element={<AssessmentEditorPage />}
+            />
+            <Route
+              exact
+              path="assessment_take/:assessment_id"
+              element={<TakeAssessmentPage />}
             />
           </Route>
 
