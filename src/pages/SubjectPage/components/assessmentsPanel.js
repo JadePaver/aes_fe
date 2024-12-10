@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useSnackbar } from "../../../layouts/root_layout";
+import ResultDialog from "./resultDialog";
 import GradesProgress from "./gradesProgress";
 import StudentAssessResultTable from "./studentsAssessResTable";
 import { formatDateTime } from "../../../const/formatter";
@@ -26,40 +27,14 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const [currentPreview, setCurrentPreview] = useState({});
+  const [isResultOpen, setIsResultOpen] = useState(false);
   const [confirmTakeOpen, setConfirmTakeOpen] = useState(false);
   const [userResults, setUserResults] = useState([]);
+  const [thisAssessment, setThisAssessment] = useState([]);
 
   const handleChangePreview = (data) => {
-    const matchingResult = userResults.find(
-      (result) => result.assessment_id === data.id
-    );
-
-    console.log("matchingResult:", matchingResult);
-    if (matchingResult) {
-      // Update data.isDone to 1 if a match is found
-      data.isDone = 1;
-      data.max_score = matchingResult.max_score;
-      data.total_score = matchingResult.total_score;
-    }
     console.log("current:", data);
-
     setCurrentPreview(data);
-  };
-
-  const getUserResults = async () => {
-    try {
-      const response = await apiClient.post(
-        `/assessments/user_results/${subjectID}`
-      );
-      console.log("RESULTS:", response.data);
-      setUserResults(response.data);
-    } catch (error) {
-      console.error("Error fetching assessment results:", error);
-      showSnackbar({
-        message: error.response?.data?.message,
-        severity: "error",
-      });
-    }
   };
 
   const handleStartAssessment = async () => {
@@ -82,9 +57,49 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
     }
   };
 
+  const getUserResults = async () => {
+    try {
+      const response = await apiClient.post(
+        `/assessments/user_results/${subjectID}`
+      );
+      setUserResults(response.data);
+    } catch (error) {
+      console.error("Error fetching assessment results:", error);
+      showSnackbar({
+        message: error.response?.data?.message,
+        severity: "error",
+      });
+    }
+  };
+
   useEffect(() => {
     getUserResults();
   }, []);
+
+  useEffect(() => {
+    const addedStatus = assessments.map((assessment) => {
+      return { ...assessment, status: 1 };
+    });
+    const newAssessmentData = addedStatus.map((assessment) => {
+      const matchingResult = userResults.find(
+        (result) => result.assessment_id === assessment.id
+      );
+      if (matchingResult) {
+        let status = 1; // Default status
+        // Check conditions for setting the status
+        if (matchingResult.dateStarted) {
+          if (matchingResult.total_score === null) {
+            status = 2; // If dateStarted exists and total_score is null, set status to 2
+          } else if (matchingResult.dateSubmitted) {
+            status = 3; // If dateSubmitted exists, set status to 3
+          }
+        }
+        return { ...matchingResult, ...assessment, status }; // Merge matching result and assessment
+      }
+      return assessment; // If no match, just return the assessment as is
+    });
+    setThisAssessment(newAssessmentData); // Set the updated assessment data
+  }, [assessments, userResults]); // Add userResults as a dependency if needed
 
   return (
     <>
@@ -108,11 +123,14 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
           }}
         >
           <Stack spacing={1}>
-            {assessments.map((assessment) => (
+            {thisAssessment.map((assessment) => (
               <Button
                 key={assessment.assessment_id}
-                variant={assessment.isDone ? "contained" : "outlined"}
-                sx={{ mb: 2 }}
+                variant={assessment.status === 1 ? "outlined" : "contained"}
+                color={assessment.status === 2 ? "yellow" : "primary"}
+                sx={{
+                  mb: 2,
+                }}
                 disableElevation
                 onClick={() => handleChangePreview(assessment)}
               >
@@ -122,24 +140,28 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
                   sx={{
                     width: "100%",
                     p: "1rem 0",
-                    color: assessment.isDone ? "var(--accent)" : "black",
-                  }} // Set text color based on isDone
+                    color: assessment.status === 3 ? "var(--accent)" : "black",
+                  }}
                 >
                   <Typography
                     fontWeight={600}
-                    color={assessment.isDone ? "var(--accent)" : "black"}
+                    color={assessment.status === 1 ? "black" : "var(--accent)"}
                   >
                     {assessment.name}
                   </Typography>
                   <Stack spacing={1} direction="row">
                     <Typography
-                      color={assessment.isDone ? "var(--accent)" : "black"}
+                      color={
+                        assessment.status === 3 ? "var(--accent)" : "black"
+                      }
                     >
                       Deadline:
                     </Typography>{" "}
                     {/* Change color conditionally */}
                     <Typography
-                      color={assessment.isDone ? "var(--accent)" : "black"}
+                      color={
+                        assessment.status === 3 ? "var(--accent)" : "black"
+                      }
                     >
                       {formatDateTime(assessment.endDateTime)}
                     </Typography>
@@ -195,7 +217,7 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
             <Stack spacing={1} direction="row" justifyContent="space-between">
               <Typography fontWeight={600}>Done: </Typography>
               <Checkbox
-                checked={currentPreview.isDone === 1}
+                checked={currentPreview.status === 3 ? true : false}
                 sx={{ p: 0, cursor: "default" }}
               />
             </Stack>
@@ -238,7 +260,22 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
                 {currentPreview.allowedLate ? "Allowed" : "Not Allowed"}
               </Typography>
             </Stack>
-            {currentPreview.total_score || currentPreview.max_score ? (
+            {currentPreview.id && (
+              <>
+                <Grid item size={{ md: 12 }}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    onClick={() => {
+                      setIsResultOpen(true);
+                    }}
+                  >
+                    VIEW ALL STUDENT RESULTS
+                  </Button>
+                </Grid>
+              </>
+            )}
+            {currentPreview.dateStarted ? (
               <Stack
                 spacing={1}
                 direction="row"
@@ -260,36 +297,60 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
                   {currentPreview.max_score || "0"}
                 </Typography>
               </Stack>
-            ) : <></>}
+            ) : (
+              <></>
+            )}
           </Stack>
           {/* <Box sx={{ minHeight: "100%", m: "1rem 0" }}>
             <StudentAssessResultTable />
           </Box> */}
           {currentPreview.id ? (
-            currentPreview.isDone === 1 ? (
+            currentPreview.status === 1 ? (
               <Button
                 variant="contained"
                 disableElevation
                 size="large"
                 sx={{ marginTop: "auto" }}
+                disabled={
+                  new Date(currentPreview.endDateTime) < new Date() &&
+                  !currentPreview.allowedLate
+                }
+                onClick={() => {
+                  // Handle status 1 action (e.g., start assessment)
+                  setConfirmTakeOpen(true);
+                }}
+              >
+                START ASSESSMENT
+              </Button>
+            ) : currentPreview.status === 2 ? (
+              <Button
+                variant="contained"
+                disableElevation
+                size="large"
+                sx={{ marginTop: "auto", color: "white" }}
+                color="yellow"
+                onClick={() => {
+                  // Handle status 2 action (e.g., continue assessment)
+                  navigate(`assessment_take/${currentPreview.id}`);
+                }}
+              >
+                CONTINUE ASSESSMENT
+              </Button>
+            ) : currentPreview.status === 3 ? (
+              <Button
+                variant="contained"
+                disableElevation
+                size="large"
+                sx={{ marginTop: "auto" }}
+                onClick={() => {}}
               >
                 VIEW RESULT
               </Button>
             ) : (
-              <Button
-                variant="contained"
-                disableElevation
-                size="large"
-                sx={{ marginTop: "auto" }}
-                onClick={() => {
-                  setConfirmTakeOpen(true);
-                }}
-              >
-                TAKE ASSESSMENT
-              </Button>
+              <></> // No button if status is not 1, 2, or 3
             )
           ) : (
-            <></>
+            <> </> // No button if currentPreview.id is undefined or null
           )}
         </Grid>
       </Grid>
@@ -330,6 +391,11 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <ResultDialog
+        isOpen={isResultOpen}
+        onClose={() => setIsResultOpen(false)}
+        selected={currentPreview}
+      />
     </>
   );
 };

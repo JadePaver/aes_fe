@@ -1,1 +1,1 @@
-export { default } from "./subjectManagement";
+export { default } from "./studentManagement";

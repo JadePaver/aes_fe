@@ -56,6 +56,8 @@ const SubjectPage = () => {
     }
   };
 
+
+
   const getModules = async () => {
     try {
       const response = await apiClient.post(
@@ -76,7 +78,6 @@ const SubjectPage = () => {
       const response = await apiClient.post(
         `/assessments/get_all_assigned/${subject_id}`
       );
-      console.log("assessments???", response.data);
       setAssessments(response.data);
     } catch (error) {
       console.error("Error fetching modules:", error);
@@ -90,7 +91,6 @@ const SubjectPage = () => {
   const getSubjectDetails = async () => {
     try {
       const response = await apiClient.post(`/subjects/details/${subject_id}`);
-      console.log(response.data);
       setSubjectDetails(response.data);
       setSubjectName(response.data?.name);
     } catch (error) {
@@ -101,8 +101,6 @@ const SubjectPage = () => {
       });
     }
   };
-
- 
 
   useEffect(() => {
     getSubjectDetails();
@@ -162,8 +160,8 @@ const SubjectPage = () => {
             </Tabs>
             <TabPanel value={value} index={0}>
               <AssessmentsPanel
-                assessments={assessments}
                 subjectID={subject_id}
+                assessments={assessments}
               />
             </TabPanel>
             <TabPanel value={value} index={1}>

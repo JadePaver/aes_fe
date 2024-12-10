@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
+import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 
 import { formatTime } from "../../../const/formatter";
 
@@ -22,14 +23,26 @@ const Timer = ({ time, onTimerExpire }) => {
       return () => clearInterval(intervalId); // Clean up interval on unmount
     }
   }, [remainingTime]);
+
   return (
     <>
-      <Typography variant="h4">
+      <Typography
+        variant="h6"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          color: remainingTime < 300000 ? "#E8000C" : "inherit",
+        }}
+      >
         {remainingTime !== null && remainingTime > 0 ? (
-          <h1>Time Remaining: {formatTime(remainingTime)}</h1>
+          <>
+            <AccessTimeRoundedIcon sx={{ marginRight: 1, fontSize: "2rem" }} />{" "}
+            {/* Timer Icon */}
+            {formatTime(remainingTime)}
+          </>
         ) : (
           <h1>Time's Up!</h1>
-        )}{" "}
+        )}
       </Typography>
     </>
   );

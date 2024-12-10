@@ -38,6 +38,7 @@ import apiClient from "../../axios/axiosInstance";
 import { useSnackbar } from "../../layouts/root_layout";
 
 const AssessmentEditorPage = () => {
+  const navigate = useNavigate();
   const { subject_id } = useParams();
   const location = useLocation();
   const { showSnackbar } = useSnackbar();
@@ -125,6 +126,7 @@ const AssessmentEditorPage = () => {
           },
         }
       );
+      navigate(-1)
       showSnackbar({
         message: response?.data?.message,
         severity: "success",
