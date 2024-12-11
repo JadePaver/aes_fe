@@ -18,7 +18,7 @@ export const setApiClientBaseURL = () => {
   if (serverIP.value) {
     apiClient.defaults.baseURL = `http://${serverIP.value}:${process.env.REACT_APP_API_PORT}`;
     apiClient.defaults.withCredentials = true;
-    console.log("Updated baseURL to:", apiClient.defaults.baseURL);
+    // console.log("Updated baseURL to:", apiClient.defaults.baseURL);
   } else {
     console.error("serverIP is not set. Cannot update baseURL.");
   }

@@ -15,7 +15,7 @@ const GetServerIP = () => {
     const fetchServerIP = async () => {
       try {
         const response = await axios.get("http://localhost:5001/getserver_ip");
-        console.log("Fetched server IP:", response.data.localIP); // Log to confirm
+        // console.log("Fetched server IP:", response.data.localIP); // Log to confirm
         serverIP.value = response.data.localIP;
         setApiClientBaseURL(); // Ensure correct assignment
       } catch (err) {

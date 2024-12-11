@@ -260,7 +260,6 @@ const UserProfilePage = () => {
           },
         }
       );
-      console.log("UserData:", response.data);
       setUserData(response.data);
       console.log("response.data:", response.data);
       if (response.data?.profile_image) {
@@ -331,7 +330,6 @@ const UserProfilePage = () => {
     const getSex = async () => {
       const response = await apiClient.get("/sex");
       setSex(response.data);
-      console.log("sex:", response.data);
     };
 
     getSex();
@@ -539,7 +537,7 @@ const UserProfilePage = () => {
                 <Typography variant="body1" fontWeight={600}>
                   Name:
                 </Typography>
-                <Grid container spacing={1}paddingBlockEnd={1}>
+                <Grid container spacing={1} paddingBlockEnd={1}>
                   {" "}
                   {/* Added spacing between rows */}
                   <Grid item size={{ xs: 6, md: 2 }}>

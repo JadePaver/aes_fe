@@ -202,6 +202,7 @@ const SubjectManagement = () => {
       console.log("subjects:", processedSubjects);
     } catch (error) {}
   };
+
   const updateSubjectName = async (subjectId, newName) => {
     try {
       const response = await apiClient.put(
