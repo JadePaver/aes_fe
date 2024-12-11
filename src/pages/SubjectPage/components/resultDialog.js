@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Button,
   Dialog,
@@ -11,8 +12,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import AssessmentRoundedIcon from "@mui/icons-material/AssessmentRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import RestoreRoundedIcon from "@mui/icons-material/RestoreRounded";
 
@@ -24,12 +24,13 @@ import apiClient from "../../../axios/axiosInstance";
 import { formatDateTime } from "../../../const/formatter";
 import { render } from "@testing-library/react";
 
-const ResultDialog = ({ isOpen, onClose, selected }) => {
+const ResultDialog = ({ selected }) => {
   const { subject_id } = useParams();
   const { showSnackbar } = useSnackbar();
   const [selectedRow, setSelectedRow] = useState();
   const [results, setResults] = useState([]);
   const [isResetOpen, setIsResetOpen] = useState(false);
+  const [isResultOpen, setIsResultOpen] = useState(false);
 
   const columns = [
     {
@@ -149,16 +150,28 @@ const ResultDialog = ({ isOpen, onClose, selected }) => {
   };
 
   useEffect(() => {
-    if (isOpen === true) {
-      getResults();
-    }
-  }, [isOpen]);
+    getResults();
+  }, [selected]);
 
   return (
     <>
+      <Badge badgeContent={results.length} color="primary">
+        <Button
+          variant="outlined"
+          fullWidth
+          startIcon={<AssessmentRoundedIcon />}
+          onClick={() => {
+            setIsResultOpen(true);
+          }}
+        >
+          ALL STUDENT RESULTS
+        </Button>
+      </Badge>
       <Dialog
-        open={isOpen}
-        onClose={onClose}
+        open={isResultOpen}
+        onClose={() => {
+          setIsResetOpen(false);
+        }}
         fullWidth
         PaperProps={{
           sx: {
@@ -173,7 +186,9 @@ const ResultDialog = ({ isOpen, onClose, selected }) => {
           </Typography>
           <Typography variant="h6"></Typography>
           <Button
-            onClick={onClose}
+            onClick={() => {
+              setIsResultOpen(false);
+            }}
             variant="icon"
             disableElevation
             color="error"

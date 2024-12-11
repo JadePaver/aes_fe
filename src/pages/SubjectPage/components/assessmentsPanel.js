@@ -1,5 +1,6 @@
 import Grid from "@mui/material/Grid2";
 import {
+  Badge,
   Stack,
   Button,
   Typography,
@@ -263,15 +264,7 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
             {currentPreview.id && (
               <>
                 <Grid item size={{ md: 12 }}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    onClick={() => {
-                      setIsResultOpen(true);
-                    }}
-                  >
-                    VIEW ALL STUDENT RESULTS
-                  </Button>
+                  <ResultDialog selected={currentPreview} />
                 </Grid>
               </>
             )}
@@ -342,7 +335,9 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
                 disableElevation
                 size="large"
                 sx={{ marginTop: "auto" }}
-                onClick={() => {}}
+                onClick={() => {
+                  navigate(`assessment_result/${currentPreview.id}`);
+                }}
               >
                 VIEW RESULT
               </Button>
@@ -391,11 +386,6 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <ResultDialog
-        isOpen={isResultOpen}
-        onClose={() => setIsResultOpen(false)}
-        selected={currentPreview}
-      />
     </>
   );
 };

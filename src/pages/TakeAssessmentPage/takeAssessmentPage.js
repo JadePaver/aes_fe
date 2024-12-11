@@ -10,11 +10,10 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom";
 
 import apiClient from "../../axios/axiosInstance";
 import { useSnackbar } from "../../layouts/root_layout";
-import { useParams } from "react-router-dom";
 import Timer from "./components/timer";
 
 const TakeAssessmentPage = ({}) => {

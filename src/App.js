@@ -24,6 +24,7 @@ import ThisYear from "./pages/ThisYear";
 import AssessmentEditorPage from "./pages/AssessmentEditorPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import TakeAssessmentPage from "./pages/TakeAssessmentPage";
+import AssessmentResultPage from "./pages/AssessmentResultPage";
 
 import GetServerIP from "./config/getServerIP.js";
 import { SubjectProvider } from "./layouts/components/subjectProvider";
@@ -197,6 +198,11 @@ const router = createBrowserRouter(
             exact
             path="assessment_take/:assessment_id"
             element={<TakeAssessmentPage />}
+          />
+          <Route
+            exact
+            path="assessment_result/:assessment_id"
+            element={<AssessmentResultPage />}
           />
         </Route>
       </Route>
