@@ -51,7 +51,6 @@ const NewSubjectDialog = ({ isOpen, handleClose, refresh }) => {
   };
 
   const handleSubjectChange = (event, newValue) => {
-    console.log("name:", newValue);
     setFormData((prevData) => ({
       ...prevData,
       name: newValue,
@@ -80,7 +79,6 @@ const NewSubjectDialog = ({ isOpen, handleClose, refresh }) => {
   const getClassrooms = async () => {
     try {
       const response = await apiClient.post(`/classrooms/`);
-      console.log("classrooms:", response.data);
       setClassrooms(response.data);
     } catch (error) {
       console.error("Error fetching classrooms:", error);
@@ -93,8 +91,6 @@ const NewSubjectDialog = ({ isOpen, handleClose, refresh }) => {
       const data = response.data;
 
       const uniqueNames = [...new Set(data.map((item) => item.name))];
-
-      console.log("subjects:", uniqueNames);
 
       setSubjects(uniqueNames);
     } catch (error) {
@@ -134,14 +130,10 @@ const NewSubjectDialog = ({ isOpen, handleClose, refresh }) => {
   };
 
   const handleSubmit = async () => {
-    console.log("submit:", formData);
-
     if (!validateForm()) {
-      console.log("Form validation failed:", errors);
       return; // Prevent submission if validation fails
     }
 
-    console.log("Submitted Data:", formData);
     try {
       const response = await apiClient.post(`/subjects/create`, formData);
       refresh();

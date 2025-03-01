@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogActions,
 } from "@mui/material";
-import { jwtDecode } from "jwt-decode";
+
 import { LockResetOutlined } from "@mui/icons-material";
 import ResetPassDialog from "./resetPassDialog";
 import { formatDate } from "../../../const/formatter";
@@ -26,25 +26,10 @@ import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 const ViewMembersDialog = ({ isOpen, handleClose, refresh, selected }) => {
   const { showSnackbar } = useSnackbar();
   const [members, setMembers] = useState([]);
-  const [users, setUsers] = useState([]);
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const token = localStorage.getItem("token");
-
-  const decodedUser = jwtDecode(token);
-  console.log("decodedUser:", decodedUser);
-  const getUsers = async () => {
-    const response = await apiClient.post(`/users/getAll/${decodedUser.id}`);
-    const data = response.data;
-    const rows = data.map((row) => ({
-      ...row,
-      classroomName: row.assigned_classroom?.[0]?.classroom?.name,
-    }));
-    console.log("formated:", rows);
-    setUsers(rows);
-  };
   const handleResetPass = async () => {
     try {
       const response = await apiClient.post(
@@ -52,7 +37,7 @@ const ViewMembersDialog = ({ isOpen, handleClose, refresh, selected }) => {
       );
       setIsResetOpen(false);
       setSelectedRow(null);
-      getUsers();
+
       showSnackbar({
         message: response?.data?.message || "Password reset successfully",
         severity: "success",
@@ -81,7 +66,6 @@ const ViewMembersDialog = ({ isOpen, handleClose, refresh, selected }) => {
       getMembers();
       refresh();
     } catch (error) {
-      console.log("Error removing member:", error);
       showSnackbar({
         message: error.response?.data?.error,
         severity: "error",
@@ -177,7 +161,7 @@ const ViewMembersDialog = ({ isOpen, handleClose, refresh, selected }) => {
       );
       setMembers(response.data);
     } catch (error) {
-      console.log("err:", error);
+      console.error("error:", error);
     }
   };
   useEffect(() => {

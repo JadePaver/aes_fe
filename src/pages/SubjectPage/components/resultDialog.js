@@ -40,7 +40,6 @@ const ResultDialog = ({ selected }) => {
       align: "center",
       headerAlign: "center",
       renderCell: (params) => {
-        console.log("params:", params.row);
         const { fName, mName, lName, ext_name } = params.row?.user;
         // Combine name fields into a full name
         return `${fName || ""} ${mName || ""} ${lName || ""} ${
@@ -88,7 +87,6 @@ const ResultDialog = ({ selected }) => {
               color="reset"
               variant="icon"
               onClick={() => {
-                console.log("member:", params.row);
                 setSelectedRow(params.row);
                 setIsResetOpen(true);
               }}
@@ -117,10 +115,8 @@ const ResultDialog = ({ selected }) => {
       const response = await apiClient.post(
         `/assessments/results_by_assessment/${selected.id}`
       );
-      console.log("results:", response.data);
       setResults(response.data);
     } catch (error) {
-      console.log("Error fetching members:", error);
       showSnackbar({
         message: error.response?.data?.error,
         severity: "error",
@@ -141,7 +137,7 @@ const ResultDialog = ({ selected }) => {
       setIsResetOpen(false);
       getResults();
     } catch (error) {
-      console.log("Error fetching members:", error);
+      console.error("Error fetching members:", error);
       showSnackbar({
         message: error.response?.data?.error,
         severity: "error",
@@ -155,7 +151,7 @@ const ResultDialog = ({ selected }) => {
 
   return (
     <>
-      <Badge badgeContent={results.length} color="primary">
+      <Badge badgeContent={results.length} color="primary" sx={{width:"100%"}}>
         <Button
           variant="outlined"
           fullWidth

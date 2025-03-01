@@ -39,7 +39,6 @@ const EditableDataGrid = () => {
       row.id === newRow.id ? { ...row, ...newRow } : row
     );
     setRows(updatedRows);
-    console.log(updatedRows);
     return newRow; // Required to finalize the edit
   };
 

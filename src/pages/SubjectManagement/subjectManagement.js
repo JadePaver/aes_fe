@@ -25,12 +25,15 @@ import {
   ContactEmergency,
   PersonAdd,
 } from "@mui/icons-material";
+
+import { useUser } from "../../layouts/root_layout";
 import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import apiClient from "../../axios/axiosInstance";
 import { formatDate } from "../../const/formatter";
 
 const SubjectManagement = () => {
+  const { user } = useUser();
   const [isLocked, setIsLocked] = useState(true);
   const [subjects, setSubjects] = useState([]);
   const [oldRow, setOldRow] = useState(true);
@@ -188,8 +191,12 @@ const SubjectManagement = () => {
 
   const getSubjects = async () => {
     try {
-      const response = await apiClient.post("/subjects/");
-      console.log("response:", response.data);
+      let response;
+      if (user.role === 3) {
+        response = await apiClient.post("/subjects/get_by_userID");
+      } else {
+        response = await apiClient.post("/subjects/");
+      }
 
       const processedSubjects = response.data.map((item) => ({
         ...item,
@@ -198,8 +205,6 @@ const SubjectManagement = () => {
       }));
 
       setSubjects(processedSubjects);
-
-      console.log("subjects:", processedSubjects);
     } catch (error) {}
   };
 
@@ -227,8 +232,6 @@ const SubjectManagement = () => {
 
   const processRowUpdate = async (oldRow, newRow) => {
     try {
-      // console.log("Processing: ", oldRow);
-      // // Call the API to update the subject name
       await updateSubjectName(newRow.id, newRow.name);
       // If successful, update the state with the new data
       const updatedRows = subjects.map((row) =>
@@ -236,8 +239,6 @@ const SubjectManagement = () => {
       );
 
       setSubjects([...updatedRows]);
-
-      console.log("Updated subjects:", updatedRows);
 
       return newRow; // Return the updated row to finalize the edit
     } catch (error) {
@@ -299,15 +300,7 @@ const SubjectManagement = () => {
               rows={subjects}
               columns={columns}
               pageSizeOptions={[5, 10, 25, 50, 100]}
-              processRowUpdate={
-                processRowUpdate
-                //   (e) => {
-                //   console.log("Process", e);
-                //   setOldRow(e);
-
-                //   setIsUpdateDialogOpen(true);
-                // }
-              }
+              processRowUpdate={processRowUpdate}
               experimentalFeatures={{ newEditingApi: true }}
               initialState={{
                 columns: {

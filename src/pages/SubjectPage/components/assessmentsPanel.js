@@ -23,8 +23,10 @@ import GradesProgress from "./gradesProgress";
 import StudentAssessResultTable from "./studentsAssessResTable";
 import { formatDateTime } from "../../../const/formatter";
 import apiClient from "../../../axios/axiosInstance";
+import { useUser } from "../../../layouts/root_layout";
 
 const AssessmentsPanel = ({ subjectID, assessments }) => {
+  const { user, setUser } = useUser();
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const [currentPreview, setCurrentPreview] = useState({});
@@ -34,7 +36,6 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
   const [thisAssessment, setThisAssessment] = useState([]);
 
   const handleChangePreview = (data) => {
-    console.log("current:", data);
     setCurrentPreview(data);
   };
 
@@ -261,13 +262,7 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
                 {currentPreview.allowedLate ? "Allowed" : "Not Allowed"}
               </Typography>
             </Stack>
-            {currentPreview.id && (
-              <>
-                <Grid item size={{ md: 12 }}>
-                  <ResultDialog selected={currentPreview} />
-                </Grid>
-              </>
-            )}
+
             {currentPreview.dateStarted ? (
               <Stack
                 spacing={1}
@@ -294,58 +289,57 @@ const AssessmentsPanel = ({ subjectID, assessments }) => {
               <></>
             )}
           </Stack>
-          {/* <Box sx={{ minHeight: "100%", m: "1rem 0" }}>
-            <StudentAssessResultTable />
-          </Box> */}
-          {currentPreview.id ? (
-            currentPreview.status === 1 ? (
-              <Button
-                variant="contained"
-                disableElevation
-                size="large"
-                sx={{ marginTop: "auto" }}
-                disabled={
-                  new Date(currentPreview.endDateTime) < new Date() &&
-                  !currentPreview.allowedLate
-                }
-                onClick={() => {
-                  // Handle status 1 action (e.g., start assessment)
-                  setConfirmTakeOpen(true);
-                }}
-              >
-                START ASSESSMENT
-              </Button>
-            ) : currentPreview.status === 2 ? (
-              <Button
-                variant="contained"
-                disableElevation
-                size="large"
-                sx={{ marginTop: "auto", color: "white" }}
-                color="yellow"
-                onClick={() => {
-                  // Handle status 2 action (e.g., continue assessment)
-                  navigate(`assessment_take/${currentPreview.id}`);
-                }}
-              >
-                CONTINUE ASSESSMENT
-              </Button>
-            ) : currentPreview.status === 3 ? (
-              <Button
-                variant="contained"
-                disableElevation
-                size="large"
-                sx={{ marginTop: "auto" }}
-                onClick={() => {
-                  navigate(`assessment_result/${currentPreview.id}`);
-                }}
-              >
-                VIEW RESULT
-              </Button>
-            ) : (
-              <></> // No button if status is not 1, 2, or 3
-            )
-          ) : (
-            <> </> // No button if currentPreview.id is undefined or null
+          {[1, 3, 5].includes(user.role) && currentPreview.id && (
+            <Box sx={{ marginTop: "auto" }}>
+              <ResultDialog selected={currentPreview} />
+            </Box>
+          )}
+
+          {[2].includes(user.role) && currentPreview.id && (
+            <>
+              {currentPreview.status === 1 ? (
+                <Button
+                  variant="contained"
+                  disableElevation
+                  size="large"
+                  sx={{ marginTop: "auto" }}
+                  disabled={
+                    new Date(currentPreview.endDateTime) < new Date() &&
+                    !currentPreview.allowedLate
+                  }
+                  onClick={() => setConfirmTakeOpen(true)}
+                >
+                  START ASSESSMENT
+                </Button>
+              ) : currentPreview.status === 2 ? (
+                <Button
+                  variant="contained"
+                  disableElevation
+                  size="large"
+                  sx={{ marginTop: "auto", color: "white" }}
+                  color="yellow"
+                  onClick={() =>
+                    navigate(`assessment_take/${currentPreview.id}`)
+                  }
+                >
+                  CONTINUE ASSESSMENT
+                </Button>
+              ) : currentPreview.status === 3 ? (
+                <Button
+                  variant="contained"
+                  disableElevation
+                  size="large"
+                  sx={{ marginTop: "auto" }}
+                  onClick={() =>
+                    navigate(`assessment_result/${currentPreview.id}`)
+                  }
+                >
+                  VIEW RESULT
+                </Button>
+              ) : (
+                <></>
+              )}
+            </>
           )}
         </Grid>
       </Grid>

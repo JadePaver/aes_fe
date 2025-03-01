@@ -68,13 +68,11 @@ const UserProfilePage = () => {
       [e.target.name]: e.target.value,
     });
     setErrors({});
-    console.log("changed:", editUserData);
   };
 
   const handleEditProfile = () => {
     setIsEditable(!isEditable);
     setEditUserData(userData);
-    console.log("userData:", userData);
   };
 
   const handleConfirmEdit = async () => {
@@ -90,7 +88,6 @@ const UserProfilePage = () => {
 
   const profileEditDialogConfirm = async () => {
     try {
-      console.log("edit request");
       const response = await apiClient.post(
         `/users/update_profile_details/${userDetails.id}`,
         userData
@@ -131,7 +128,6 @@ const UserProfilePage = () => {
 
   const isUsernameTaken = async (username) => {
     try {
-      console.log("username:", username);
       const response = await apiClient.post(
         `/users/check-username/${userDetails.id}`,
         { username }
@@ -239,11 +235,6 @@ const UserProfilePage = () => {
       const imageBlob = response.data;
       const imageObjectUrl = URL.createObjectURL(imageBlob);
       setImageUrl(imageObjectUrl);
-      localStorage.setItem("prof_img_url", imageObjectUrl);
-      setUser((prevUser) => ({
-        ...prevUser,
-        prof_img_url: imageObjectUrl,
-      }));
     } catch (error) {
       console.error("Error fetching image:", error);
     }
@@ -261,7 +252,6 @@ const UserProfilePage = () => {
         }
       );
       setUserData(response.data);
-      console.log("response.data:", response.data);
       if (response.data?.profile_image) {
         fetchImage(response.data?.profile_image.file);
       }
@@ -281,21 +271,36 @@ const UserProfilePage = () => {
           formData,
           {
             headers: {
-              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
         );
-        console.log("response:", response.data);
         localStorage.setItem("token", response.data.newToken);
         showSnackbar({
           message: response?.data?.message,
           severity: "success",
         });
+
         getProfileInfo();
 
-        const updatedUser = { ...user, profileImage: response.data.file };
-        setUser(updatedUser); // Update user context
+        const binaryString = atob(response.data.fileBase64);
+
+        const byteArray = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          byteArray[i] = binaryString.charCodeAt(i);
+        }
+
+        const fileBlob = new Blob([byteArray], {
+          type: "image/jpeg", // Update MIME type based on the file, e.g., "image/png" or "application/pdf"
+        });
+
+        const fileURL = URL.createObjectURL(fileBlob);
+
+        localStorage.setItem("profileImagURL", fileURL);
+
+        const token = localStorage.getItem("token");
+        const decoded = jwtDecode(token);
+        setUser(decoded);
       } catch (error) {
         console.error("Error uploading image:", error);
       }
@@ -307,19 +312,6 @@ const UserProfilePage = () => {
   };
 
   const [imageUrl, setImageUrl] = useState("");
-
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   console.log("data:", formData);
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [name]: value,
-  //   }));
-  //   setErrors((prevErrors) => ({
-  //     ...prevErrors,
-  //     [name]: "",
-  //   }));
-  // };
 
   const [sex, setSex] = useState([]);
 
@@ -633,7 +625,6 @@ const UserProfilePage = () => {
                           sex_id: updatedSexId,
                           sex: sex.find((option) => option.id === updatedSexId), // Update the `sex` label as well
                         });
-                        console.log("sexChange:", updatedSexId); // Log the updated value
                       }}
                       isEditable={isEditable} // Toggle between editable and non-editable states
                       sex={sex}

@@ -30,6 +30,7 @@ const ModuleDialog = ({ subjectID, refresh }) => {
   const [isEdit, setIsEdit] = useState(true);
   const [moduleData, setModuleData] = useState({});
   const [uploadFiles, setUploadFiles] = useState([]);
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,8 +57,10 @@ const ModuleDialog = ({ subjectID, refresh }) => {
   };
 
   const token = localStorage.getItem("token");
-
-  const decodedUser = jwtDecode(token);
+  let decodedUser;
+  if (token) {
+    decodedUser = jwtDecode(token);
+  }
 
   const handleSubmit = async () => {
     try {
@@ -76,34 +79,37 @@ const ModuleDialog = ({ subjectID, refresh }) => {
         subject_id: subjectID,
         user_id: decodedUser.id,
       };
+      if (validateData(data)) {
+        console.log();
+      }
       // Append key-value pairs from moduleData
-      Object.entries(moduleData).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
+      // Object.entries(moduleData).forEach(([key, value]) => {
+      //   formData.append(key, value);
+      // });
 
-      // Append each file
-      uploadFiles.forEach((file) => {
-        formData.append("files", file); // Ensure field name matches Multer's expectation
-      });
+      // // Append each file
+      // uploadFiles.forEach((file) => {
+      //   formData.append("files", file); // Ensure field name matches Multer's expectation
+      // });
 
-      const serializedData = encodeURIComponent(JSON.stringify(data));
+      // const serializedData = encodeURIComponent(JSON.stringify(data));
 
-      const response = await apiClient.post(
-        `/modules/create/${serializedData}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data", // Ensure proper content type
-          },
-        }
-      );
-      refresh();
-      showSnackbar({
-        message: response?.data?.message,
-        severity: "success",
-      });
+      // const response = await apiClient.post(
+      //   `/modules/create/${serializedData}`,
+      //   formData,
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data", // Ensure proper content type
+      //     },
+      //   }
+      // );
+      // refresh();
+      // showSnackbar({
+      //   message: response?.data?.message,
+      //   severity: "success",
+      // });
 
-      setIsOpen(false); // Close modal on success
+      // setIsOpen(false);
     } catch (error) {
       console.error("Error submitting module data:", error);
       showSnackbar({
@@ -111,6 +117,14 @@ const ModuleDialog = ({ subjectID, refresh }) => {
         severity: "error",
       });
     }
+  };
+  
+  const validateData = (data) => {
+    let validateErrors;
+    
+    console.log("Module:", data);
+
+    return Object.keys(validateErrors).length === 0;
   };
 
   return (
@@ -143,7 +157,7 @@ const ModuleDialog = ({ subjectID, refresh }) => {
               name="name"
               label="Module Name"
               variant="outlined"
-              value={moduleData.name || ""} 
+              value={moduleData.name || ""}
               onChange={handleInputChange}
             />
             <TextField

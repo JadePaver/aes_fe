@@ -42,13 +42,16 @@ const AssessmentEditorPage = () => {
   const { subject_id } = useParams();
   const location = useLocation();
   const { showSnackbar } = useSnackbar();
-
-  const { subjectName, setSubjectName } = useSubject();
-
+  const { setSubjectName } = useSubject();
+  const [errors, setErrors] = useState({
+    name: "",
+    description: "",
+  });
   const [newAssessment, setNewAssessment] = useState({
     subject_id: subject_id,
     name: "",
     description: "",
+    duration: 0,
     allowLate: false,
     startDate: dayjs(),
     endDate: dayjs(),
@@ -66,6 +69,10 @@ const AssessmentEditorPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setErrors((prevData) => ({
+      ...prevData,
+      [name]: "",
+    }));
     setNewAssessment((prevData) => ({
       ...prevData,
       [name]: value,
@@ -108,29 +115,29 @@ const AssessmentEditorPage = () => {
       const data = { ...newAssessment, questions: transformedQuestions };
       const formData = new FormData();
 
-      const serializedData = encodeURIComponent(JSON.stringify(data));
-
-      // Add files from questions array to FormData
-      questions.forEach((question) => {
-        if (question.file) {
-          formData.append("files", question.file); // Ensure `question.file` is a valid File object
-        }
-      });
-
-      const response = await apiClient.post(
-        `/assessments/create/${serializedData}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data", // Ensure proper content type
-          },
-        }
-      );
-      navigate(-1)
-      showSnackbar({
-        message: response?.data?.message,
-        severity: "success",
-      });
+      if (validateAssessmentData(data)) {
+        const serializedData = encodeURIComponent(JSON.stringify(data));
+        // Add files from questions array to FormData
+        questions.forEach((question) => {
+          if (question.file) {
+            formData.append("files", question.file); // Ensure `question.file` is a valid File object
+          }
+        });
+        const response = await apiClient.post(
+          `/assessments/create/${serializedData}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data", // Ensure proper content type
+            },
+          }
+        );
+        navigate(-1);
+        showSnackbar({
+          message: response?.data?.message,
+          severity: "success",
+        });
+      }
     } catch (error) {
       console.error("Error submitting new Assessment data's:", error);
       showSnackbar({
@@ -138,6 +145,48 @@ const AssessmentEditorPage = () => {
         severity: "error",
       });
     }
+  };
+
+  const validateAssessmentData = (data) => {
+    console.log("Validate:", data);
+    let validateErrors = {};
+    let questionErrors = {};
+
+    // General validation for assessment data
+    if (!data.name || data.name.trim() === "") {
+      validateErrors.name = "Assessment name cannot be empty.";
+    }
+    if (!data.description || data.description.trim() === "") {
+      validateErrors.description = "Description cannot be empty.";
+    }
+    if (!data.duration || data.duration < 1) {
+      validateErrors.duration = "Duration can't be lower than 1 minute.";
+    }
+
+    // Validation for each question
+    data.questions.forEach((question) => {
+      let qErrors = {};
+
+      if (!question.label || question.label.trim() === "") {
+        qErrors.label = "Question text cannot be empty.";
+      }
+      if (question.points == null || question.points < 1) {
+        qErrors.points = "Points must be at least 1.";
+      }
+
+      if (Object.keys(qErrors).length > 0) {
+        questionErrors[question.id] = qErrors; // Store errors by question ID
+      }
+    });
+
+    // Combine all errors
+    if (Object.keys(questionErrors).length > 0) {
+      validateErrors.questions = questionErrors;
+    }
+
+    setErrors(validateErrors);
+
+    return Object.keys(validateErrors).length === 0;
   };
 
   const getSubjectDetails = async () => {
@@ -200,6 +249,8 @@ const AssessmentEditorPage = () => {
               label="Assessment Name"
               placeholder="Write your Assessment name here"
               fullWidth
+              error={!!errors.name}
+              helperText={errors.name}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -217,6 +268,8 @@ const AssessmentEditorPage = () => {
               multiline
               rows={10}
               fullWidth
+              error={!!errors.description}
+              helperText={errors.description}
               placeholder="Your description..."
               slotProps={{
                 inputLabel: {
@@ -234,7 +287,7 @@ const AssessmentEditorPage = () => {
                   setNewAssessment({ ...newAssessment, startDate: newValue })
                 }
                 renderInput={(params) => <TextField {...params} fullWidth />}
-                minDateTime={dayjs()} 
+                minDateTime={dayjs()}
                 sx={{ width: "100%" }}
               />
             </LocalizationProvider>
@@ -264,6 +317,8 @@ const AssessmentEditorPage = () => {
               onChange={handleChange}
               label="Duration"
               fullWidth
+              error={!!errors.duration}
+              helperText={errors.duration}
               slotProps={{
                 input: {
                   startAdornment: (
@@ -310,405 +365,441 @@ const AssessmentEditorPage = () => {
             </Typography>
           </Grid>
           {questions && questions.length > 0 ? (
-            questions.map((question, index) => (
-              <Grid
-                key={index} // Set a unique key
-                container
-                spacing={2}
-                size={12} // Adjust spacing directly on the container
-                sx={{
-                  border: "1px solid var(--primary)",
-                  borderRadius: "1rem",
-                  p: "1rem",
-                }}
-              >
-                <Grid item size={12}>
-                  <Box>
-                    {question.file && (
-                      <img
-                        src={question.fileBlob}
-                        alt={`Upload preview for question ${index + 1}`}
-                        style={{
-                          maxWidth: "40%",
-                          height: "auto",
-                        }}
-                      />
-                    )}
-                  </Box>
-                </Grid>
-                <Grid item size={11}>
-                  <Typography
-                    variant="body1"
-                    fontSize="1.25rem"
-                    fontWeight={600}
-                    sx={{ height: "100%" }}
-                  >
-                    Q#{index + 1}
-                  </Typography>
-                </Grid>
-
-                <Grid item size={1}>
-                  <Stack direction="row" justifyContent="center">
-                    <IconButton
-                      color="primary"
-                      component="label" // Allows opening file dialog
+            questions.map((question, index) => {
+              const questionError = errors?.questions?.[question.id] || {};
+              return (
+                <Grid
+                  key={index} // Set a unique key
+                  container
+                  spacing={2}
+                  size={12} // Adjust spacing directly on the container
+                  sx={{
+                    border:
+                      questionError.label || questionError.points
+                        ? "2px solid red"
+                        : "1px solid var(--primary)",
+                    borderRadius: "1rem",
+                    p: "1rem",
+                  }}
+                >
+                  <Grid item size={12}>
+                    <Box>
+                      {question.file && (
+                        <img
+                          src={question.fileBlob}
+                          alt={`Upload preview for question ${index + 1}`}
+                          style={{
+                            maxWidth: "40%",
+                            height: "auto",
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </Grid>
+                  <Grid item size={11}>
+                    <Typography
+                      variant="body1"
+                      fontSize="1.25rem"
+                      fontWeight={600}
+                      sx={{ height: "100%" }}
                     >
-                      <AddPhotoAlternateOutlinedIcon
-                        sx={{ fontSize: "2rem" }}
-                      />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        hidden
-                        onChange={(e) => handleFileChange(e, index)}
-                      />
-                    </IconButton>
-                    <IconButton
-                      color="error"
-                      onClick={() =>
-                        setQuestions(
-                          questions.filter((q) => q.id !== question.id)
-                        )
-                      }
+                      Q#{index + 1}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item size={1}>
+                    <Stack direction="row" justifyContent="center">
+                      <IconButton
+                        color="primary"
+                        component="label" // Allows opening file dialog
+                      >
+                        <AddPhotoAlternateOutlinedIcon
+                          sx={{ fontSize: "2rem" }}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={(e) => handleFileChange(e, index)}
+                        />
+                      </IconButton>
+                      <IconButton
+                        color="error"
+                        onClick={() =>
+                          setQuestions(
+                            questions.filter((q) => q.id !== question.id)
+                          )
+                        }
+                      >
+                        <DisabledByDefaultRoundedIcon fontSize="large" />
+                      </IconButton>
+                    </Stack>
+                  </Grid>
+
+                  <Grid item size={11}>
+                    <TextField
+                      variant="outlined"
+                      name="type"
+                      label="Type"
+                      select
+                      fullWidth
+                      value={question?.type}
+                      onChange={(event) => {
+                        const newType = Number(event.target.value);
+                        setQuestions((prevQuestions) =>
+                          prevQuestions.map((q, i) =>
+                            i === index ? { ...q, type: newType } : q
+                          )
+                        );
+                      }}
+                      slotProps={{
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
                     >
-                      <DisabledByDefaultRoundedIcon fontSize="large" />
-                    </IconButton>
-                  </Stack>
-                </Grid>
+                      <MenuItem value={1}>Multiple Choices</MenuItem>
+                      <MenuItem value={2}>Fill-in the Blanks</MenuItem>
+                      <MenuItem value={3}>Essay</MenuItem>
+                      <MenuItem value={4}>DropBox</MenuItem>
+                    </TextField>
+                  </Grid>
 
-                <Grid item size={11}>
-                  <TextField
-                    variant="outlined"
-                    name="type"
-                    label="Type"
-                    select
-                    fullWidth
-                    value={question?.type}
-                    onChange={(event) => {
-                      const newType = Number(event.target.value);
-                      setQuestions((prevQuestions) =>
-                        prevQuestions.map((q, i) =>
-                          i === index ? { ...q, type: newType } : q
-                        )
-                      );
-                    }}
-                    slotProps={{
-                      inputLabel: {
-                        shrink: true,
-                      },
-                    }}
-                  >
-                    <MenuItem value={1}>Multiple Choices</MenuItem>
-                    <MenuItem value={2}>Fill-in the Blanks</MenuItem>
-                    <MenuItem value={3}>Essay</MenuItem>
-                    <MenuItem value={4}>DropBox</MenuItem>
-                  </TextField>
-                </Grid>
+                  <Grid item size={1}>
+                    <TextField
+                      variant="outlined"
+                      name="points"
+                      label="Points"
+                      type="number"
+                      value={question?.points}
+                      fullWidth
+                      error={!!questionError.points} // Highlight TextField with error
+                      helperText={questionError.points} // Display specific error message
+                      onChange={(event) => {
+                        const newPoints = Number(event.target.value);
+                        setQuestions((prevQuestions) =>
+                          prevQuestions.map((q, i) =>
+                            i === index ? { ...q, points: newPoints } : q
+                          )
+                        );
+                        // Remove the error for this question's points field
+                        setErrors((prevErrors) => {
+                          const newErrors = { ...prevErrors };
+                          if (newErrors?.questions?.[question.id]?.points) {
+                            newErrors.questions[question.id].points = "";
+                          }
+                          return newErrors;
+                        });
+                      }}
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                        },
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item size={12}>
+                    <TextField
+                      variant="outlined"
+                      name="label"
+                      label="Question"
+                      value={question?.label}
+                      fullWidth
+                      error={!!questionError.label} // Highlight TextField with error
+                      helperText={questionError.label} // Display specific error message
+                      onChange={(event) => {
+                        setQuestions((prevQuestions) =>
+                          prevQuestions.map((q, i) =>
+                            i === index
+                              ? { ...q, label: event.target.value }
+                              : q
+                          )
+                        );
 
-                <Grid item size={1}>
-                  <TextField
-                    variant="outlined"
-                    name="points"
-                    label="Points"
-                    type="number"
-                    value={question?.points}
-                    fullWidth
-                    onChange={(event) => {
-                      const newPoints = Number(event.target.value);
-                      setQuestions((prevQuestions) =>
-                        prevQuestions.map((q, i) =>
-                          i === index ? { ...q, points: newPoints } : q
-                        )
-                      );
-                    }}
-                    slotProps={{
-                      htmlInput: {
-                        min: 0,
-                      },
-                      inputLabel: {
-                        shrink: true,
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item size={12}>
-                  <TextField
-                    variant="outlined"
-                    name="label"
-                    label="Question"
-                    value={question?.label}
-                    fullWidth
-                    onChange={(event) => {
-                      setQuestions((prevQuestions) =>
-                        prevQuestions.map((q, i) =>
-                          i === index ? { ...q, label: event.target.value } : q
-                        )
-                      );
-                    }}
-                    slotProps={{
-                      inputLabel: {
-                        shrink: true,
-                      },
-                    }}
-                  />
-                </Grid>
+                        setErrors((prevErrors) => {
+                          const newErrors = { ...prevErrors };
+                          if (newErrors?.questions?.[question.id]?.label) {
+                            newErrors.questions[question.id].label = "";
+                          }
+                          return newErrors;
+                        });
+                      }}
+                      slotProps={{
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
+                    />
+                  </Grid>
 
-                <Grid container item size={12}>
-                  {(() => {
-                    switch (question?.type) {
-                      case 1:
-                        return (
-                          <>
-                            <FormControl fullWidth>
-                              <RadioGroup
-                                aria-labelledby="demo-controlled-radio-buttons-group"
-                                name="controlled-radio-buttons-group"
-                                onChange={(event) => {
-                                  const selectedLabel = event.target.value;
-                                  setQuestions((prevQuestions) =>
-                                    prevQuestions.map((q) =>
-                                      q === question
-                                        ? {
-                                            ...q,
-                                            choices: q.choices.map((choice) =>
-                                              choice.label === selectedLabel
-                                                ? { ...choice, isCorrect: 1 }
-                                                : { ...choice, isCorrect: 0 }
-                                            ),
-                                          }
-                                        : q
-                                    )
-                                  );
-                                }}
-                              >
-                                <Grid
-                                  container
-                                  item
-                                  size={12}
-                                  spacing={1}
-                                  columnSpacing={3}
-                                  sx={{ p: "0 1rem" }}
+                  <Grid container item size={12}>
+                    {(() => {
+                      switch (question?.type) {
+                        case 1:
+                          return (
+                            <>
+                              <FormControl fullWidth>
+                                <RadioGroup
+                                  aria-labelledby="demo-controlled-radio-buttons-group"
+                                  name="controlled-radio-buttons-group"
+                                  onChange={(event) => {
+                                    const selectedLabel = event.target.value;
+                                    setQuestions((prevQuestions) =>
+                                      prevQuestions.map((q) =>
+                                        q === question
+                                          ? {
+                                              ...q,
+                                              choices: q.choices.map((choice) =>
+                                                choice.label === selectedLabel
+                                                  ? { ...choice, isCorrect: 1 }
+                                                  : { ...choice, isCorrect: 0 }
+                                              ),
+                                            }
+                                          : q
+                                      )
+                                    );
+                                  }}
                                 >
-                                  {question.choices?.map((choice) => (
-                                    <Grid item size={6} key={choice.id}>
-                                      <FormControlLabel
-                                        key={choice.id}
-                                        value={choice.label}
-                                        control={<Radio sx={{ m: "auto 0" }} />}
-                                        sx={{
-                                          border: "1px solid var(--primary)",
-                                          borderRadius: "0.2rem",
-                                          m: "0",
-                                          width: "100%",
-                                          overflow: "hidden",
-                                          alignItems: "flex-start",
-                                          ".MuiFormControlLabel-label": {
-                                            width: "100%", // Ensures the label takes up full width
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                          }, // Align contents to the top for consistent layout
-                                        }}
-                                        label={
-                                          <Stack
-                                            direction="row"
-                                            sx={{
-                                              minWidth: "100%",
-                                              overflow: "hidden",
+                                  <Grid
+                                    container
+                                    item
+                                    size={12}
+                                    spacing={1}
+                                    columnSpacing={3}
+                                    sx={{ p: "0 1rem" }}
+                                  >
+                                    {question.choices?.map((choice) => (
+                                      <Grid item size={6} key={choice.id}>
+                                        <FormControlLabel
+                                          key={choice.id}
+                                          value={choice.label}
+                                          control={
+                                            <Radio sx={{ m: "auto 0" }} />
+                                          }
+                                          sx={{
+                                            border: "1px solid var(--primary)",
+                                            borderRadius: "0.2rem",
+                                            m: "0",
+                                            width: "100%",
+                                            overflow: "hidden",
+                                            alignItems: "flex-start",
+                                            ".MuiFormControlLabel-label": {
+                                              width: "100%", // Ensures the label takes up full width
+                                              display: "flex",
                                               justifyContent: "center",
-                                              alignItems: "stretch",
-                                              m: "auto 0",
-                                            }}
-                                          >
-                                            <TextField
-                                              variant="filled"
-                                              value={choice.label}
+                                              alignItems: "center",
+                                            }, // Align contents to the top for consistent layout
+                                          }}
+                                          label={
+                                            <Stack
+                                              direction="row"
                                               sx={{
-                                                width: "100%",
-                                                "& .MuiFilledInput-root": {
-                                                  height: "100%",
-                                                  padding: "auto", // Removes padding around the input area
-                                                },
-                                                "& .MuiFilledInput-input": {
-                                                  height: "100%",
-                                                  padding: "auto", // Removes padding inside the input area
-                                                },
-                                              }}
-                                              InputProps={{
-                                                disableUnderline: true, // Disables the underline in the filled variant
-                                              }}
-                                              onChange={(event) => {
-                                                const newLabel =
-                                                  event.target.value; // Get the new label value
-                                                setQuestions((prevQuestions) =>
-                                                  prevQuestions.map((q) =>
-                                                    q === question
-                                                      ? {
-                                                          ...q,
-                                                          choices:
-                                                            q.choices.map((c) =>
-                                                              c.id === choice.id
-                                                                ? {
-                                                                    ...c,
-                                                                    label:
-                                                                      newLabel,
-                                                                  } // Update the label
-                                                                : c
-                                                            ),
-                                                        }
-                                                      : q
-                                                  )
-                                                );
-                                              }}
-                                            />
-                                            <Button
-                                              variant="outlined"
-                                              color="error"
-                                              sx={{ zIndex: 2 }}
-                                              onClick={() => {
-                                                setQuestions((prevQuestions) =>
-                                                  prevQuestions.map((q) =>
-                                                    q === question
-                                                      ? {
-                                                          ...q,
-                                                          choices:
-                                                            q.choices.filter(
-                                                              (c) =>
-                                                                c.id !==
-                                                                choice.id
-                                                            ),
-                                                        }
-                                                      : q
-                                                  )
-                                                );
+                                                minWidth: "100%",
+                                                overflow: "hidden",
+                                                justifyContent: "center",
+                                                alignItems: "stretch",
+                                                m: "auto 0",
                                               }}
                                             >
-                                              <ClearRoundedIcon />
-                                            </Button>
-                                          </Stack>
-                                        }
-                                      />
+                                              <TextField
+                                                variant="filled"
+                                                value={choice.label}
+                                                sx={{
+                                                  width: "100%",
+                                                  "& .MuiFilledInput-root": {
+                                                    height: "100%",
+                                                    padding: "auto", // Removes padding around the input area
+                                                  },
+                                                  "& .MuiFilledInput-input": {
+                                                    height: "100%",
+                                                    padding: "auto", // Removes padding inside the input area
+                                                  },
+                                                }}
+                                                InputProps={{
+                                                  disableUnderline: true, // Disables the underline in the filled variant
+                                                }}
+                                                onChange={(event) => {
+                                                  const newLabel =
+                                                    event.target.value; // Get the new label value
+                                                  setQuestions(
+                                                    (prevQuestions) =>
+                                                      prevQuestions.map((q) =>
+                                                        q === question
+                                                          ? {
+                                                              ...q,
+                                                              choices:
+                                                                q.choices.map(
+                                                                  (c) =>
+                                                                    c.id ===
+                                                                    choice.id
+                                                                      ? {
+                                                                          ...c,
+                                                                          label:
+                                                                            newLabel,
+                                                                        } // Update the label
+                                                                      : c
+                                                                ),
+                                                            }
+                                                          : q
+                                                      )
+                                                  );
+                                                }}
+                                              />
+                                              <Button
+                                                variant="outlined"
+                                                color="error"
+                                                sx={{ zIndex: 2 }}
+                                                onClick={() => {
+                                                  setQuestions(
+                                                    (prevQuestions) =>
+                                                      prevQuestions.map((q) =>
+                                                        q === question
+                                                          ? {
+                                                              ...q,
+                                                              choices:
+                                                                q.choices.filter(
+                                                                  (c) =>
+                                                                    c.id !==
+                                                                    choice.id
+                                                                ),
+                                                            }
+                                                          : q
+                                                      )
+                                                  );
+                                                }}
+                                              >
+                                                <ClearRoundedIcon />
+                                              </Button>
+                                            </Stack>
+                                          }
+                                        />
+                                      </Grid>
+                                    ))}
+                                    <Grid item size={6}>
+                                      <Button
+                                        variant="outlined"
+                                        fullWidth
+                                        sx={{
+                                          height: "100%",
+                                        }}
+                                        onClick={() => {
+                                          const newChoice = {
+                                            id: Date.now(),
+                                            label: "",
+                                            isCorrect: 0,
+                                          }; // Create a new choice with a unique id
+                                          setQuestions((prevQuestions) =>
+                                            prevQuestions.map((q) =>
+                                              q === question
+                                                ? {
+                                                    ...q,
+                                                    choices: [
+                                                      ...q.choices,
+                                                      newChoice,
+                                                    ],
+                                                  }
+                                                : q
+                                            )
+                                          );
+                                        }}
+                                      >
+                                        <Stack direction="row" spacing={1}>
+                                          <AddRoundedIcon />
+                                          <Typography>
+                                            Add new choice
+                                          </Typography>
+                                        </Stack>
+                                      </Button>
                                     </Grid>
-                                  ))}
-                                  <Grid item size={6}>
-                                    <Button
-                                      variant="outlined"
-                                      fullWidth
-                                      sx={{
-                                        height: "100%",
-                                      }}
-                                      onClick={() => {
-                                        const newChoice = {
-                                          id: Date.now(),
-                                          label: "",
-                                          isCorrect: 0,
-                                        }; // Create a new choice with a unique id
-                                        setQuestions((prevQuestions) =>
-                                          prevQuestions.map((q) =>
-                                            q === question
-                                              ? {
-                                                  ...q,
-                                                  choices: [
-                                                    ...q.choices,
-                                                    newChoice,
-                                                  ],
-                                                }
-                                              : q
-                                          )
-                                        );
-                                      }}
-                                    >
-                                      <Stack direction="row" spacing={1}>
-                                        <AddRoundedIcon />
-                                        <Typography>Add new choice</Typography>
-                                      </Stack>
-                                    </Button>
                                   </Grid>
-                                </Grid>
-                              </RadioGroup>
-                            </FormControl>
-                          </>
-                        );
-                      case 2:
-                        return (
-                          <>
-                            <Grid item size={10}>
-                              <TextField
-                                variant="filled"
-                                name="fill_answer"
-                                label="Correct Answer"
-                                value={question?.fill_ans}
-                                fullWidth
-                                onChange={(e) =>
-                                  setQuestions((prev) =>
-                                    prev.map((q, idx) =>
-                                      idx === index
-                                        ? { ...q, fill_ans: e.target.value }
-                                        : q
-                                    )
-                                  )
-                                }
-                                slotProps={{
-                                  inputLabel: {
-                                    shrink: true,
-                                  },
-                                }}
-                              />
-                            </Grid>
-                            <Grid item size={2}>
-                              <Stack
-                                direction="row"
-                                justifyContent="space-between"
-                                sx={{ height: "100%", alignItems: "center" }}
-                              >
-                                <Typography>
-                                  Enable Case Sensitivity:
-                                </Typography>
-                                <Switch
-                                  value={question?.caseSensitive}
+                                </RadioGroup>
+                              </FormControl>
+                            </>
+                          );
+                        case 2:
+                          return (
+                            <>
+                              <Grid item size={10}>
+                                <TextField
+                                  variant="filled"
+                                  name="fill_answer"
+                                  label="Correct Answer"
+                                  value={question?.fill_ans}
+                                  fullWidth
                                   onChange={(e) =>
                                     setQuestions((prev) =>
                                       prev.map((q, idx) =>
                                         idx === index
-                                          ? {
-                                              ...q,
-                                              caseSensitive: e.target.checked,
-                                            }
+                                          ? { ...q, fill_ans: e.target.value }
                                           : q
                                       )
                                     )
                                   }
+                                  slotProps={{
+                                    inputLabel: {
+                                      shrink: true,
+                                    },
+                                  }}
                                 />
-                              </Stack>
-                            </Grid>
-                          </>
-                        );
-                      case 3:
-                        return (
-                          <>
-                            <Typography variant="caption">
-                              This is an essay, which means you will grade the
-                              response after it has been answered.
-                            </Typography>
-                          </>
-                        );
-                      case 4:
-                        return (
-                          <>
-                            {" "}
-                            <Typography variant="caption">
-                              A 15MB file upload dropbox will be available for
-                              students to submit their files.
-                            </Typography>
-                          </>
-                        );
-                      default:
-                        return <>Unknown Type</>;
-                    }
-                  })()}
+                              </Grid>
+                              <Grid item size={2}>
+                                <Stack
+                                  direction="row"
+                                  justifyContent="space-between"
+                                  sx={{ height: "100%", alignItems: "center" }}
+                                >
+                                  <Typography>
+                                    Enable Case Sensitivity:
+                                  </Typography>
+                                  <Switch
+                                    value={question?.caseSensitive}
+                                    onChange={(e) =>
+                                      setQuestions((prev) =>
+                                        prev.map((q, idx) =>
+                                          idx === index
+                                            ? {
+                                                ...q,
+                                                caseSensitive: e.target.checked,
+                                              }
+                                            : q
+                                        )
+                                      )
+                                    }
+                                  />
+                                </Stack>
+                              </Grid>
+                            </>
+                          );
+                        case 3:
+                          return (
+                            <>
+                              <Typography variant="caption">
+                                This is an essay, which means you will grade the
+                                response after it has been answered.
+                              </Typography>
+                            </>
+                          );
+                        case 4:
+                          return (
+                            <>
+                              {" "}
+                              <Typography variant="caption">
+                                A 15MB file upload dropbox will be available for
+                                students to submit their files.
+                              </Typography>
+                            </>
+                          );
+                        default:
+                          return <>Unknown Type</>;
+                      }
+                    })()}
+                  </Grid>
                 </Grid>
-              </Grid>
-            ))
+              );
+            })
           ) : (
             <></>
           )}

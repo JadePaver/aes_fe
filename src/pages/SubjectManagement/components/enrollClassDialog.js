@@ -29,7 +29,6 @@ const EnrollClassDialog = ({ isOpen, handleClose, refresh, selected }) => {
 
   const handleSubmit = async () => {
     try {
-      console.log("data:", selectedClass);
       const response = await apiClient.post(
         `/subjects/enroll_classroom/${selected?.id}`,
         selectedClass
@@ -52,8 +51,6 @@ const EnrollClassDialog = ({ isOpen, handleClose, refresh, selected }) => {
     try {
       const response = await apiClient.post(`/classrooms/`);
 
-      console.log("classrooms:", response.data);
-      console.log("selec:", selected);
       const filteredClassrooms = response.data.filter(
         (classroom) => classroom.id !== selected.classroom?.id
       );

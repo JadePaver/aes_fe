@@ -92,7 +92,6 @@ const UserManagementPage = () => {
       headerName: "Full Name",
       flex: 1,
       renderCell: (params) => {
-        console.log("rows:", params);
         const {
           fName = "",
           mName = "",
@@ -317,7 +316,6 @@ const UserManagementPage = () => {
   const token = localStorage.getItem("token");
 
   const decodedUser = jwtDecode(token);
-  console.log("decodedUser:", decodedUser);
 
   const getUsers = async () => {
     const response = await apiClient.post(`/users/getAll/${decodedUser.id}`);
@@ -326,14 +324,12 @@ const UserManagementPage = () => {
       ...row,
       classroomName: row.assigned_classroom?.[0]?.classroom?.name,
     }));
-    console.log("formated:", rows);
     setUsers(rows);
   };
 
   useEffect(() => {
     const getRoles = async () => {
       const response = await apiClient.get("/roles/");
-      console.log("roles:", response.data);
       setRoles(response.data);
     };
     getRoles();

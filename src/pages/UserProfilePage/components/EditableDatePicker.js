@@ -33,8 +33,7 @@ const EditableDatePicker = ({
             onChange={(newValue) => {
               setSelectedDate(newValue);
               const isoDate = newValue ? newValue.toISOString() : null;
-              console.log("Updated birthDate:", isoDate);
-              onChange(isoDate); // Pass ISO date to parent
+              onChange(isoDate);
             }}
             maxDate={dayjs()}
             slotProps={{
