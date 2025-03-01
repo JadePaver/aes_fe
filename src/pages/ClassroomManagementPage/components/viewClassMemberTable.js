@@ -31,16 +31,14 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
       const response = await apiClient.post(
         `/classrooms/get_members/${selected.id}`
       );
-      console.log("members:", response.data);
       setMembers(response.data);
     } catch (error) {
-      console.log("err:", error);
+      console.error("err:", error);
     }
   };
 
   const removeMember = async () => {
     try {
-      console.log("Removing member:", selectedMember);
       const response = await apiClient.post(
         `/classrooms/remove_member/${selectedMember?.id}`,
         selectedMember
@@ -53,7 +51,7 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
         severity: "success",
       });
     } catch (error) {
-      console.log("Error removing member:", error);
+      console.error("Error removing member:", error);
       showSnackbar({
         message: error.response?.data?.error,
         severity: "error",
@@ -63,7 +61,6 @@ const ViewClassMemberTable = ({ isOpen, onClose, selected }) => {
 
   useEffect(() => {
     if (isOpen === true) {
-      console.log("memberloaded:", selected);
       getMembers();
     }
   }, [isOpen]);

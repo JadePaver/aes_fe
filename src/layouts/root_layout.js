@@ -10,7 +10,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
-import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import GroupRoundedIcon from "@mui/icons-material/GroupRounded";
 import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftRounded";
 import DehazeRoundedIcon from "@mui/icons-material/DehazeRounded";
@@ -62,39 +62,16 @@ export default function RootLayout() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const fetchImage = async (filename) => {
-    try {
-      const response = await apiClient.get(`/prof_img/get/${filename}`, {
-        responseType: "blob",
-      });
-
-      const imageBlob = response.data;
-      const imageObjectUrl = URL.createObjectURL(imageBlob);
-      localStorage.setItem("prof_img_url", imageObjectUrl);
-      setUser((prevUser) => ({
-        ...prevUser,
-        prof_img_url: localStorage.getItem("prof_img_url"),
-      }));
-    } catch (error) {
-      console.error("Error fetching image:", error);
-    }
-  };
-
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/aes/login");
-      return;
-    }
-
     try {
-      
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/aes/login");
+        return;
+      }
+
       const decodedUser = jwtDecode(token);
       setUser(decodedUser);
-      // Fetch image if profileImage exists
-      if (decodedUser.profileImage) {
-        fetchImage(decodedUser.profileImage);
-      }
     } catch (error) {
       navigate("/aes/login");
     }
@@ -108,31 +85,13 @@ export default function RootLayout() {
     );
 
     if (!isInSubjectRoutes) {
-      console.log("Leaving subject routes, clearing subjectName...");
       setSubjectName("");
     }
-
-  }, [location, user.profileImage]); // Add user.profileImage to the dependency array
+  }, [location, user.profileImage]);
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      const newImgUrl = localStorage.getItem("prof_img_url");
-      if (newImgUrl) {
-        setUser((prevUser) => ({
-          ...prevUser,
-          prof_img_url: newImgUrl,
-        }));
-      }
-    };
-
-    // Add event listener for storage changes
-    window.addEventListener("storage", handleStorageChange);
-
-    // Clean up the event listener
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
+    console.log("USER:", user);
+  }, [user]);
 
   return (
     <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
@@ -208,24 +167,30 @@ export default function RootLayout() {
                 navigateTo="/aes"
                 sidebarOpen={sidebarOpen}
               />
-              <Nav
-                icon={AutoStoriesRoundedIcon} // Pass the icon component here
-                label="Subject Management"
-                navigateTo="subject_management"
-                sidebarOpen={sidebarOpen}
-              />
-              <Nav
-                icon={MeetingRoomIcon} // Pass the icon component here
-                label="Classroom Management"
-                navigateTo="classroom_management"
-                sidebarOpen={sidebarOpen}
-              />
-              <Nav
-                icon={GroupRoundedIcon} // Pass the icon component here
-                label="User Managment"
-                navigateTo="user_management"
-                sidebarOpen={sidebarOpen}
-              />
+              {[1, 3, 5].includes(user.role) && (
+                <Nav
+                  icon={AutoStoriesRoundedIcon} // Pass the icon component here
+                  label="Subject Management"
+                  navigateTo="subject_management"
+                  sidebarOpen={sidebarOpen}
+                />
+              )}
+              {[1, 3, 5].includes(user.role) && (
+                <Nav
+                  icon={MeetingRoomIcon} // Pass the icon component here
+                  label="Classroom Management"
+                  navigateTo="classroom_management"
+                  sidebarOpen={sidebarOpen}
+                />
+              )}
+              {[1, 5].includes(user.role) && (
+                <Nav
+                  icon={GroupRoundedIcon} // Pass the icon component here
+                  label="User Managment"
+                  navigateTo="user_management"
+                  sidebarOpen={sidebarOpen}
+                />
+              )}
             </Stack>
           </Box>
           <Stack

@@ -31,7 +31,6 @@ apiClient.interceptors.request.use(
     if (!["/users/login", "/token/refresh"].includes(config.url)) {
       const token = localStorage.getItem("token");
       const refreshToken = localStorage.getItem("refreshToken");
-
       if (token) {
         try {
           // Check if the token is expired
@@ -71,12 +70,12 @@ apiClient.interceptors.response.use(
   (response) => response, // Handle successful responses
   (error) => {
     if (error.response) {
-      const status = error.response.status;
 
+      const status = error.response.status;
+      console.log("STATUS:", status);
       // If unauthorized or forbidden, clear token and redirect to login
       if (status === 401 || status === 403) {
-        localStorage.removeItem("token"); // Remove the token
-        useNavigate("/aes/login"); // Redirect to login page
+        window.location.href = "/aes/unauthorized";
       }
     }
     return Promise.reject(error);

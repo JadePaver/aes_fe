@@ -14,8 +14,13 @@ import {
   PersonOutlineRounded,
 } from "@mui/icons-material";
 
+import { useUser } from "../root_layout";
+import apiClient from "../../axios/axiosInstance";
+
 const ProfileMenu = (props) => {
+  const { user, setUser } = useUser();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [profileImg, setProfileImg] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(
     localStorage.getItem("prof_img_url") || ""
@@ -37,6 +42,36 @@ const ProfileMenu = (props) => {
     navigate("/aes/login");
   };
 
+  const getProfileImage = async () => {
+    try {
+      const response = await apiClient.post("/prof_img/getByID");
+      const binaryString = atob(response.data);
+
+      const byteArray = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        byteArray[i] = binaryString.charCodeAt(i);
+      }
+
+      const fileBlob = new Blob([byteArray], {
+        type: "image/jpeg", // Update MIME type based on the file, e.g., "image/png" or "application/pdf"
+      });
+
+      const fileURL = URL.createObjectURL(fileBlob);
+      setProfileImg(fileURL)
+      localStorage.setItem("profileImagURL", fileURL);
+
+    } catch (error) {
+      console.error("error:", error);
+    }
+  };
+
+  useEffect(() => {
+    const profileURL = localStorage.getItem("profileImagURL");
+    if (profileURL) {
+      setProfileImg(profileURL);
+    }
+  }, [user]);
+
   return (
     <Stack
       direction="row"
@@ -47,7 +82,12 @@ const ProfileMenu = (props) => {
         {props.user.username}
       </Typography>
       <Avatar
-        src={props.user?.prof_img_url}
+        src={profileImg}
+        onError={(e) => {
+          console.log("Blob URL has expired");
+          getProfileImage();
+          // Handle the error here
+        }}
         // src={
         //   props.user.prof_img_url
         //     ? props.user.prof_img_url

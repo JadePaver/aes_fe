@@ -8,13 +8,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Paper from "@mui/material/Paper";
+import { DialogContentText } from "@mui/material";
 
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import HowToRegRoundedIcon from "@mui/icons-material/HowToRegRounded";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
-import LockResetRoundedIcon from "@mui/icons-material/LockResetRounded";
 
 import apiClient from "../../../axios/axiosInstance";
 import { useSnackbar } from "../../../layouts/root_layout";
@@ -27,7 +23,6 @@ const MembersPanel = ({ subjectId }) => {
   const { showSnackbar } = useSnackbar();
 
   const [isRemoveDialog, setIsRemoveDialog] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [selectedMember, setSelectedMember] = useState();
 
@@ -154,30 +149,35 @@ const MembersPanel = ({ subjectId }) => {
         </Box>
       </Stack>
 
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)}>
-        <DialogTitle sx={{ display: "flex", justifyContent: "center" }}>
-          <Typography variant="h5" fontWeight={600}>
-            {isRemoveDialog ? "Remove This Student" : "Reset Student Password"}
-          </Typography>
-        </DialogTitle>
-        <DialogActions sx={{ justifyContent: "space-evenly", p: "2rem" }}>
+      <Dialog open={isRemoveDialog} onClose={() => setIsRemoveDialog(false)}>
+        <DialogTitle>Confirm Remove Member</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure do you want to remove{" "}
+            <Typography component="span" fontWeight={600}>
+              {selectedMember?.fullname}
+            </Typography>{" "}
+            ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions
+          sx={{ paddingBottom: "1rem" }}
+        >
           <Button
-            variant="contained"
-            onClick={console.log("submit")}
-            color="primary"
-            sx={{ p: "0.5rem 3rem" }}
-            disableElevation
-          >
-            {isRemoveDialog ? "Remove" : "Reset"}
-          </Button>
-
-          <Button
-            onClick={() => setIsOpen(false)}
+            onClick={() => setIsRemoveDialog(false)}
             sx={{ p: "0.35rem 3rem" }}
             variant="outlined"
             disableElevation
           >
-            Cancel
+            CANCEL
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ p: "0.5rem 3rem" }}
+            disableElevation
+          >
+             REMOVE
           </Button>
         </DialogActions>
       </Dialog>

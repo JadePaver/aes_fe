@@ -51,8 +51,6 @@ const TransferStudentsDialog = ({ isOpen, handleClose, refresh, selected }) => {
     try {
       const response = await apiClient.post(`/classrooms/`);
 
-      console.log("classrooms:", response.data);
-      console.log("selec:", selected);
       const filteredClassrooms = response.data.filter(
         (classroom) => classroom.id !== selected.id
       );

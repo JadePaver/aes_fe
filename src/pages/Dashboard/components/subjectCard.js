@@ -54,27 +54,6 @@ const SubjectCard = ({ subject }) => {
           <Typography variant="h6">{subject.name}</Typography>
           <Stack direction="row" justifyContent="space-between">
             <Typography>{subject.year}</Typography>
-            {/* {subject.status && (
-              <Stack
-                direction="row"
-                spacing={1}
-                sx={{
-                  alignItems: "center",
-                  textAlign: "center",
-                  border: "1px solid var(--yel)",
-                  borderRadius: "0.2rem",
-                  p: "0 0.25rem",
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  sx={{ color: "var(--yel)", fontWeight: 600 }}
-                >
-                  Waiting for Approval
-                </Typography>
-                <AccessTimeIcon sx={{ color: "var(--yel)" }} />
-              </Stack>
-            )} */}
           </Stack>
         </Stack>
       </Box>

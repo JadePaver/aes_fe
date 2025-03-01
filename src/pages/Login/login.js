@@ -14,6 +14,7 @@ import apiClient from "../../axios/axiosInstance";
 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,7 +22,6 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,18 +40,34 @@ const Login = () => {
     e.preventDefault();
     setLoading(true); // Start loading
 
-      console.log("logging in:");
-      try {
+    try {
       const response = await apiClient.post("/users/login", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      console.log("User logged in successfully:", response.data);
+      const base64 = response.data.user.base64;
+      if (base64) {
+        const binaryString = atob(base64);
+
+        const byteArray = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          byteArray[i] = binaryString.charCodeAt(i);
+        }
+
+        const fileBlob = new Blob([byteArray], {
+          type: "image/jpeg", // Update MIME type based on the file, e.g., "image/png" or "application/pdf"
+        });
+
+        const profURL = URL.createObjectURL(fileBlob);
+
+        localStorage.setItem("profileImagURL", profURL);
+      }
+
       localStorage.setItem("token", response.data.accessToken);
       localStorage.setItem("refreshToken", response.data.refreshToken);
       navigate("/aes");
     } catch (error) {
-      console.log("error:", error);
+      console.error("error:", error);
 
       let errorMessage;
       if (error.code === "ERR_NETWORK") {
@@ -221,10 +237,10 @@ const Login = () => {
                 </Button>
                 {loading && (
                   <>
-                    <Stack sx={{ minWidth: "100%"}}>
+                    <Stack sx={{ minWidth: "100%" }}>
                       <LinearProgress
-                      color="primary"
-                        sx={{borderRadius: "5px" }} // Customize LinearProgress
+                        color="primary"
+                        sx={{ borderRadius: "5px" }} // Customize LinearProgress
                       />
                     </Stack>
                   </>

@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import { useSnackbar } from "../../layouts/root_layout";
+import { useUser } from "../../layouts/root_layout";
 import MembersPanel from "./components/membersPanel";
 import ModuleDialog from "./components/moduleDialog";
 import ModulePanel from "./components/modulePanel";
@@ -40,6 +41,7 @@ function TabPanel({ children, value, index, ...other }) {
 
 const SubjectPage = () => {
   const { showSnackbar } = useSnackbar();
+  const { user } = useUser();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -55,8 +57,6 @@ const SubjectPage = () => {
       setValue(newValue); // Only update state if newValue is not undefined
     }
   };
-
-
 
   const getModules = async () => {
     try {
@@ -143,20 +143,22 @@ const SubjectPage = () => {
               <Tab icon={<MenuBookRoundedIcon />} label="Modules" value={1} />
               <Tab icon={<GroupsRoundedIcon />} label="Members" value={2} />
 
-              <Stack
-                direction="row"
-                spacing={1}
-                sx={{ m: "0 1rem 0 auto", alignItems: "center" }}
-              >
-                <Button
-                  variant="outlined"
-                  startIcon={<AddCircleOutlineRoundedIcon />}
-                  onClick={() => navigate(`assessment_create`)}
+              {[1, 3, 5].includes(user.role) && (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ m: "0 1rem 0 auto", alignItems: "center" }}
                 >
-                  NEW ASSESSMENT
-                </Button>
-                <ModuleDialog subjectID={subject_id} refresh={getModules} />
-              </Stack>
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddCircleOutlineRoundedIcon />}
+                    onClick={() => navigate(`assessment_create`)}
+                  >
+                    NEW ASSESSMENT
+                  </Button>
+                  <ModuleDialog subjectID={subject_id} refresh={getModules} />
+                </Stack>
+              )}
             </Tabs>
             <TabPanel value={value} index={0}>
               <AssessmentsPanel

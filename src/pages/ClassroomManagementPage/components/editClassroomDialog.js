@@ -37,8 +37,6 @@ const EditClassroomDialog = ({
 
   const handleSubmit = async () => {
     try {
-      console.log("editClass:", selected);
-
       const response = await apiClient.post(`/classrooms/update/${selected?.id}`, selected);
       handleClose();
       refresh();

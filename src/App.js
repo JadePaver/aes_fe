@@ -171,8 +171,6 @@ const router = createBrowserRouter(
         <Route path="user_profile" element={<UserProfilePage />} />
         <Route path="classroom_management">
           <Route index element={<ClassroomManagementPage />} />
-
-          <Route path="members" element={<>members</>} />
         </Route>
         <Route path="user_management" element={<UserManagement />} />
         <Route path="thisyear" element={<ThisYear />} />
@@ -180,31 +178,12 @@ const router = createBrowserRouter(
         <Route path="student_management" element={<StudentMangement />} />
         <Route path="subject/:subject_id">
           <Route index element={<SubjectPage />} />
-          <Route
-            path="students_result/:assessmentId/:studentId"
-            element={
-              <>
-                this page will show the result of specificic student in selected
-                assessment
-              </>
-            }
-          />
-          <Route
-            exact
-            path="assessment_create"
-            element={<AssessmentEditorPage />}
-          />
-          <Route
-            exact
-            path="assessment_take/:assessment_id"
-            element={<TakeAssessmentPage />}
-          />
-          <Route
-            exact
-            path="assessment_result/:assessment_id"
-            element={<AssessmentResultPage />}
-          />
+          <Route exact path="assessment_create" element={<AssessmentEditorPage />} />
+          <Route exact path="assessment_take/:assessment_id" element={<TakeAssessmentPage />} />
+          <Route exact path="assessment_result/:assessment_id" element={<AssessmentResultPage />}/>
         </Route>
+        <Route path="unauthorized" element={<>Unauthorized</>} />
+
       </Route>
       <Route exact path="/aes/login" element={<Login />} />
       <Route exact path="/aes/register" element={<RegisterPage />} />

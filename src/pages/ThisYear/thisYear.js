@@ -24,10 +24,6 @@ const ThisYear = () => {
     getSex();
   }, []);
 
-  useEffect(() => {
-    console.log("Sex:", sex);
-    console.log("Roles:", roles);
-  }, [sex, roles]);
   return (
     <Stack
       spacing={0}

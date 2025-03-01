@@ -25,6 +25,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import ViewClassMemberTable from "./components/viewClassMemberTable";
 import NewClassroomDialog from "./components/newClassroomDialog";
 import apiClient from "../../axios/axiosInstance";
+import { useUser } from "../../layouts/root_layout";
 import RemoveClassroomDialog from "./components/removeClassroomDialog";
 import EditClassroomDialog from "./components/editClassroomDialog";
 import AddToClassroomDialog from "./components/addToClassroomDialog";
@@ -39,10 +40,7 @@ const ClassroomManagementPage = () => {
   const [isMemberOpen, setIsMemberOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [isMemberTblOpen, setIsMemberTblOpen] = useState({
-    isOpen: false,
-    classData: {},
-  });
+  const { user } = useUser();
 
   const handleOnchange = (e) => {
     const { name, value } = e.target;
@@ -54,11 +52,15 @@ const ClassroomManagementPage = () => {
 
   const getClassrooms = async () => {
     try {
-      const response = await apiClient.post("/classrooms");
-      console.log("classrooms:", response.data);
-      setClassrooms(response.data);
+      if (user.role === 3) {
+        const response = await apiClient.post("/classrooms/get_by_userID");
+        setClassrooms(response.data);
+      } else {
+        const response = await apiClient.post("/classrooms");
+        setClassrooms(response.data);
+      }
     } catch (error) {
-      console.log("error:", error);
+      console.error("error:", error);
     }
   };
 
@@ -140,7 +142,6 @@ const ClassroomManagementPage = () => {
               color="yeloh"
               variant="icon"
               onClick={() => {
-                console.log("adding");
                 setIsAddMemberOpen(true);
                 setSelected(params.row);
               }}
@@ -168,7 +169,6 @@ const ClassroomManagementPage = () => {
               variant="icon"
               onClick={() => {
                 setIsEditOpen(true);
-                console.log("selected:", params.row);
                 setSelected(params.row);
                 // setIsRemoveDialog(true);
                 // setIsOpen();
@@ -226,9 +226,9 @@ const ClassroomManagementPage = () => {
         }}
       >
         <Grid
-          size={{md:12}}
+          size={{ md: 12 }}
           sx={{
-            display:"flex",
+            display: "flex",
             p: "0.5rem",
             m: 0,
             height: "8%",

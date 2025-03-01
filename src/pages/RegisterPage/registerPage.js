@@ -70,7 +70,7 @@ const RegisterPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("data:", formData);
+    
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -440,7 +440,6 @@ const RegisterPage = () => {
       const response = await apiClient.post("/users/register", formData, {
         headers: { "Content-Type": "application/json" },
       });
-      console.log("User registered successfully:", response.data);
       stepForward();
       setSnackbar({
         open: true,

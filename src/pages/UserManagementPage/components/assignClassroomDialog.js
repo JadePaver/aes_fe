@@ -58,9 +58,6 @@ const AssignClassroomDialog = ({ isOpen, handleClose, refresh, selected }) => {
     try {
       const response = await apiClient.post(`/classrooms/`);
 
-      console.log("classrooms:", response.data);
-      console.log("selec:", selected);
-
       setClassrooms(response.data);
     } catch (error) {
       console.error("Error fetching classrooms:", error);
@@ -72,7 +69,6 @@ const AssignClassroomDialog = ({ isOpen, handleClose, refresh, selected }) => {
       setSelectedClass(null);
       getClassrooms();
     }
-    console.log("selected:", selected);
   }, [isOpen]);
 
   return (
